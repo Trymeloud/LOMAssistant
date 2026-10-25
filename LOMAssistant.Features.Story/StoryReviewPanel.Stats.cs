@@ -896,6 +896,8 @@ public partial class StoryReviewPanel
 	/// <summary>放不下就截短加「…」。</summary>
 	private static string Fit(string text, GUIStyle style, float width)
 	{
+		text = TextConverter.ForDisplay(text);
+
 		if (string.IsNullOrEmpty(text) || style.CalcSize(new GUIContent(text)).x <= width)
 		{
 			return text ?? "";

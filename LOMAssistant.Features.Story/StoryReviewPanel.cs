@@ -851,18 +851,23 @@ public partial class StoryReviewPanel : MonoBehaviour
 		var lines = new List<string>();
 		foreach (StoryEndingWay way in ending.Ways.Take(4))
 		{
-			string head = way.Mission != null ? $"在{(way.Mission.Main ? "主线" : "支线")}「{way.Mission.Title}」（{way.Mission.When}）" : "在剧本 " + way.Script;
+			bool korean = TextConverter.DisplayLanguage == UiText.Korean;
+			string head = korean
+				? (way.Mission != null
+					? $"{(way.Mission.Main ? "주요 이야기" : "곁가지 이야기")} 「{way.Mission.Title}」 ({TextConverter.ForDisplay(way.Mission.When)})"
+					: "스크립트 " + way.Script)
+				: (way.Mission != null ? $"在{(way.Mission.Main ? "主线" : "支线")}「{way.Mission.Title}」（{way.Mission.When}）" : "在剧本 " + way.Script);
 			var parts = way.Path.Select(StoryScripts.Describe).ToList();
 			if (way.LostDuel)
-			{
-				parts.Add("决斗输了");
-			}
-			string steps = parts.Count > 0 ? "：" + string.Join(" → ", parts.ToArray()) : "：走到这一段就会触发";
+				parts.Add(korean ? "결투에서 패배" : "决斗输了");
+			string steps = parts.Count > 0 ? ": " + string.Join(" → ", parts.ToArray()) : (korean ? ": 해당 구간에 도달하면 발생" : "：走到这一段就会触发");
 			lines.Add(OnPaper(head + steps));
 		}
 		if (ending.Ways.Count > 4)
 		{
-			lines.Add($"<color=#73644F>还有 {ending.Ways.Count - 4} 处</color>");
+			lines.Add(TextConverter.DisplayLanguage == UiText.Korean
+				? $"<color=#73644F>추가 발생 위치 {ending.Ways.Count - 4}곳</color>"
+				: $"<color=#73644F>还有 {ending.Ways.Count - 4} 处</color>");
 		}
 		return string.Join("\n", lines.ToArray());
 	}

@@ -46,7 +46,19 @@ public sealed class StoryMission
 	public string Summary = "";
 
 	/// <summary>显示用的名字：任务说明，没有就用第一条剧情记录；主线再没有就按开始剧本写成「1-1」这样的章节号，最后才用编号。</summary>
-	public string Title => Desc.Length > 0 ? Desc : Summary.Length > 0 ? (Summary.Length > 16 ? Summary.Substring(0, 16) + "…" : Summary) : Main ? ChapterOf(StartScript) ?? Key : SeriesTitle;
+	public string Title
+	{
+		get
+		{
+			string raw = Desc.Length > 0 ? Desc : Summary.Length > 0 ? (Summary.Length > 16 ? Summary.Substring(0, 16) + "…" : Summary) : Main ? ChapterOf(StartScript) ?? Key : SeriesTitle;
+			if (TextConverter.DisplayLanguage != UiText.Korean)
+				return raw;
+			// Developer-authored mission descriptions often join two names with " - ".
+			// Translate each full name BEFORE it is embedded in the combined label.
+			return string.Join(" - ", TextConverter.ToSimplified(raw).Split(new[] { " - " }, StringSplitOptions.None)
+				.Select(part => TextConverter.ForDisplay(part.Trim())).ToArray());
+		}
+	}
 
 	private static readonly System.Text.RegularExpressions.Regex Chapter = new System.Text.RegularExpressions.Regex(@"^ch(\d+)_(\d+)");
 
@@ -667,7 +679,7 @@ public static class StoryAtlas
 				string text = LibraryText("Position/Name/" + key, "");
 				if (text.Length > 0)
 				{
-					return text;
+					return TextConverter.ForDisplay(TextConverter.ToSimplified(text));
 				}
 			}
 		}
@@ -675,7 +687,7 @@ public static class StoryAtlas
 		{
 			FileLogger.Log("地点名取不到 " + name + ": " + e.Message);
 		}
-		return TextConverter.ToSimplified(name);
+		return TextConverter.ForDisplay(TextConverter.ToSimplified(name));
 	}
 
 	private static string LibraryText(string key, string fallback)

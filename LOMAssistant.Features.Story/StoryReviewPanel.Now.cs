@@ -211,6 +211,31 @@ public partial class StoryReviewPanel
 	private static string ColorDeltas(string text) =>
 		Delta.Replace(text, m => (m.Groups[1].Value == "+" ? "<color=#2F6B3A>" : "<color=#A3302A>") + m.Value + "</color>");
 
+	// Translate each mission-title segment separately. IDs and internal keys stay unchanged.
+	private static string LocalizeNowMissionTitle(string title)
+	{
+		if (TextConverter.DisplayLanguage != UiText.Korean)
+		{
+			return title;
+		}
+		return string.Join(" - ", TextConverter.ToSimplified(title ?? "")
+			.Split(new[] { " - " }, StringSplitOptions.None)
+			.Select(part => TextConverter.ForDisplay(part.Trim())).ToArray());
+	}
+
+	// Developer-only PositionType names are often embedded in a longer description.
+	// Convert just the location value, preserving the original condition and flag IDs.
+	private static string LocalizeNowMissionDescription(string description)
+	{
+		if (TextConverter.DisplayLanguage != UiText.Korean)
+		{
+			return description;
+		}
+		return System.Text.RegularExpressions.Regex.Replace(
+			description ?? "", @"(?m)^(位置：)([^\r\n]*)",
+			m => m.Groups[1].Value + TextConverter.ForDisplay(TextConverter.ToSimplified(m.Groups[2].Value.Trim())));
+	}
+
 	private static NowSnapshot BuildNow()
 	{
 		var now = new NowSnapshot { Script = OptionInfoPatch.LastScriptKey ?? "" };
@@ -274,9 +299,9 @@ public partial class StoryReviewPanel
 				now.Missions.Add(new NowMission
 				{
 					Main = true,
-					Title = TextConverter.ToSimplified(mainTitle.Replace("\n", " ")),
-					Desc = OnPaper(TextConverter.ToSimplified(mainDesc).Trim()),
-					Place = place == "無" ? "" : place,
+					Title = LocalizeNowMissionTitle(TextConverter.ToSimplified(mainTitle.Replace("\n", " "))),
+					Desc = OnPaper(LocalizeNowMissionDescription(TextConverter.ToSimplified(mainDesc).Trim())),
+					Place = (place == "無" || place == "无") ? "" : (TextConverter.DisplayLanguage == UiText.Korean ? TextConverter.ForDisplay(place) : place),
 					Ready = missions != null && missions.MainMissionStart && missions.MainCheckData == main && !string.IsNullOrEmpty(main.StartScript)
 				});
 			}
@@ -287,9 +312,9 @@ public partial class StoryReviewPanel
 				string place = TextConverter.ToSimplified(check.Position.ToString());
 				now.Missions.Add(new NowMission
 				{
-					Title = TextConverter.ToSimplified(pair.Value.Item1.Replace("\n", " ")),
-					Desc = OnPaper(TextConverter.ToSimplified(pair.Value.Item2).Trim()),
-					Place = place == "無" ? "" : place,
+					Title = LocalizeNowMissionTitle(TextConverter.ToSimplified(pair.Value.Item1.Replace("\n", " "))),
+					Desc = OnPaper(LocalizeNowMissionDescription(TextConverter.ToSimplified(pair.Value.Item2).Trim())),
+					Place = (place == "無" || place == "无") ? "" : (TextConverter.DisplayLanguage == UiText.Korean ? TextConverter.ForDisplay(place) : place),
 					Ready = active != null && active.Values.Contains(check) && !string.IsNullOrEmpty(check.StartScript)
 				});
 			}

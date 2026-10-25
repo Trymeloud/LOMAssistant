@@ -450,19 +450,24 @@ public static class StoryScripts
 	/// <summary>一步分岔写成一句话，条件带当前值。</summary>
 	public static string Describe(StoryStep step)
 	{
+		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
 		switch (step.Kind)
 		{
 			case StoryStep.Option:
 				string need = step.Requirement.Length > 0 ? DataHelper.ParseConditionCheckpoint(step.Requirement) : "";
+				if (korean)
+					return "선택 「" + OptionText(step.Key) + "」" + (need.Length > 0 ? " (필요: " + TextConverter.ForDisplay(TextConverter.ToSimplified(need)) + ")" : "");
 				return "选「" + OptionText(step.Key) + "」" + (need.Length > 0 ? "（需 " + TextConverter.ToSimplified(need) + "）" : "");
 			case StoryStep.Dice:
+				if (korean)
+					return "주사위 판정 「" + OptionText(step.Key) + "」" + (step.Range.Length > 0 ? " (" + step.Range + ")" : "");
 				return "掷骰「" + OptionText(step.Key) + "」" + (step.Range.Length > 0 ? "（" + step.Range + "）" : "");
 			default:
 				if (step.Arm == 0)
-				{
 					return Otherwise(step.Key, true);
-				}
 				string arm = DataHelper.SwitchBranchCondition(step.Key, step.Arm);
+				if (korean)
+					return arm.Length > 0 ? "조건: " + TextConverter.ForDisplay(TextConverter.ToSimplified(arm)) : "조건 불명";
 				return arm.Length > 0 ? "若 " + TextConverter.ToSimplified(arm) : "条件不明";
 		}
 	}
@@ -487,13 +492,15 @@ public static class StoryScripts
 	public static string Otherwise(string checkpoint, bool full)
 	{
 		var arms = ArmConditions(checkpoint);
+		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
 		if (arms.Count == 0)
-		{
-			return "否则";
-		}
+			return korean ? "그 외" : "否则";
 		if (!full)
-		{
 			arms = arms.Select(a => a.Length > 18 ? a.Substring(0, 18) + "…" : a).ToList();
+		if (korean)
+		{
+			arms = arms.Select(a => TextConverter.ForDisplay(a)).ToList();
+			return arms.Count == 1 ? "그 외 (불충족: " + arms[0] + ")" : "그 외 (모두 불충족: " + string.Join("; ", arms.ToArray()) + ")";
 		}
 		return arms.Count == 1 ? "否则（不满足：" + arms[0] + "）" : "否则（以下都不满足：" + string.Join("；", arms.ToArray()) + "）";
 	}
