@@ -92,7 +92,8 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/event-picker.webp" width="480" alt="Pick random events: the events that can trigger, their odds and changes">
 
-- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit.
+- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit. Turn on "Map hints: triggerable only" in settings to list only the quests that would trigger now; the rest are only counted.
+- **Item uses** (off by default, may reveal quest names): item descriptions in the bag and shops end with what using the item does and which stories check for it or take it. Setting: "Show item uses".
 - **Branch panel** (off by default, spoilers): lists the conditions of each branch check on the left, met in green and unmet in red.
 
   <img src="media/branch-panel.webp" width="480" alt="Branch panel: met conditions in green, unmet in red">
@@ -108,7 +109,7 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/anytime-save.webp" width="640" alt="Save-anywhere page: all saves, load, note, delete">
 
-- **New save/load screen** (can switch back to the original): a list with your love interest's portrait, date and note, and a detail pane with their full portrait and the first lines after loading; manual and auto saves on separate pages. It opens on the save you made last; a switch at the top right of the load page lists them by slot or newest first.
+- **New save/load screen** (can switch back to the original): a list with your love interest's portrait, date and note, and a detail pane with their full portrait and the first lines after loading; manual and auto saves on separate pages. It opens on the save you made last; a switch at the top right of the load page lists them by slot or newest first; with newest first, the save page starts with an empty slot.
 
   <img src="media/save-browser.webp" width="640" alt="New load screen: save list with portraits and notes, and a detail pane with the portrait and the dialogue after loading">
 
@@ -123,6 +124,7 @@ Switches in the training and combat groups of the settings page (F8):
 - Action points: normal / not consumed / N per period
   > ⚠️ The last two can make some story events not trigger or trigger early, and may block key main quests. Use with care and keep saves.
 - Break the 100 stat cap; training, forging and alchemy use up no attempts or points, and forging and alchemy cost no silver
+- Develop gear without story requirements (off by default): the forge and alchemy room can develop new gear and medicines before the story that unlocks them; level and sect size requirements still apply
 - Duel invincibility and no damage to enemies; no damage to your side and no ultimate cooldown in team battles
 - Duel enemy forecast (off by default): shows the enemy's chosen move; the window can be moved and resized
 - Pinball total score; the fourth senior brother sells every item (off by default)

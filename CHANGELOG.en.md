@@ -2,6 +2,15 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.3 (2026-10-26)
+
+- **Fixed time jumping twice after loading a save made mid-story**: if the story had already moved time forward, the save now records the time from the start of that scene, so replaying it after loading doesn't skip again and main quests that only trigger in one period aren't missed.
+- **Steadier AI companion connections**: the last chunk of a streamed reply from OpenAI and similar providers no longer causes an error, so long chats no longer end with "Unable to write data"; replies have no total time limit and only count as stuck after 120 seconds without data; busy providers are retried twice automatically.
+- **More accurate AI guide**: when there are several ways to do something, all of them are listed; random events on the study-abroad maps can be found by place name; duels spell out how the wake-up count from talk attacks builds up; with Claude, running out of lookup rounds no longer resets the cache.
+- **New settings**: "Map hints: triggerable only", "Develop gear without story requirements" and "Show item uses" (item descriptions in the bag and shops end with what using the item does and which stories check for it or take it).
+- **Save page**: with "Newest first", an empty slot comes first.
+- **Stats tab**: "Sect contribution" is renamed "Sect contribution threshold (10-50)"; it is a threshold the sect uses, not your contribution.
+
 ## 3.0.2 (2026-10-26)
 
 - **Fixed Claude showing "（AI 没有说话）" (no reply) after looking things up**: within one question, Claude's thinking is now passed back unchanged, so the cache no longer resets every round; if a reply still comes back empty, the AI is asked to write the answer directly from what it found.
