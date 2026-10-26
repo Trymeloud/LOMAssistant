@@ -194,7 +194,7 @@ public static class AiChat
 				}
 				break;
 			}
-			turn.Add(new ChatMessage { Role = ChatMessage.Assistant, Text = reply.Text, Calls = reply.Calls, Raw = reply.Raw });
+			turn.Add(new ChatMessage { Role = ChatMessage.Assistant, Text = reply.Text, Calls = reply.Calls, Raw = reply.Raw, Reasoning = reply.Reasoning ?? "" });
 			foreach (ToolCall call in reply.Calls)
 			{
 				Shown.Add(new Entry { Kind = Kind.Activity, Text = AiKnowledge.Activity(call.Name, call.Args) });

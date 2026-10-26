@@ -22,12 +22,16 @@ public sealed class ChatMessage
 	public string CallId = "";
 	/// <summary>Claude 回复的原始内容块（含思考块和签名）：同一问的下一轮要原样传回，否则缓存失效、它也看不到自己刚才的思考。</summary>
 	public JArray Raw;
+	/// <summary>OpenAI 兼容接口返回的思考内容（DeepSeek、Kimi、通义的 reasoning_content）：同一问里带着工具调用的那几轮要原样传回，DeepSeek 不传会报 400。</summary>
+	public string Reasoning = "";
 }
 
 public sealed class ToolCall
 {
 	public string Id = "", Name = "";
 	public JObject Args = new JObject();
+	/// <summary>调用上附带的服务商字段（Gemini 3 的思考签名在 extra_content 里），回传时原样带上。</summary>
+	public JObject Extra;
 }
 
 /// <summary>
@@ -75,6 +79,8 @@ public sealed class LlmReply
 	public string StopReason = "";
 	/// <summary>Claude 的原始内容块，见 ChatMessage.Raw。</summary>
 	public JArray Raw;
+	/// <summary>OpenAI 兼容接口的思考内容，见 ChatMessage.Reasoning。</summary>
+	public string Reasoning = "";
 }
 
 /// <summary>
@@ -207,6 +213,8 @@ public static class LlmClient
 		private readonly Decoder _decoder = Encoding.UTF8.GetDecoder();
 		private readonly StringBuilder _line = new StringBuilder();
 		private readonly StringBuilder _text = new StringBuilder();
+		private readonly StringBuilder _reasoning = new StringBuilder();
+		private readonly Dictionary<int, JObject> _extras = new Dictionary<int, JObject>();
 		private readonly SortedDictionary<int, (string Id, string Name, StringBuilder Args)> _calls = new SortedDictionary<int, (string, string, StringBuilder)>();
 		private int _in, _out, _cached;
 		private string _error;
@@ -309,9 +317,21 @@ public static class LlmClient
 				{
 					_text.Append(delta["content"].ToString());
 				}
+				if (delta["reasoning_content"]?.Type == JTokenType.String)
+				{
+					_reasoning.Append(delta["reasoning_content"].ToString());
+				}
 				foreach (JToken call in delta["tool_calls"] as JArray ?? new JArray())
 				{
 					int index = call["index"]?.Value<int>() ?? _calls.Count;
+					if (call["extra_content"] is JObject extra)
+					{
+						if (!_extras.TryGetValue(index, out JObject merged))
+						{
+							_extras[index] = merged = new JObject();
+						}
+						merged.Merge(extra);
+					}
 					if (!_calls.TryGetValue(index, out var c))
 					{
 						c = ("", "", new StringBuilder());
@@ -390,11 +410,11 @@ public static class LlmClient
 
 		public LlmReply Reply()
 		{
-			var reply = new LlmReply { Text = _text.ToString(), InputTokens = _in, OutputTokens = _out, CachedTokens = _cached, Error = _error, StopReason = _stopReason };
+			var reply = new LlmReply { Text = _text.ToString(), Reasoning = _reasoning.ToString(), InputTokens = _in, OutputTokens = _out, CachedTokens = _cached, Error = _error, StopReason = _stopReason };
 			foreach (var kv in _calls)
 			{
 				var c = kv.Value;
-				var call = new ToolCall { Id = c.Id.Length > 0 ? c.Id : Guid.NewGuid().ToString("N"), Name = c.Name, Args = ParseArgs(c.Args.ToString()) };
+				var call = new ToolCall { Id = c.Id.Length > 0 ? c.Id : Guid.NewGuid().ToString("N"), Name = c.Name, Args = ParseArgs(c.Args.ToString()), Extra = _extras.TryGetValue(kv.Key, out JObject e) ? e : null };
 				reply.Calls.Add(call);
 				if (_blocks.TryGetValue(kv.Key, out JObject b))
 				{
@@ -470,17 +490,31 @@ public static class LlmClient
 			}
 			else if (m.Role == ChatMessage.Assistant && m.Calls.Count > 0)
 			{
-				list.Add(new JObject
+				var assistant = new JObject
 				{
 					["role"] = "assistant",
 					["content"] = m.Text.Length > 0 ? m.Text : null,
-					["tool_calls"] = new JArray(m.Calls.Select(c => new JObject
+					["tool_calls"] = new JArray(m.Calls.Select(c =>
 					{
-						["id"] = c.Id,
-						["type"] = "function",
-						["function"] = new JObject { ["name"] = c.Name, ["arguments"] = c.Args.ToString(Formatting.None) }
+						var call = new JObject
+						{
+							["id"] = c.Id,
+							["type"] = "function",
+							["function"] = new JObject { ["name"] = c.Name, ["arguments"] = c.Args.ToString(Formatting.None) }
+						};
+						if (c.Extra != null)
+						{
+							call["extra_content"] = c.Extra.DeepClone();
+						}
+						return call;
 					}))
-				});
+				};
+				// 思考内容只在服务商返回过时才带（OpenAI 官方不认这个字段，它也不会返回）
+				if (m.Reasoning.Length > 0)
+				{
+					assistant["reasoning_content"] = m.Reasoning;
+				}
+				list.Add(assistant);
 			}
 			else
 			{
@@ -516,10 +550,11 @@ public static class LlmClient
 			return reply;
 		}
 		reply.Text = message["content"]?.Type == JTokenType.String ? message["content"].ToString() : "";
+		reply.Reasoning = message["reasoning_content"]?.Type == JTokenType.String ? message["reasoning_content"].ToString() : "";
 		reply.StopReason = json["choices"]?[0]?["finish_reason"]?.ToString() ?? "";
 		foreach (JToken call in message["tool_calls"] as JArray ?? new JArray())
 		{
-			reply.Calls.Add(new ToolCall { Id = call["id"]?.ToString() ?? Guid.NewGuid().ToString("N"), Name = call["function"]?["name"]?.ToString() ?? "", Args = ParseArgs(call["function"]?["arguments"]?.ToString()) });
+			reply.Calls.Add(new ToolCall { Id = call["id"]?.ToString() ?? Guid.NewGuid().ToString("N"), Name = call["function"]?["name"]?.ToString() ?? "", Args = ParseArgs(call["function"]?["arguments"]?.ToString()), Extra = call["extra_content"] as JObject });
 		}
 		if (json["usage"] is JObject usage)
 		{
