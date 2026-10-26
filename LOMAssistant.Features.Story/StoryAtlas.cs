@@ -50,13 +50,14 @@ public sealed class StoryMission
 	{
 		get
 		{
-			string raw = Desc.Length > 0 ? Desc : Summary.Length > 0 ? (Summary.Length > 16 ? Summary.Substring(0, 16) + "…" : Summary) : Main ? ChapterOf(StartScript) ?? Key : SeriesTitle;
+			string raw = Desc.Length > 0 ? Desc : Summary.Length > 0 ? Summary : Main ? ChapterOf(StartScript) ?? Key : SeriesTitle;
 			if (TextConverter.DisplayLanguage != UiText.Korean)
-				return raw;
+				return Desc.Length == 0 && Summary.Length > 16 ? Summary.Substring(0, 16) + "…" : raw;
 			// Developer-authored mission descriptions often join two names with " - ".
 			// Translate each full name BEFORE it is embedded in the combined label.
-			return string.Join(" - ", TextConverter.ToSimplified(raw).Split(new[] { " - " }, StringSplitOptions.None)
+			string translated = string.Join(" - ", TextConverter.ToSimplified(raw).Split(new[] { " - " }, StringSplitOptions.None)
 				.Select(part => TextConverter.ForDisplay(part.Trim())).ToArray());
+			return Desc.Length == 0 && Summary.Length > 0 && translated.Length > 16 ? translated.Substring(0, 16) + "…" : translated;
 		}
 	}
 

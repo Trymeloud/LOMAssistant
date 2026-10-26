@@ -82,6 +82,7 @@ internal static class Program
         }
         Console.WriteLine("PASS: " + count + " translation checks");
         if (args.Length > 1) Audit.Run(args[1]);
+        if (args.Length > 3) FlagAudit.Run(args[2], args[3]);
     }
 }
 

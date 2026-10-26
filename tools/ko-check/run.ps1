@@ -1,3 +1,4 @@
+param([string]$GameFlags, [string]$LiveConditions)
 $ErrorActionPreference = 'Stop'
 $root = Split-Path (Split-Path $PSScriptRoot -Parent) -Parent
 $output = Join-Path $root 'bin/ko-check'
@@ -13,6 +14,7 @@ Get-ChildItem $framework.FullName -Filter '*.dll' | ForEach-Object { $arguments 
 foreach ($file in @('UiText', 'UiTextEnglish', 'UiQuestNames', 'UiConditionNames', 'UiFlagNames', 'UiTextKorean', 'UiTextKorean.Data', 'UiTextKorean.Notes')) { $arguments += "$root/LOMAssistant/$file.cs" }
 $arguments += "$PSScriptRoot/Program.cs"
 $arguments += "$PSScriptRoot/Audit.cs"
+$arguments += "$PSScriptRoot/FlagAudit.cs"
 foreach ($assembly in @('Microsoft.CodeAnalysis', 'Microsoft.CodeAnalysis.CSharp')) {
     $file = Join-Path (Split-Path $compiler -Parent) "$assembly.dll"
     $arguments += "-r:$file"
@@ -22,5 +24,7 @@ foreach ($assembly in @('Microsoft.CodeAnalysis', 'Microsoft.CodeAnalysis.CSharp
 if ($LASTEXITCODE -ne 0) { throw 'Check compilation failed.' }
 $runtime = @{runtimeOptions = @{tfm = $framework.Name; framework = @{name='Microsoft.NETCore.App'; version=$ref.Name}; rollForward='LatestMinor'}}
 $runtime | ConvertTo-Json -Depth 5 | Set-Content "$output/ko-check.runtimeconfig.json" -Encoding UTF8
-& dotnet "$output/ko-check.dll" "$root/LOMAssistant/conditions.json.gz" $root
+$checkArgs = @("$output/ko-check.dll", "$root/LOMAssistant/conditions.json.gz", $root)
+if ($GameFlags) { $checkArgs += @($GameFlags, $LiveConditions) }
+& dotnet @checkArgs
 if ($LASTEXITCODE -ne 0) { throw 'Translation checks failed.' }

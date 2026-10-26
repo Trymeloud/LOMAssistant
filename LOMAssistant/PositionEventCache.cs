@@ -87,12 +87,15 @@ public class PositionEventCache
 		PositionResultConfig config = checkPointManager != null ? checkPointManager.GetFieldValue<PositionResultConfig>("_position") : null;
 		if (config != null)
 		{
-			return _config = config;
+			_config = config;
+			EventNameKorean.Export(_config);
+			return _config;
 		}
 		if (_config == null)
 		{
 			_config = UnityEngine.Resources.FindObjectsOfTypeAll<PositionResultConfig>().FirstOrDefault();
 		}
+		EventNameKorean.Export(_config);
 		return _config;
 	}
 

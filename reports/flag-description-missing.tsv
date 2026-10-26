@@ -1,0 +1,48 @@
+﻿id	cause	original_description	translated_description
+G00003	EXISTING_TRANSLATION_NOT_MATCHED	大师兄对龙湘的好感 最终决定大师兄会否和龙湘在一起。\r =0，主角不攻略龙湘，龙湘会追着大师兄跑\r =1，主角攻略龙湘，大师兄会退让\r =2，主角攻略龙湘，大师兄会和你决斗	대사형의 용상 호감도 最终决定대사형会否和용상在一起。\r =0，主角不용상 공략，용상会追着대사형跑\r =1，主角용상 공략，대사형会退让\r =2，主角용상 공략，대사형会和你决斗
+M10012	EXISTING_TRANSLATION_NOT_MATCHED	惜花令对大师兄评价\r 1. 帮大师兄说话\r 2 不帮大师兄说话	석화령의 대사형 평가\r 1. 帮대사형说话\r 2 不帮대사형说话
+M20001	EXISTING_TRANSLATION_NOT_MATCHED	小师妹南宫家宴参战 1: 参战	소사매가 남궁세가 연회에 참전 1: 参战
+M20008	EXISTING_TRANSLATION_NOT_MATCHED	留学 1: 青城 2: 崆峒	유학 1: 青城 2: 崆峒
+M20011	EXISTING_TRANSLATION_NOT_MATCHED	崆峒进的门派\r 1.飞天门\r 2.夺魄门\r 3.玄功门\r 4.铁拳门	공동에서 들어간 문파\r 1.飞天门\r 2.夺魄门\r 3.玄功门\r 4.铁拳门
+M20028	EXISTING_TRANSLATION_NOT_MATCHED	离家出走路线\r 1. 破庙\r 2. 客栈	가출 경로\r 1. 破庙\r 2. 客栈
+M20035	EXISTING_TRANSLATION_NOT_MATCHED	与唐大鲸决斗後续\r 1. 打赢\r 2. 二师兄罩\r 3. 叶云裳罩	당대경과의 결투 후속 이야기\r 1. 打赢\r 2. 이사형罩\r 3. 엽운상罩
+M20037	EXISTING_TRANSLATION_NOT_MATCHED	你回程的遭遇\r 1. 山猪\r 2. 山贼\r 3. 小师妹	귀로에서 겪은 일\r 1. 山猪\r 2. 山贼\r 3. 소사매
+M30005	EXISTING_TRANSLATION_NOT_MATCHED	官兵大战丐帮的结果\r 1:官兵优势\r 2:丐帮优势\r 3.别派人马	관군과 개방의 전투 결과\r 1:官兵优势\r 2:개방优势\r 3.别派人马
+M30007	EXISTING_TRANSLATION_NOT_MATCHED	抓获丐帮数量\r 1:两成\r 2:五成	개방 포로 수\r 1:两成\r 2:五成
+M40020	EXISTING_TRANSLATION_NOT_MATCHED	卧云岗回程结果\r 1.被金乌上人敲头\r 2.被申屠龙吸内力	와운강 귀로 결과\r 1.금오상인에게 머리를 맞음\r 2.被신도룡吸내력
+M40036	EXISTING_TRANSLATION_NOT_MATCHED	决斗卧云岗路线\r 1 不跟随大师兄\r 2 跟随大师兄	와운강 결투 분기\r 1 不跟随대사형\r 2 跟随대사형
+M40064	EXISTING_TRANSLATION_NOT_MATCHED	进入世外桃源的来源\r 1. 真正的敌人\r 2. 收功\r 3. 其他	세외도원 진입 경로\r 1. 真正的敌人\r 2. 收功\r 3. 其他
+M50008	EXISTING_TRANSLATION_NOT_MATCHED	解无尘VS南宫深\r 1. 南宫深胜\r 2. 解无尘胜	해무진 대 남궁심\r 1. 남궁심胜\r 2. 해무진胜
+M50013	EXISTING_TRANSLATION_NOT_MATCHED	决斗崆峒派\r 1. 围殴\r 2. 单挑决斗金乌上人	공동파와 결투\r 1. 围殴\r 2. 单挑决斗금오상인
+M50017	EXISTING_TRANSLATION_NOT_MATCHED	第一次决斗金乌上人结果\r 1. 胜\r 2. 败	금오상인과의 첫 결투 결과\r 1. 胜\r 2. 败
+M50022	EXISTING_TRANSLATION_NOT_MATCHED	夏侯兰树屋规格\r 1. 普通\r 2. 高级	하후란의 나무집 규모\r 1. 普通\r 2. 高级
+M50040	EXISTING_TRANSLATION_NOT_MATCHED	崆峒神威 来者何人\r 1. 绿色的\r 2. 红色的	공동의 신위: 누구냐\r 1. 绿色的\r 2. 红色的
+M60001	EXISTING_TRANSLATION_NOT_MATCHED	委托四师兄的事情\r 1. 想知道小师妹过得好不好\r 2. 听说华山有神仙，而神仙有灵丹	사사형에게 부탁한 일\r 1. 想知道소사매过得好不好\r 2. 听说华山有神仙，而神仙有灵丹
+M60016	EXISTING_TRANSLATION_NOT_MATCHED	前往武林大会路线\r 1. 委任师弟带队，独行江陵\r 2. 前往锦香宫作客	무림대회로 가는 경로\r 1. 委任师弟带队，独行江陵\r 2. 前往금향궁作客
+M60033	EXISTING_TRANSLATION_NOT_MATCHED	挑战上官隼胜败\r 1. 胜利\r 2. 失败	상관준과의 대결 승패\r 1. 胜利\r 2. 失败
+M60038	EXISTING_TRANSLATION_NOT_MATCHED	武林大会选择支持对象\r 1. 正道\r 2. 锦香宫	무림대회에서 지지 대상 선택\r 1. 正道\r 2. 금향궁
+M60060	EXISTING_TRANSLATION_NOT_MATCHED	伤亡结果\r 1. 死伤惨重\r 2. 有人死，有人伤\r 3. 万幸无人送命	사상자 집계\r 1. 死伤惨重\r 2. 有人死，有人伤\r 3. 万幸无人送命
+M60066	EXISTING_TRANSLATION_NOT_MATCHED	回程说点什麽\r 1. 威胁\r 2. 好言相劝\r 3. 唱歌	귀로에서 한 말\r 1. 威胁\r 2. 好言相劝\r 3. 唱歌
+M70002	EXISTING_TRANSLATION_NOT_MATCHED	檄文结果\r 1. 武林公敌\r 2. 朝廷号令	격문의 결과\r 1. 武林公敌\r 2. 朝廷号令
+M70014	EXISTING_TRANSLATION_NOT_MATCHED	三师兄的决策\r 1. 退隐江湖\r 2. 战他娘亲\r 3. 响应武林盟	삼사형의 결정\r 1. 강호 은퇴\r 2. 战他娘亲\r 3. 响应무림맹
+M70015	EXISTING_TRANSLATION_NOT_MATCHED	你的决策\r 1. 退隐江湖\r 2. 战他娘亲\r 3. 响应武林盟 4. 西武林盟	조활의 결정\r 1. 강호 은퇴\r 2. 战他娘亲\r 3. 响应무림맹 4. 西무림맹
+M70017	EXISTING_TRANSLATION_NOT_MATCHED	四师兄的决策\r 1. 退隐江湖\r 2. 战他娘亲\r 3. 响应武林盟	사사형의 결정\r 1. 강호 은퇴\r 2. 战他娘亲\r 3. 响应무림맹
+M70018	EXISTING_TRANSLATION_NOT_MATCHED	票数相同决斗胜败\r 1. 败\r 2. 胜	동수 득표에 따른 결투 승패\r 1. 败\r 2. 胜
+M70028	EXISTING_TRANSLATION_NOT_MATCHED	指派四师兄状态\r 1. 青城派\r 2. 崆峒派\r 3. 丐帮\r 4. 中小门派	사사형 파견 상태\r 1. 青城派\r 2. 공동파\r 3. 개방\r 4. 中小门派
+M70035	EXISTING_TRANSLATION_NOT_MATCHED	主角提议初始门派\r 1. 青城派\r 2. 峨嵋派\r 3. 丐帮	조활이 처음 제안한 문파\r 1. 青城派\r 2. 峨嵋派\r 3. 개방
+M70045	EXISTING_TRANSLATION_NOT_MATCHED	说服丐帮结果\r 1. 马富贵协助\r 2. 失败\r 3. 丐帮加入唐门	개방 설득 결과\r 1. 마부귀协助\r 2. 失败\r 3. 개방加入唐门
+M70046	EXISTING_TRANSLATION_NOT_MATCHED	说服峨嵋派结果\r 1. 成功\r 2. 失败\r 3. 两不相帮	아미파 설득 결과\r 1. 成功\r 2. 失败\r 3. 两不相帮
+M70048	EXISTING_TRANSLATION_NOT_MATCHED	说服青城派结果\r 1.成功\r 2.失败	청성파 설득 결과\r 1.成功\r 2.失败
+M70049	EXISTING_TRANSLATION_NOT_MATCHED	说服中小门派结果\r 1. 成功\r 2. 失败\r 3. 观望	중소 문파 설득 결과\r 1. 成功\r 2. 失败\r 3. 观望
+M70050	EXISTING_TRANSLATION_NOT_MATCHED	说服崆峒派结果\r 1. 成功\r 2. 失败	공동파 설득 결과\r 1. 成功\r 2. 失败
+M70067	EXISTING_TRANSLATION_NOT_MATCHED	西武林盟提出的人\r 1. 主角\r 2. 小菊\r 3. 丐帮	서무림맹을 제안한 사람\r 1. 主角\r 2. 위국\r 3. 개방
+M80001	EXISTING_TRANSLATION_NOT_MATCHED	8-1 你的对策\r 1. 福韫\r 2. 反论\r 3. 没什麽好说	8-1 조활의 대책\r 1. 복온\r 2. 反论\r 3. 没什麽好说
+M80007	EXISTING_TRANSLATION_NOT_MATCHED	护卫三师兄第二个刺客\r 1. 金乌上人\r 2. 火龙仙君\r 3. 释明\r 4. 店小二	삼사형 호위: 두 번째 자객\r 1. 금오상인\r 2. 화룡선군\r 3. 석명\r 4. 店小二
+M80010	EXISTING_TRANSLATION_NOT_MATCHED	唐门出击的结果1\r 1. 锦香宫加入西武林盟\r 2. 吼回去\r 3. 被吼 4. 开门迎战	당문 출격 결과 1\r 1. 금향궁加入西무림맹\r 2. 吼回去\r 3. 被吼 4. 开门迎战
+M80016	EXISTING_TRANSLATION_NOT_MATCHED	围攻唐门弟子出走结果\r 1. 一个也没走\r 2. 走了小部分\r 3.走了大部分\r 4. 走光光	당문 포위 중 제자 이탈 결과\r 1. 一个也没走\r 2. 走了小部分\r 3.走了大部分\r 4. 走光光
+M80017	EXISTING_TRANSLATION_NOT_MATCHED	武林盟的消耗\r 1. 损伤轻微\r 2. 损伤惨重\r 3. 毁灭性打击	무림맹의 소모\r 1. 损伤轻微\r 2. 损伤惨重\r 3. 毁灭性打击
+S2600_02	EXISTING_TRANSLATION_NOT_MATCHED	拜码头 分支\r 1. 成功逃跑\r 2. 铁拳飞天混战\r 3. 夏侯兰抓	입문 인사 분기\r 1. 成功逃跑\r 2. 铁拳飞天난전\r 3. 하후란抓
+S9904_01	EXISTING_TRANSLATION_NOT_MATCHED	支持肩甲状态  0:未知 1:支持 2: 反对	견갑 지원 상태  0:未知 1:支持 2: 反对
+M30052	FULL_TRANSLATION_MISSING	青城留学 云裳给申屠龙的秘笈\r 1. 雪球\r 2. 盘古\r 3. 斩天	청성 유학: 엽운상이 신도룡에게 준 비급\r 1. 雪球\r 2. 盘古\r 3. 斩天
+M80006	FULL_TRANSLATION_MISSING	护卫三师兄第一个刺客\r 1. 谭霸刀\r 2. 方震天\r 3. 唐衫	삼사형 호위: 첫 번째 자객\r 1. 담패도\r 2. 方震天\r 3. 당삼
+M80011	FULL_TRANSLATION_MISSING	东西武林盟在唐门的决策\r 1. 护卫三师兄\r 2. 唐门出击	당문에서 동서 무림맹이 내린 결정\r 1. 护卫삼사형\r 2. 唐门出击

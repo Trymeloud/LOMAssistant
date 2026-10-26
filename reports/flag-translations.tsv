@@ -1,0 +1,885 @@
+id	asset	name_status	full_description_status	original_name	translated_name	original_description	translated_description
+A00001	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+A00002	globalgamemanagers.assets	OK	OK	旗标暂存2	임시 플래그 2	旗标暂存2	임시 플래그 2
+A00003	globalgamemanagers.assets	OK	OK	旗标暂存3	임시 플래그 3	旗标暂存3	임시 플래그 3
+A00004	globalgamemanagers.assets	OK	OK	旗标暂存4	임시 플래그 4	旗标暂存4	임시 플래그 4
+A00005	globalgamemanagers.assets	OK	OK	旗标暂存5	임시 플래그 5	旗标暂存5	임시 플래그 5
+A00006	globalgamemanagers.assets	OK	OK	旗标暂存6	임시 플래그 6	旗标暂存6	임시 플래그 6
+ActionCheck01	globalgamemanagers.assets	OK	OK	任务行动次数检查	임무 행동 횟수 확인	任务行动次数检查	임무 행동 횟수 확인
+Back_02_501_01	globalgamemanagers.assets	OK	OK	後山挑战龙湘次数	뒷산에서 용상에게 도전한 횟수	後山挑战龙湘次数	뒷산에서 용상에게 도전한 횟수
+Back_Work_M_02	globalgamemanagers.assets	OK	OK	触发登崖眺望	절벽에 올라 전망 보기 발생	触发登崖眺望	절벽에 올라 전망 보기 발생
+BattleProgress_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+BattleProgress_02	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+BattleProgress_03	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+BattleResult_001	globalgamemanagers.assets	OK	OK	通用战役结果	공통 전역 결과	通用战役结果	공통 전역 결과
+BattleResult_002	globalgamemanagers.assets	OK	OK	通用战役结果	공통 전역 결과	通用战役结果	공통 전역 결과
+C00000	globalgamemanagers.assets	OK	OK	通用决斗成败	공통 결투 승패	通用决斗成败	공통 결투 승패
+C00001	globalgamemanagers.assets	OK	OK	煎药决斗大师兄成败	약 달이기: 대사형과의 결투 승패	煎药决斗大师兄成败	약 달이기: 대사형과의 결투 승패
+C00002	globalgamemanagers.assets	OK	OK	决斗龙大侠成败	용 대협과의 결투 승패	决斗龙大侠成败	용 대협과의 결투 승패
+C00003	globalgamemanagers.assets	OK	OK	决斗万里鹏程 - 使用回合次数结果	만리붕정과의 결투: 소요 턴 수	决斗万里鹏程 - 使用回合次数结果	만리붕정과의 결투: 소요 턴 수
+C00004	globalgamemanagers.assets	OK	OK	决斗阎关三煞成败	염관삼살과의 결투 승패	决斗阎关三煞成败	염관삼살과의 결투 승패
+C00005	globalgamemanagers.assets	OK	OK	毛二壮决斗结果	모이장과의 결투 결과	毛二壮决斗结果	모이장과의 결투 결과
+C30000	globalgamemanagers.assets	OK	OK	小梅练武场决斗次数	연무장에서 우소매와 결투한 횟수	小梅练武场决斗次数	연무장에서 우소매와 결투한 횟수
+Center_Free_01	globalgamemanagers.assets	OK	OK	练武场团队次数	연무장 단체 수련 횟수	练武场团队次数	연무장 단체 수련 횟수
+Craft_Work_302_001	globalgamemanagers.assets	OK	OK	二师兄限定	이사형 한정	二师兄限定	이사형 한정
+D00001	globalgamemanagers.assets	OK	OK	剧本1-4-3-5 选择「没错，我就是叶云舟。」	대본 1-4-3-5: 「맞아, 내가 바로 엽운주다.」 선택	剧本1-4-3-5 选择「没错，我就是叶云舟。」	대본 1-4-3-5: 「맞아, 내가 바로 엽운주다.」 선택
+Demo	globalgamemanagers.assets	OK	OK	试玩版	체험판	试玩版	체험판
+Door_Work_S_01	globalgamemanagers.assets	OK	OK	出门采买发生成功次数	장보기에 성공한 횟수	出门采买发生成功次数	장보기에 성공한 횟수
+E00001	globalgamemanagers.assets	OK	OK	招募弟子遇见飞石帮被殴打一顿	제자 모집 중 비석방에게 구타당함	招募弟子遇见飞石帮被殴打一顿	제자 모집 중 비석방에게 구타당함
+E00002	globalgamemanagers.assets	OK	OK	叶云舟0号线，乱拳打死阎关三煞	엽운주 0번 분기: 마구 휘두른 주먹으로 염관삼살을 죽임	叶云舟0号线，乱拳打死阎关三煞	엽운주 0번 분기: 마구 휘두른 주먹으로 염관삼살을 죽임
+E00003	globalgamemanagers.assets	OK	OK	与飞石帮和解	비석방과 화해	与飞石帮和解	비석방과 화해
+E00004	globalgamemanagers.assets	OK	OK	曾跟刘颚一起袭击南嵩山	유악과 함께 남숭산을 습격한 적 있음	曾跟刘颚一起袭击南嵩山	유악과 함께 남숭산을 습격한 적 있음
+E00005	globalgamemanagers.assets	OK	OK	点苍剑鬼	점창검귀	点苍剑鬼	점창검귀
+E00006	globalgamemanagers.assets	OK	OK	叶云裳病情	엽운상의 병세	叶云裳病情	엽운상의 병세
+E00007	globalgamemanagers.assets	OK	OK	飞石帮来访时选择招待	비석방 방문 시 대접하기 선택	飞石帮来访时选择招待	비석방 방문 시 대접하기 선택
+E00008	globalgamemanagers.assets	OK	OK	曾经被嵩山派抓走	숭산파에 붙잡힌 적 있음	曾经被嵩山派抓走	숭산파에 붙잡힌 적 있음
+E00009	globalgamemanagers.assets	OK	OK	辣眼郎中	눈이 매운 의원	辣眼郎中	눈이 매운 의원
+E00010	globalgamemanagers.assets	OK	OK	李大夫对你友善	이 의원이 조활에게 우호적	李大夫对你友善	이 의원이 조활에게 우호적
+E00011	globalgamemanagers.assets	OK	OK	龙湘欠你一顿饭	용상에게 밥 한 끼를 얻어먹기로 함	龙湘欠你一顿饭	용상에게 밥 한 끼를 얻어먹기로 함
+E00012	globalgamemanagers.assets	OK	OK	打算还龙湘钱	용상에게 돈을 갚기로 함	打算还龙湘钱	용상에게 돈을 갚기로 함
+E00013	globalgamemanagers.assets	OK	OK	触发过二师兄团练	이사형의 단체 수련 발생 이력	触发过二师兄团练	이사형의 단체 수련 발생 이력
+E00014	globalgamemanagers.assets	OK	OK	触发过医治叶云裳	엽운상 치료 발생 이력	触发过医治叶云裳	엽운상 치료 발생 이력
+E00015	globalgamemanagers.assets	OK	OK	0号剧情中，选择「既然云裳如今也算是我妹妹……」	0번 스토리: 「운상도 이제 내 여동생이나 마찬가지니……」 선택	0号剧情中，选择「既然云裳如今也算是我妹妹……」	0번 스토리: 「운상도 이제 내 여동생이나 마찬가지니……」 선택
+E00016	globalgamemanagers.assets	OK	OK	藏宝图中，江湖少侠已经还过钱了	보물지도: 강호 소협에게 돈을 돌려받음	藏宝图中，江湖少侠已经还过钱了	보물지도: 강호 소협에게 돈을 돌려받음
+E00017	globalgamemanagers.assets	OK	OK	完竟剑	완경검	完竟剑	완경검
+E10000	globalgamemanagers.assets	OK	OK	大师兄不在唐门	대사형이 당문에 없음	大师兄不在唐门	대사형이 당문에 없음
+E10001	globalgamemanagers.assets	OK	OK	二师兄不在唐门	이사형이 당문에 없음	二师兄不在唐门	이사형이 당문에 없음
+E10002	globalgamemanagers.assets	OK	OK	三师兄为代掌门	삼사형이 장문 대리를 맡음	三师兄为代掌门	삼사형이 장문 대리를 맡음
+E10003	globalgamemanagers.assets	OK	OK	掌门人不在唐门	장문인이 당문에 없음	掌门人不在唐门	장문인이 당문에 없음
+E10004	globalgamemanagers.assets	OK	OK	小师妹不在唐门	소사매가 당문에 없음	小师妹不在唐门	소사매가 당문에 없음
+E10005	globalgamemanagers.assets	OK	OK	四师兄不在唐门	사사형이 당문에 없음	四师兄不在唐门	사사형이 당문에 없음
+E10006	globalgamemanagers.assets	OK	OK	三师兄不在唐门	삼사형이 당문에 없음	三师兄不在唐门	삼사형이 당문에 없음
+E11000	globalgamemanagers.assets	OK	OK	主角不在唐门	조활이 당문에 없음	主角不在唐门	조활이 당문에 없음
+E12000	globalgamemanagers.assets	OK	OK	叶云裳在唐门	엽운상이 당문에 머무름	叶云裳在唐门	엽운상이 당문에 머무름
+E12001	globalgamemanagers.assets	OK	OK	上官萤在唐门	상관형이 당문에 머무름	上官萤在唐门	상관형이 당문에 머무름
+E12002	globalgamemanagers.assets	OK	OK	小菊在唐门	위국이 당문에 머무름	小菊在唐门	위국이 당문에 머무름
+E12003	globalgamemanagers.assets	OK	OK	小梅在唐门	우소매가 당문에 머무름	小梅在唐门	우소매가 당문에 머무름
+E12004	globalgamemanagers.assets	OK	OK	小竹在唐门	욱죽이 당문에 머무름	小竹在唐门	욱죽이 당문에 머무름
+E12005	globalgamemanagers.assets	OK	OK	龙湘在唐门	용상이 당문에 머무름	龙湘在唐门	용상이 당문에 머무름
+E12006	globalgamemanagers.assets	OK	OK	小兰在唐门	하후란이 당문에 머무름	小兰在唐门	하후란이 당문에 머무름
+E12100	globalgamemanagers.assets	OK	OK	叶云舟在唐门	엽운주가 당문에 머무름	叶云舟在唐门	엽운주가 당문에 머무름
+E12101	globalgamemanagers.assets	OK	OK	假赵活在唐门	가짜 조활이 당문에 머무름	假赵活在唐门	가짜 조활이 당문에 머무름
+E12102	globalgamemanagers.assets	OK	OK	马富贵在唐门	마부귀가 당문에 머무름	马富贵在唐门	마부귀가 당문에 머무름
+E12103	globalgamemanagers.assets	OK	OK	福韫在唐门	복온이 당문에 머무름	福韫在唐门	복온이 당문에 머무름
+E12104	globalgamemanagers.assets	OK	OK	画中仙在唐门	화중선이 당문에 머무름	画中仙在唐门	화중선이 당문에 머무름
+E12105	globalgamemanagers.assets	OK	OK	唐衫在唐门	당삼이 당문에 머무름	唐衫在唐门	당삼이 당문에 머무름
+E12106	globalgamemanagers.assets	OK	OK	唐芳归来	당방의 귀환	唐芳归来	당방의 귀환
+E12200	globalgamemanagers.assets	OK	OK	叶云裳曾经在唐门	엽운상이 당문에 머문 적 있음	叶云裳曾经在唐门	엽운상이 당문에 머문 적 있음
+E13001	globalgamemanagers.assets	OK	OK	收留小梅	우소매를 받아들임	收留小梅	우소매를 받아들임
+E13002	globalgamemanagers.assets	OK	OK	唐大鲸加入唐门	당대경이 당문에 입문	唐大鲸加入唐门	당대경이 당문에 입문
+E13003	globalgamemanagers.assets	OK	OK	唐娇娇加入唐门	당교교가 당문에 입문	唐娇娇加入唐门	당교교가 당문에 입문
+E13004	globalgamemanagers.assets	OK	OK	收留小竹	욱죽을 받아들임	收留小竹	욱죽을 받아들임
+E13005	globalgamemanagers.assets	OK	OK	唐杉加入唐门	당삼이 당문에 입문	唐杉加入唐门	당삼이 당문에 입문
+E13006	globalgamemanagers.assets	OK	OK	唐衫正式加入唐门	당삼이 당문에 정식 입문	唐衫正式加入唐门	당삼이 당문에 정식 입문
+E13007	globalgamemanagers.assets	OK	OK	樊啸天加入唐门	번소천이 당문에 입문	樊啸天加入唐门	번소천이 당문에 입문
+E13008	globalgamemanagers.assets	OK	OK	龙湘加入唐门	용상이 당문에 입문	龙湘加入唐门	용상이 당문에 입문
+E13009	globalgamemanagers.assets	OK	OK	叶云舟加入唐门	엽운주가 당문에 입문	叶云舟加入唐门	엽운주가 당문에 입문
+E13010	globalgamemanagers.assets	OK	OK	福韫加入唐门	복온이 당문에 입문	福韫加入唐门	복온이 당문에 입문
+E13011	globalgamemanagers.assets	OK	OK	马富贵加入唐门	마부귀가 당문에 입문	马富贵加入唐门	마부귀가 당문에 입문
+E13012	globalgamemanagers.assets	OK	OK	解无尘加入唐门	해무진이 당문에 입문	解无尘加入唐门	해무진이 당문에 입문
+E13013	globalgamemanagers.assets	OK	OK	丹霞子加入唐门	단하자가 당문에 입문	丹霞子加入唐门	단하자가 당문에 입문
+E14000	globalgamemanagers.assets	OK	OK	叶云裳死亡	엽운상 사망	叶云裳死亡	엽운상 사망
+E14001	globalgamemanagers.assets	OK	OK	福韫死亡	복온 사망	福韫死亡	복온 사망
+E14002	globalgamemanagers.assets	OK	OK	小兰死亡	하후란 사망	小兰死亡	하후란 사망
+E14003	globalgamemanagers.assets	OK	OK	释明死亡	석명 사망	释明死亡	석명 사망
+E20001	globalgamemanagers.assets	OK	OK	是否有捉谭霸刀	담패도 포획 여부	是否有捉谭霸刀	담패도 포획 여부
+E20002	globalgamemanagers.assets	OK	OK	口嚼茶	입으로 씹은 차	口嚼茶	입으로 씹은 차
+E20003	globalgamemanagers.assets	OK	OK	揍过方震天	방진천을 때린 적 있음	揍过方震天	방진천을 때린 적 있음
+E20004	globalgamemanagers.assets	OK	OK	支线：乞丐与和尚完成	곁가지 이야기 「거지와 승려」 완료	支线：乞丐与和尚完成	곁가지 이야기 「거지와 승려」 완료
+E20005	globalgamemanagers.assets	OK	OK	揍福韫	복온을 때림	揍福韫	복온을 때림
+E21001	globalgamemanagers.assets	OK	OK	樊啸天拜师夏侯兰	번소천이 하후란의 제자가 됨	樊啸天拜师夏侯兰	번소천이 하후란의 제자가 됨
+E21002	globalgamemanagers.assets	OK	OK	支线：万寿屍心丹完成	곁가지 이야기 「만수시심단」 완료	支线：万寿屍心丹完成	곁가지 이야기 「만수시심단」 완료
+E21003	globalgamemanagers.assets	OK	OK	六道之缘・畜生	육도의 인연·축생	六道之缘・畜生	육도의 인연·축생
+E21004	globalgamemanagers.assets	OK	OK	支线：小竹回家完成	곁가지 이야기 「욱죽의 귀가」 완료	支线：小竹回家完成	곁가지 이야기 「욱죽의 귀가」 완료
+E21005	globalgamemanagers.assets	OK	OK	追加小竹养成事件	욱죽 육성 이벤트 추가	追加小竹养成事件	욱죽 육성 이벤트 추가
+E21006	globalgamemanagers.assets	OK	OK	被小竹无视次数	욱죽에게 무시당한 횟수	被小竹无视次数	욱죽에게 무시당한 횟수
+E21007	globalgamemanagers.assets	OK	OK	神兵帖进度	신병첩 진행도	神兵帖进度	신병첩 진행도
+E21008	globalgamemanagers.assets	OK	OK	小竹作品	욱죽의 작품	小竹作品	욱죽의 작품
+E21009	globalgamemanagers.assets	OK	OK	仙剑被弄断	선검이 부러짐	仙剑被弄断	선검이 부러짐
+E21010	globalgamemanagers.assets	OK	OK	调戏小竹	욱죽을 놀림	调戏小竹	욱죽을 놀림
+E21011	globalgamemanagers.assets	OK	OK	六戒刀	육계도	六戒刀	육계도
+E22000	globalgamemanagers.assets	OK	OK	崆峒探险队养成事件	공동 탐험대 육성 이벤트	崆峒探险队养成事件	공동 탐험대 육성 이벤트
+E22001	globalgamemanagers.assets	OK	OK	崆峒探险队次数	공동 탐험대 활동 횟수	崆峒探险队次数	공동 탐험대 활동 횟수
+E30001	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+G00001	globalgamemanagers.assets	OK	OK	叶云裳专属的隐藏属性，会决定她看待主角的角度	엽운상이 조활을 바라보는 관점을 결정하는 숨은 수치	叶云裳专属的隐藏属性，会决定她看待主角的角度	엽운상이 조활을 바라보는 관점을 결정하는 숨은 수치
+G00002	globalgamemanagers.assets	OK	OK	小师妹对你的信赖度	소사매가 조활을 신뢰하는 정도	小师妹对你的信赖度	소사매가 조활을 신뢰하는 정도
+G00003	globalgamemanagers.assets	OK	CHINESE_REMAINS	大师兄对龙湘的好感	대사형의 용상 호감도	大师兄对龙湘的好感 最终决定大师兄会否和龙湘在一起。\r =0，主角不攻略龙湘，龙湘会追着大师兄跑\r =1，主角攻略龙湘，大师兄会退让\r =2，主角攻略龙湘，大师兄会和你决斗	대사형의 용상 호감도 最终决定대사형会否和용상在一起。\r =0，主角不용상 공략，용상会追着대사형跑\r =1，主角용상 공략，대사형会退让\r =2，主角용상 공략，대사형会和你决斗
+G00004	globalgamemanagers.assets	OK	OK	向龙湘告白	용상에게 고백	向龙湘告白	용상에게 고백
+G00005	globalgamemanagers.assets	OK	OK	向小梅告白	우소매에게 고백	向小梅告白	우소매에게 고백
+G00006	globalgamemanagers.assets	OK	OK	小竹告白	욱죽의 고백	小竹告白	욱죽의 고백
+G10001	globalgamemanagers.assets	OK	OK	已经认识上官萤	상관형과 구면	已经认识上官萤	상관형과 구면
+G10002	globalgamemanagers.assets	OK	OK	认识叶云裳	엽운상과 구면	认识叶云裳	엽운상과 구면
+G10003	globalgamemanagers.assets	OK	OK	认识龙湘	용상과 구면	认识龙湘	용상과 구면
+G10004	globalgamemanagers.assets	OK	OK	认识小梅	우소매와 구면	认识小梅	우소매와 구면
+G10005	globalgamemanagers.assets	OK	OK	认识小兰	하후란과 구면	认识小兰	하후란과 구면
+G10006	globalgamemanagers.assets	OK	OK	认识小竹	욱죽과 구면	认识小竹	욱죽과 구면
+G10007	globalgamemanagers.assets	OK	OK	认识小菊	위국과 구면	认识小菊	위국과 구면
+G10008	globalgamemanagers.assets	OK	OK	认识瑞杏	서행과 구면	认识瑞杏	서행과 구면
+G11000	globalgamemanagers.assets	OK	OK	攻略小师妹	소사매 공략	攻略小师妹	소사매 공략
+G11001	globalgamemanagers.assets	OK	OK	攻略上官萤	상관형 공략	攻略上官萤	상관형 공략
+G11002	globalgamemanagers.assets	OK	OK	攻略叶云裳	엽운상 공략	攻略叶云裳	엽운상 공략
+G11003	globalgamemanagers.assets	OK	OK	攻略龙湘	용상 공략	攻略龙湘	용상 공략
+G11004	globalgamemanagers.assets	OK	OK	攻略小梅	우소매 공략	攻略小梅	우소매 공략
+G11005	globalgamemanagers.assets	OK	OK	攻略小兰	하후란 공략	攻略小兰	하후란 공략
+G11006	globalgamemanagers.assets	OK	OK	攻略小竹	욱죽 공략	攻略小竹	욱죽 공략
+G11007	globalgamemanagers.assets	OK	OK	攻略小菊	위국 공략	攻略小菊	위국 공략
+G11008	globalgamemanagers.assets	OK	OK	攻略瑞杏	서행 공략	攻略瑞杏	서행 공략
+G20000	globalgamemanagers.assets	OK	OK	变心次数	변심 횟수	变心次数	변심 횟수
+G30000	globalgamemanagers.assets	OK	OK	认识瑞笙	서생과 구면	认识瑞笙	서생과 구면
+G30001	globalgamemanagers.assets	OK	OK	认识刘颚	유악과 구면	认识刘颚	유악과 구면
+G30002	globalgamemanagers.assets	OK	OK	认识解无尘	해무진과 구면	认识解无尘	해무진과 구면
+G30003	globalgamemanagers.assets	OK	OK	认识申屠龙	신도룡과 구면	认识申屠龙	신도룡과 구면
+G30004	globalgamemanagers.assets	OK	OK	认识千面人魔	천면인마와 구면	认识千面人魔	천면인마와 구면
+G30005	globalgamemanagers.assets	OK	OK	认识叶云舟	엽운주와 구면	认识叶云舟	엽운주와 구면
+G30006	globalgamemanagers.assets	OK	OK	认识宋悲	송비와 구면	认识宋悲	송비와 구면
+G30007	globalgamemanagers.assets	OK	OK	认识龙渊	용연과 구면	认识龙渊	용연과 구면
+G30008	globalgamemanagers.assets	OK	OK	认识丹霞子	단하자와 구면	认识丹霞子	단하자와 구면
+G30009	globalgamemanagers.assets	OK	OK	认识樊啸天	번소천과 구면	认识樊啸天	번소천과 구면
+G30010	globalgamemanagers.assets	OK	OK	认识毛二壮	모이장과 구면	认识毛二壮	모이장과 구면
+G30011	globalgamemanagers.assets	OK	OK	认识万里鹏程	만리붕정과 구면	认识万里鹏程	만리붕정과 구면
+G30012	globalgamemanagers.assets	OK	OK	认识福韫	복온과 구면	认识福韫	복온과 구면
+G30013	globalgamemanagers.assets	OK	OK	认识马富贵	마부귀와 구면	认识马富贵	마부귀와 구면
+G30014	globalgamemanagers.assets	OK	OK	认识赵逵	조규와 구면	认识赵逵	조규와 구면
+G30015	globalgamemanagers.assets	OK	OK	认识南宫浅	남궁천과 구면	认识南宫浅	남궁천과 구면
+H00001	globalgamemanagers.assets	OK	OK	青城派好感度	청성파 호감도	青城派好感度	청성파 호감도
+H00002	globalgamemanagers.assets	OK	OK	全真教好感度	전진교 호감도	全真教好感度	전진교 호감도
+H00003	globalgamemanagers.assets	OK	OK	峨嵋派好感度	아미파 호감도	峨嵋派好感度	아미파 호감도
+H00004	globalgamemanagers.assets	OK	OK	崆峒派好感度	공동파 호감도	崆峒派好感度	공동파 호감도
+H00005	globalgamemanagers.assets	OK	OK	嵩山派好感度	숭산파 호감도	嵩山派好感度	숭산파 호감도
+H00006	globalgamemanagers.assets	OK	OK	点苍派好感度	점창파 호감도	点苍派好感度	점창파 호감도
+H01001	globalgamemanagers.assets	OK	OK	南宫世家好感度	남궁세가 호감도	南宫世家好感度	남궁세가 호감도
+H01002	globalgamemanagers.assets	OK	OK	锦香宫好感度	금향궁 호감도	锦香宫好感度	금향궁 호감도
+H01003	globalgamemanagers.assets	OK	OK	上官世家好感度	상관세가 호감도	上官世家好感度	상관세가 호감도
+H02001	globalgamemanagers.assets	OK	OK	丐帮好感度	개방 호감도	丐帮好感度	개방 호감도
+H02002	globalgamemanagers.assets	OK	OK	飞石帮好感度	비석방 호감도	飞石帮好感度	비석방 호감도
+H02003	globalgamemanagers.assets	OK	OK	泥教好感度	니교 호감도	泥教好感度	니교 호감도
+H03001	globalgamemanagers.assets	OK	OK	天道	천도	天道	천도
+H03002	globalgamemanagers.assets	OK	OK	饿鬼道	아귀도	饿鬼道	아귀도
+H03003	globalgamemanagers.assets	OK	OK	地狱道	지옥도	地狱道	지옥도
+H03004	globalgamemanagers.assets	OK	OK	畜生道	축생도	畜生道	축생도
+H03005	globalgamemanagers.assets	OK	OK	人道	인도	人道	인도
+H03006	globalgamemanagers.assets	OK	OK	修罗道	수라도	修罗道	수라도
+H04001	globalgamemanagers.assets	OK	OK	千面人魔好感度	천면인마 호감도	千面人魔好感度	천면인마 호감도
+H04002	globalgamemanagers.assets	OK	OK	唐娇娇好感	당교교 호감도	唐娇娇好感	당교교 호감도
+H04003	globalgamemanagers.assets	OK	OK	孟仙谣好感	맹선요 호감도	孟仙谣好感	맹선요 호감도
+H04004	globalgamemanagers.assets	OK	OK	孟珙好感	맹공 호감도	孟珙好感	맹공 호감도
+H04005	globalgamemanagers.assets	OK	OK	丁承烈好感	정승렬 호감도	丁承烈好感	정승렬 호감도
+Kitchen_Work_M_02	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Kitchen_Work_M_03	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+M00001	globalgamemanagers.assets	OK	OK	进入叶云舟0号线	엽운주 0번 분기 진입	进入叶云舟0号线	엽운주 0번 분기 진입
+M00002	globalgamemanagers.assets	OK	OK	见石公远，帮大师兄说话	석공원을 만났을 때 대사형을 두둔함	见石公远，帮大师兄说话	석공원을 만났을 때 대사형을 두둔함
+M00003	globalgamemanagers.assets	OK	OK	提及过樊啸天	번소천을 언급한 적 있음	提及过樊啸天	번소천을 언급한 적 있음
+M00004	globalgamemanagers.assets	OK	OK	打劫山贼	산적을 약탈함	打劫山贼	산적을 약탈함
+M00005	globalgamemanagers.assets	OK	OK	乱画图卖给耕阳读书斋	낙서를 경양독서재에 팖	乱画图卖给耕阳读书斋	낙서를 경양독서재에 팖
+M00006	globalgamemanagers.assets	OK	OK	二师兄担任考官次数	이사형이 시험관을 맡은 횟수	二师兄担任考官次数	이사형이 시험관을 맡은 횟수
+M00007	globalgamemanagers.assets	OK	OK	三师兄担任考官次数	삼사형이 시험관을 맡은 횟수	三师兄担任考官次数	삼사형이 시험관을 맡은 횟수
+M00008	globalgamemanagers.assets	OK	OK	段考胜利次数	정기 시험 승리 횟수	段考胜利次数	정기 시험 승리 횟수
+M00009	globalgamemanagers.assets	OK	OK	上次段考决斗败北	지난 정기 시험 결투에서 패배	上次段考决斗败北	지난 정기 시험 결투에서 패배
+M00010	globalgamemanagers.assets	OK	OK	上官萤曾被夏侯兰绑架	상관형이 하후란에게 납치된 적 있음	上官萤曾被夏侯兰绑架	상관형이 하후란에게 납치된 적 있음
+M00011	globalgamemanagers.assets	OK	OK	雪山飞鸿爪	설산비홍조	雪山飞鸿爪	설산비홍조
+M00012	globalgamemanagers.assets	OK	OK	揍假赵活	가짜 조활을 때림	揍假赵活	가짜 조활을 때림
+M00013	globalgamemanagers.assets	OK	OK	屍弟	시제	屍弟	시제
+M00014	globalgamemanagers.assets	OK	OK	乱丢垃圾	쓰레기 무단 투기	乱丢垃圾	쓰레기 무단 투기
+M00015	globalgamemanagers.assets	OK	OK	叶云舟 木剑	엽운주: 목검	叶云舟 木剑	엽운주: 목검
+M00016	globalgamemanagers.assets	OK	OK	曾战胜过龙湘	용상에게 승리한 적 있음	曾战胜过龙湘	용상에게 승리한 적 있음
+M00017	globalgamemanagers.assets	OK	OK	曾战胜过解无尘	해무진에게 승리한 적 있음	曾战胜过解无尘	해무진에게 승리한 적 있음
+M00018	globalgamemanagers.assets	OK	OK	曾被解无尘打败过	해무진에게 패배한 적 있음	曾被解无尘打败过	해무진에게 패배한 적 있음
+M00019	globalgamemanagers.assets	OK	OK	正心堂打坐痊癒	정심당 좌선으로 완치	正心堂打坐痊癒	정심당 좌선으로 완치
+M00020	globalgamemanagers.assets	OK	OK	龙湘被石灰粉弄眼	용상의 눈에 석회가루가 들어감	龙湘被石灰粉弄眼	용상의 눈에 석회가루가 들어감
+M00021	globalgamemanagers.assets	OK	OK	支线：龙湘炒菜有触发	곁가지 이야기 「용상의 요리」 발생	支线：龙湘炒菜有触发	곁가지 이야기 「용상의 요리」 발생
+M00022	globalgamemanagers.assets	OK	OK	龙湘被革职	용상이 해임됨	龙湘被革职	용상이 해임됨
+M00023	globalgamemanagers.assets	OK	OK	龙湘被大师兄亲	대사형이 용상에게 입을 맞춤	龙湘被大师兄亲	대사형이 용상에게 입을 맞춤
+M00024	globalgamemanagers.assets	OK	OK	触发假赵活我有带秘笈的次数	가짜 조활 「비급을 가져왔다」 발생 횟수	触发假赵活我有带秘笈的次数	가짜 조활 「비급을 가져왔다」 발생 횟수
+M00025	globalgamemanagers.assets	OK	OK	殴打上官萤	상관형을 때림	殴打上官萤	상관형을 때림
+M00026	globalgamemanagers.assets	OK	OK	晁和被上官萤抓	조화가 상관형에게 붙잡힘	晁和被上官萤抓	조화가 상관형에게 붙잡힘
+M00027	globalgamemanagers.assets	OK	OK	强词夺理	억지 주장	强词夺理	억지 주장
+M00028	globalgamemanagers.assets	OK	OK	听三师兄说过岭南派的事情	삼사형에게 영남파 이야기를 들은 적 있음	听三师兄说过岭南派的事情	삼사형에게 영남파 이야기를 들은 적 있음
+M00029	globalgamemanagers.assets	OK	OK	关闭後山烤鱼养成	뒷산 생선구이 육성 종료	关闭後山烤鱼养成	뒷산 생선구이 육성 종료
+M00030	globalgamemanagers.assets	OK	OK	养成场所追加：鹤崖	육성 장소 「학애」 추가	养成场所追加：鹤崖	육성 장소 「학애」 추가
+M00031	globalgamemanagers.assets	OK	OK	前往飞天殿时，追加养成事件[飞天弟子找碴]	비천전 방문 시 「비천문 제자의 시비」 이벤트 추가	前往飞天殿时，追加养成事件[飞天弟子找碴]	비천전 방문 시 「비천문 제자의 시비」 이벤트 추가
+M00032	globalgamemanagers.assets	OK	OK	崆峒留学 瑞笙参战	공동 유학: 서생 참전	崆峒留学 瑞笙参战	공동 유학: 서생 참전
+M00033	globalgamemanagers.assets	OK	OK	友善的颜疆	우호적인 안강	友善的颜疆	우호적인 안강
+M00034	globalgamemanagers.assets	OK	OK	飞天弟子找碴 武功高强	비천문 제자의 시비: 뛰어난 무공	飞天弟子找碴 武功高强	비천문 제자의 시비: 뛰어난 무공
+M00035	globalgamemanagers.assets	OK	OK	铁拳门事件选择忍辱负重	철권문 이벤트: 굴욕을 참고 견디기 선택	铁拳门事件选择忍辱负重	철권문 이벤트: 굴욕을 참고 견디기 선택
+M00036	globalgamemanagers.assets	OK	OK	飞天门事件 南宫浅参战	비천문 이벤트: 남궁천 참전	飞天门事件 南宫浅参战	비천문 이벤트: 남궁천 참전
+M00037	globalgamemanagers.assets	OK	OK	侠义良心	협의와 양심	侠义良心	협의와 양심
+M00038	globalgamemanagers.assets	OK	OK	崆峒留学 尝试逃狱	공동 유학: 탈옥 시도	崆峒留学 尝试逃狱	공동 유학: 탈옥 시도
+M00039	globalgamemanagers.assets	OK	OK	听三师兄江湖掌故的次数	삼사형에게 강호의 옛이야기를 들은 횟수	听三师兄江湖掌故的次数	삼사형에게 강호의 옛이야기를 들은 횟수
+M00040	globalgamemanagers.assets	OK	OK	飞天门事件 选择立刻发飙	비천문 이벤트: 즉시 화내기 선택	飞天门事件 选择立刻发飙	비천문 이벤트: 즉시 화내기 선택
+M00041	globalgamemanagers.assets	OK	OK	主角骨折	조활 골절	主角骨折	조활 골절
+M00042	globalgamemanagers.assets	OK	OK	开发机关马桶	기관 변기 개발	开发机关马桶	기관 변기 개발
+M00043	globalgamemanagers.assets	OK	OK	小竹一起刷地	욱죽과 함께 바닥 닦기	小竹一起刷地	욱죽과 함께 바닥 닦기
+M00044	globalgamemanagers.assets	OK	OK	小竹 有一口井	욱죽: 우물 하나	小竹 有一口井	욱죽: 우물 하나
+M00045	globalgamemanagers.assets	OK	OK	小竹学武功	욱죽이 무공을 배움	小竹学武功	욱죽이 무공을 배움
+M00046	globalgamemanagers.assets	OK	OK	荣誉帮众	명예 방도	荣誉帮众	명예 방도
+M00047	globalgamemanagers.assets	OK	OK	开启小竹练功	욱죽과 수련 해금	开启小竹练功	욱죽과 수련 해금
+M00048	globalgamemanagers.assets	OK	OK	锻冶场性能提升	대장간 성능 향상	锻冶场性能提升	대장간 성능 향상
+M00049	globalgamemanagers.assets	OK	OK	跟小梅跑步	우소매와 달리기	跟小梅跑步	우소매와 달리기
+M00050	globalgamemanagers.assets	OK	OK	小梅屍心蛊	우소매의 시심고	小梅屍心蛊	우소매의 시심고
+M00051	globalgamemanagers.assets	OK	OK	小梅挑战第一次	우소매의 첫 도전	小梅挑战第一次	우소매의 첫 도전
+M00052	globalgamemanagers.assets	OK	OK	拒绝小梅	우소매를 거절함	拒绝小梅	우소매를 거절함
+M00053	globalgamemanagers.assets	OK	OK	小梅挑战决斗次数	우소매의 결투 도전 횟수	小梅挑战决斗次数	우소매의 결투 도전 횟수
+M00054	globalgamemanagers.assets	OK	OK	第一次触发小梅跑步	우소매와 달리기 최초 발생	第一次触发小梅跑步	우소매와 달리기 최초 발생
+M00055	globalgamemanagers.assets	OK	OK	开启弹珠台	핀볼 해금	开启弹珠台	핀볼 해금
+M00056	globalgamemanagers.assets	OK	OK	竹之心	죽지심	竹之心	죽지심
+M00057	globalgamemanagers.assets	OK	OK	改不了对二师兄的称呼	이사형을 부르는 호칭을 바꾸지 못함	改不了对二师兄的称呼	이사형을 부르는 호칭을 바꾸지 못함
+M00058	globalgamemanagers.assets	OK	OK	小竹的谎言	욱죽의 거짓말	小竹的谎言	욱죽의 거짓말
+M00059	globalgamemanagers.assets	OK	OK	曾经在三师兄闲谈中听闻过极乐左使	삼사형과의 잡담에서 극락좌사 이야기를 들은 적 있음	曾经在三师兄闲谈中听闻过极乐左使	삼사형과의 잡담에서 극락좌사 이야기를 들은 적 있음
+M10001	globalgamemanagers.assets	OK	OK	唐门收留叶式兄妹	당문이 엽씨 남매를 받아들임	唐门收留叶式兄妹	당문이 엽씨 남매를 받아들임
+M10002	globalgamemanagers.assets	OK	OK	与叶云舟对立	엽운주와 대립	与叶云舟对立	엽운주와 대립
+M10004	globalgamemanagers.assets	OK	OK	曾被刘颚绑架	유악에게 납치된 적 있음	曾被刘颚绑架	유악에게 납치된 적 있음
+M10005	globalgamemanagers.assets	OK	OK	护送上官萤	상관형 호송	护送上官萤	상관형 호송
+M10006	globalgamemanagers.assets	OK	OK	大师兄学会喇逼雕	대사형이 나비조를 익힘	大师兄学会喇逼雕	대사형이 나비조를 익힘
+M10007	globalgamemanagers.assets	OK	OK	後山蒙面人，主角说的话	뒷산의 복면인: 조활의 발언	後山蒙面人，主角说的话	뒷산의 복면인: 조활의 발언
+M10008	globalgamemanagers.assets	OK	OK	段考胜利	정기 시험 승리	段考胜利	정기 시험 승리
+M10009	globalgamemanagers.assets	OK	OK	段考考官	정기 시험 시험관	段考考官\r 1. 掌门人\r 2. 三师兄\r 3. 二师兄\r 4. 大师兄	정기 시험 시험관\r 1. 장문인\r 2. 삼사형\r 3. 이사형\r 4. 대사형
+M10010	globalgamemanagers.assets	OK	OK	龙吟功秘笈	용음공 비급	龙吟功秘笈	용음공 비급
+M10011	globalgamemanagers.assets	OK	OK	龙湘没死	용상 생존	龙湘没死	용상 생존
+M10012	globalgamemanagers.assets	OK	CHINESE_REMAINS	惜花令对大师兄评价	석화령의 대사형 평가	惜花令对大师兄评价\r 1. 帮大师兄说话\r 2 不帮大师兄说话	석화령의 대사형 평가\r 1. 帮대사형说话\r 2 不帮대사형说话
+M10013	globalgamemanagers.assets	OK	OK	初见焚香	분향과 첫 만남	初见焚香	분향과 첫 만남
+M10014	globalgamemanagers.assets	OK	OK	赶走了上官萤的仆人	상관형의 하인을 쫓아냄	赶走了上官萤的仆人	상관형의 하인을 쫓아냄
+M10015	globalgamemanagers.assets	OK	OK	曾在阎关三煞时选择逃跑	염관삼살을 만났을 때 도망치기 선택	曾在阎关三煞时选择逃跑	염관삼살을 만났을 때 도망치기 선택
+M10016	globalgamemanagers.assets	OK	OK	与龙湘姊弟相称	용상과 누나·동생 사이가 됨	与龙湘姊弟相称	용상과 누나·동생 사이가 됨
+M10017	globalgamemanagers.assets	OK	OK	触发雪山行	설산행 발생	触发雪山行	설산행 발생
+M10018	globalgamemanagers.assets	OK	OK	雪山行的盖房子次数	설산행 중 집을 지은 횟수	雪山行的盖房子次数	설산행 중 집을 지은 횟수
+M10019	globalgamemanagers.assets	OK	OK	雪山行树屋等级	설산행 나무집 등급	雪山行树屋等级	설산행 나무집 등급
+M10020	globalgamemanagers.assets	OK	OK	追加遭遇事件：夏侯兰的敌人(小兰死亡)	조우 이벤트 「하후란의 적」 추가: 하후란 사망	追加遭遇事件：夏侯兰的敌人(小兰死亡)	조우 이벤트 「하후란의 적」 추가: 하후란 사망
+M10021	globalgamemanagers.assets	OK	OK	追加遭遇事件：夏侯兰的敌人(小兰存活)	조우 이벤트 「하후란의 적」 추가: 하후란 생존	追加遭遇事件：夏侯兰的敌人(小兰存活)	조우 이벤트 「하후란의 적」 추가: 하후란 생존
+M10022	globalgamemanagers.assets	OK	OK	天王座来访	천왕좌 방문	天王座来访	천왕좌 방문
+M10023	globalgamemanagers.assets	OK	OK	支持自己当掌门	자신을 장문으로 지지	支持自己当掌门	자신을 장문으로 지지
+M20001	globalgamemanagers.assets	OK	CHINESE_REMAINS	小师妹南宫家宴参战	소사매가 남궁세가 연회에 참전	小师妹南宫家宴参战 1: 参战	소사매가 남궁세가 연회에 참전 1: 参战
+M20002	globalgamemanagers.assets	OK	OK	已经知晓了杏花仙的存在	행화선의 존재를 알고 있음	已经知晓了杏花仙的存在	행화선의 존재를 알고 있음
+M20003	globalgamemanagers.assets	OK	OK	南宫家宴采纳结论	남궁세가 연회에서 채택한 결론	南宫家宴采纳结论 1:大师兄 2:二师兄 3:三师兄	남궁세가 연회에서 채택한 결론 1:대사형 2:이사형 3:삼사형
+M20004	globalgamemanagers.assets	OK	OK	万寿屍心丹	만수시심단	万寿屍心丹	만수시심단
+M20005	globalgamemanagers.assets	OK	OK	阴阳调和治法	음양 조화 치료법	阴阳调和治法	음양 조화 치료법
+M20006	globalgamemanagers.assets	OK	OK	三师兄字画，你也有贡献	삼사형의 서화 제작에 기여	三师兄字画，你也有贡献	삼사형의 서화 제작에 기여
+M20007	globalgamemanagers.assets	OK	OK	辛儒回归唐门	신유가 당문에 복귀	辛儒回归唐门	신유가 당문에 복귀
+M20008	globalgamemanagers.assets	OK	CHINESE_REMAINS	留学	유학	留学 1: 青城 2: 崆峒	유학 1: 青城 2: 崆峒
+M20009	globalgamemanagers.assets	OK	OK	南宫来客 纠纷	남궁세가 손님과의 분쟁	南宫来客 纠纷	남궁세가 손님과의 분쟁
+M20010	globalgamemanagers.assets	OK	OK	掌门病情	장문인의 병세	掌门病情	장문인의 병세
+M20011	globalgamemanagers.assets	OK	CHINESE_REMAINS	崆峒进的门派	공동에서 들어간 문파	崆峒进的门派\r 1.飞天门\r 2.夺魄门\r 3.玄功门\r 4.铁拳门	공동에서 들어간 문파\r 1.飞天门\r 2.夺魄门\r 3.玄功门\r 4.铁拳门
+M20012	globalgamemanagers.assets	OK	OK	小梅邀请	우소매의 초대	小梅邀请	우소매의 초대
+M20013	globalgamemanagers.assets	OK	OK	抢劫\t	강도\t	抢劫	강도
+M20014	globalgamemanagers.assets	OK	OK	死亡擂台解说	죽음의 비무대 설명	死亡擂台解说	죽음의 비무대 설명
+M20015	globalgamemanagers.assets	OK	OK	死亡擂台积分	죽음의 비무대 점수	死亡擂台积分	죽음의 비무대 점수
+M20016	globalgamemanagers.assets	OK	OK	烧烤山味	산짐승 고기구이	烧烤山味	산짐승 고기구이
+M20017	globalgamemanagers.assets	OK	OK	造访铁拳门次数	철권문 방문 횟수	造访铁拳门次数	철권문 방문 횟수
+M20018	globalgamemanagers.assets	OK	OK	小说	소설	小说	소설
+M20019	globalgamemanagers.assets	OK	OK	诗词	시사	诗词	시사
+M20020	globalgamemanagers.assets	OK	OK	古文	고문	古文	고문
+M20021	globalgamemanagers.assets	OK	OK	造访夺魄森林	탈백림 방문	造访夺魄森林	탈백림 방문
+M20022	globalgamemanagers.assets	OK	OK	眼睛不安分	눈길을 가만두지 못함	眼睛不安分	눈길을 가만두지 못함
+M20023	globalgamemanagers.assets	OK	OK	前仆後继	앞사람이 쓰러져도 뒤따름	前仆後继	앞사람이 쓰러져도 뒤따름
+M20024	globalgamemanagers.assets	OK	OK	第一次遇到抢劫	강도 최초 조우	第一次遇到抢劫	강도 최초 조우
+M20025	globalgamemanagers.assets	OK	OK	捉捕谭霸刀时曾见过大师兄用飞燕流星翎粉碎画舫	담패도 포획 중 대사형이 비연유성령으로 화방을 부수는 것을 봄	捉捕谭霸刀时曾见过大师兄用飞燕流星翎粉碎画舫	담패도 포획 중 대사형이 비연유성령으로 화방을 부수는 것을 봄
+M20026	globalgamemanagers.assets	OK	OK	小师妹守护者	소사매의 수호자	小师妹守护者	소사매의 수호자
+M20027	globalgamemanagers.assets	OK	OK	唐门留学 离家出走	당문 유학: 가출	唐门留学 离家出走	당문 유학: 가출
+M20028	globalgamemanagers.assets	OK	CHINESE_REMAINS	离家出走路线	가출 경로	离家出走路线\r 1. 破庙\r 2. 客栈	가출 경로\r 1. 破庙\r 2. 客栈
+M20029	globalgamemanagers.assets	OK	OK	陋习	나쁜 버릇	陋习	나쁜 버릇
+M20030	globalgamemanagers.assets	OK	OK	和小菊下过棋	위국과 바둑을 둔 적 있음	和小菊下过棋	위국과 바둑을 둔 적 있음
+M20031	globalgamemanagers.assets	OK	OK	修仙次数	수선 횟수	修仙次数	수선 횟수
+M20032	globalgamemanagers.assets	OK	OK	唐门留学练武场次数	당문 유학 중 연무장 방문 횟수	唐门留学练武场次数	당문 유학 중 연무장 방문 횟수
+M20033	globalgamemanagers.assets	OK	OK	破庙 资讯量	폐사에서 얻은 정보량	破庙 资讯量	폐사에서 얻은 정보량
+M20034	globalgamemanagers.assets	OK	OK	被灌酒	억지로 술을 마심	被灌酒	억지로 술을 마심
+M20035	globalgamemanagers.assets	OK	CHINESE_REMAINS	与唐大鲸决斗後续	당대경과의 결투 후속 이야기	与唐大鲸决斗後续\r 1. 打赢\r 2. 二师兄罩\r 3. 叶云裳罩	당대경과의 결투 후속 이야기\r 1. 打赢\r 2. 이사형罩\r 3. 엽운상罩
+M20036	globalgamemanagers.assets	OK	OK	离家出走时三师兄有下山送钱	가출 중 삼사형이 하산하여 돈을 건네줌	离家出走时三师兄有下山送钱	가출 중 삼사형이 하산하여 돈을 건네줌
+M20037	globalgamemanagers.assets	OK	CHINESE_REMAINS	你回程的遭遇	귀로에서 겪은 일	你回程的遭遇\r 1. 山猪\r 2. 山贼\r 3. 小师妹	귀로에서 겪은 일\r 1. 山猪\r 2. 山贼\r 3. 소사매
+M20038	globalgamemanagers.assets	OK	OK	被叶云裳张贴通缉令	엽운상이 수배서를 붙임	被叶云裳张贴通缉令	엽운상이 수배서를 붙임
+M20041	globalgamemanagers.assets	OK	OK	小师妹觉醒技能[医术]	소사매가 의술을 각성	小师妹觉醒技能[医术]	소사매가 의술을 각성
+M20042	globalgamemanagers.assets	OK	OK	有帮南宫己求情	남궁기를 위해 선처를 부탁함	有帮南宫己求情	남궁기를 위해 선처를 부탁함
+M20043	globalgamemanagers.assets	OK	OK	触发与南宫浅对练事件	남궁천과의 대련 발생	触发与南宫浅对练事件	남궁천과의 대련 발생
+M20044	globalgamemanagers.assets	OK	OK	在南宫家宴时曾为南宫浅出头	남궁세가 연회에서 남궁천을 두둔함	在南宫家宴时曾为南宫浅出头	남궁세가 연회에서 남궁천을 두둔함
+M20045	globalgamemanagers.assets	OK	OK	火闪电	화섬전	火闪电	화섬전
+M20046	globalgamemanagers.assets	OK	OK	火闪电受伤	화섬전 부상	火闪电受伤	화섬전 부상
+M20047	globalgamemanagers.assets	OK	OK	火闪电强化	화섬전 강화	火闪电强化	화섬전 강화
+M20048	globalgamemanagers.assets	OK	OK	触发 小梅支线 舞	우소매 곁가지 이야기 「춤」 발생	触发 小梅支线 舞	우소매 곁가지 이야기 「춤」 발생
+M20049	globalgamemanagers.assets	OK	OK	取得攻略小竹的奖盃	욱죽 공략 업적 획득	取得攻略小竹的奖盃	욱죽 공략 업적 획득
+M20050	globalgamemanagers.assets	OK	OK	触发 鹤崖事件 又一个被骗	학애 이벤트 「또 속은 사람」 발생	触发 鹤崖事件 又一个被骗	학애 이벤트 「또 속은 사람」 발생
+M20051	globalgamemanagers.assets	OK	OK	触发 鹤崖事件 怪胎	학애 이벤트 「괴짜」 발생	触发 鹤崖事件 怪胎	학애 이벤트 「괴짜」 발생
+M20052	globalgamemanagers.assets	OK	OK	触发 鹤崖事件 强鹤所难	학애 이벤트 「학에게 무리한 요구」 발생	触发 鹤崖事件 强鹤所难	학애 이벤트 「학에게 무리한 요구」 발생
+M20053	globalgamemanagers.assets	OK	OK	小梅喇逼雕	우소매: 나비조	小梅喇逼雕	우소매: 나비조
+M20054	globalgamemanagers.assets	OK	OK	邀请小梅	우소매 초대	邀请小梅	우소매 초대
+M20055	globalgamemanagers.assets	OK	OK	袭击六道峡	육도협 습격	袭击六道峡	육도협 습격
+M20056	globalgamemanagers.assets	OK	OK	决斗丁护卫胜败	정 호위와의 결투 승패	决斗丁护卫胜败	정 호위와의 결투 승패
+M20057	globalgamemanagers.assets	OK	OK	金叶子	금잎	金叶子	금잎
+M20058	globalgamemanagers.assets	OK	OK	在崆峒大试中优胜得到焚心火印	공동 대시 우승으로 분심화인을 얻음	在崆峒大试中优胜得到焚心火印	공동 대시 우승으로 분심화인을 얻음
+M20059	globalgamemanagers.assets	OK	OK	触发襄阳行之凶手是小梅	양양행: 우소매가 범인인 분기 발생	触发襄阳行之凶手是小梅	양양행: 우소매가 범인인 분기 발생
+M20060	globalgamemanagers.assets	OK	OK	触发襄阳行下	양양행 하편 발생	触发襄阳行下	양양행 하편 발생
+M20061	globalgamemanagers.assets	OK	OK	襄阳行提问你听过唐门吗？	양양행: 「당문을 들어 보았는가?」 질문	襄阳行提问你听过唐门吗？	양양행: 「당문을 들어 보았는가?」 질문
+M20062	globalgamemanagers.assets	OK	OK	主角经历过襄阳行	조활이 양양행을 겪음	主角经历过襄阳行	조활이 양양행을 겪음
+M20063	globalgamemanagers.assets	OK	OK	触发襄阳行	양양행 발생	触发襄阳行	양양행 발생
+M20064	globalgamemanagers.assets	OK	OK	给郁城的剑	욱성에게 주는 검	给郁城的剑	욱성에게 주는 검
+M20065	globalgamemanagers.assets	OK	OK	余功子道别	여 공자와의 작별	余功子道别	여 공자와의 작별
+M20066	globalgamemanagers.assets	OK	OK	触发崆峒恶霸	공동의 악당 이벤트 발생	触发崆峒恶霸	공동의 악당 이벤트 발생
+M20067	globalgamemanagers.assets	OK	OK	崆峒留学 瑞笙曾出手相救	공동 유학: 서생에게 도움받은 적 있음	崆峒留学 瑞笙曾出手相救	공동 유학: 서생에게 도움받은 적 있음
+M20068	globalgamemanagers.assets	OK	OK	触发镇魂狱	진혼옥 발생	触发镇魂狱	진혼옥 발생
+M20069	globalgamemanagers.assets	OK	OK	崆峒大试胜利次数	공동 대시 승리 횟수	崆峒大试胜利次数	공동 대시 승리 횟수
+M20070	globalgamemanagers.assets	OK	OK	崆峒大试後进入鹤崖	공동 대시 후 학애 진입	崆峒大试後进入鹤崖	공동 대시 후 학애 진입
+M21000	globalgamemanagers.assets	OK	OK	飞天门好感	비천문 호감도	飞天门好感	비천문 호감도
+M21001	globalgamemanagers.assets	OK	OK	玄功门好感	현공문 호감도	玄功门好感	현공문 호감도
+M21002	globalgamemanagers.assets	OK	OK	夺魄门好感	탈백문 호감도	夺魄门好感	탈백문 호감도
+M21003	globalgamemanagers.assets	OK	OK	铁拳门好感	철권문 호감도	铁拳门好感	철권문 호감도
+M30001	globalgamemanagers.assets	OK	OK	小竹携带虎战车	욱죽이 호전차를 지님	小竹携带虎战车	욱죽이 호전차를 지님
+M30002	globalgamemanagers.assets	OK	OK	第一镖行	제일표행	第一镖行	제일표행
+M30003	globalgamemanagers.assets	OK	OK	樊啸天被关	번소천이 갇힘	樊啸天被关	번소천이 갇힘
+M30004	globalgamemanagers.assets	OK	OK	救樊啸天的狗	번소천의 개를 구함	救樊啸天的狗	번소천의 개를 구함
+M30005	globalgamemanagers.assets	OK	CHINESE_REMAINS	官兵大战丐帮的结果	관군과 개방의 전투 결과	官兵大战丐帮的结果\r 1:官兵优势\r 2:丐帮优势\r 3.别派人马	관군과 개방의 전투 결과\r 1:官兵优势\r 2:개방优势\r 3.别派人马
+M30006	globalgamemanagers.assets	OK	OK	唐门丐帮战役获得胜利	당문과 개방의 전역에서 승리	唐门丐帮战役获得胜利	당문과 개방의 전역에서 승리
+M30007	globalgamemanagers.assets	OK	CHINESE_REMAINS	抓获丐帮数量	개방 포로 수	抓获丐帮数量\r 1:两成\r 2:五成	개방 포로 수\r 1:两成\r 2:五成
+M30008	globalgamemanagers.assets	OK	OK	被丐帮绑架	개방에게 납치됨	被丐帮绑架	개방에게 납치됨
+M30009	globalgamemanagers.assets	OK	OK	南宫浅强化	남궁천 강화	南宫浅强化	남궁천 강화
+M30010	globalgamemanagers.assets	OK	OK	南宫浅黑化	남궁천 흑화	南宫浅黑化	남궁천 흑화
+M30011	globalgamemanagers.assets	OK	OK	战役追加叶云舟召唤技	전역에 엽운주 소환 기술 추가	战役追加叶云舟召唤技	전역에 엽운주 소환 기술 추가
+M30012	globalgamemanagers.assets	OK	OK	虎战车命名	호전차 이름 짓기	虎战车命名	호전차 이름 짓기
+M30013	globalgamemanagers.assets	OK	OK	上官萤参战江陵大战	상관형이 강릉 대전에 참전	上官萤参战江陵大战	상관형이 강릉 대전에 참전
+M30014	globalgamemanagers.assets	OK	OK	玄功传承	현공 계승	玄功传承	현공 계승
+M30015	globalgamemanagers.assets	OK	OK	瑞笙全属性强化	서생의 모든 능력치 강화	瑞笙全属性强化	서생의 모든 능력치 강화
+M30016	globalgamemanagers.assets	OK	OK	解无尘全属性强化	해무진의 모든 능력치 강화	解无尘全属性强化	해무진의 모든 능력치 강화
+M30017	globalgamemanagers.assets	OK	OK	听闻毛二壮的策略	모이장의 계책을 들음	听闻毛二壮的策略	모이장의 계책을 들음
+M30018	globalgamemanagers.assets	OK	OK	小菊出战毛二壮	위국이 모이장과 싸움	小菊出战毛二壮	위국이 모이장과 싸움
+M30019	globalgamemanagers.assets	OK	OK	触发大师兄前往金国刺杀皇帝	대사형의 금나라 황제 암살행 발생	触发大师兄前往金国刺杀皇帝	대사형의 금나라 황제 암살행 발생
+M30020	globalgamemanagers.assets	OK	OK	已知崆峒秘闻	공동의 비밀을 알고 있음	已知崆峒秘闻	공동의 비밀을 알고 있음
+M30021	globalgamemanagers.assets	OK	OK	小菊的悲剧	위국의 비극	小菊的悲剧	위국의 비극
+M30022	globalgamemanagers.assets	OK	OK	随南宫恒访问丐帮	남궁항과 함께 개방 방문	随南宫恒访问丐帮	남궁항과 함께 개방 방문
+M30023	globalgamemanagers.assets	OK	OK	纵放丐帮	개방 방도를 풀어줌	纵放丐帮	개방 방도를 풀어줌
+M30024	globalgamemanagers.assets	OK	OK	A书事件得到大师兄帮助	춘화집 사건에서 대사형의 도움을 받음	A书事件得到大师兄帮助	춘화집 사건에서 대사형의 도움을 받음
+M30025	globalgamemanagers.assets	OK	OK	毛二壮曾经在江陵大战使用过金刚神枪指	모이장이 강릉 대전에서 금강신창지를 사용함	毛二壮曾经在江陵大战使用过金刚神枪指	모이장이 강릉 대전에서 금강신창지를 사용함
+M30026	globalgamemanagers.assets	OK	OK	触发笙活双侠分支	생활쌍협 분기 발생	触发笙活双侠分支	생활쌍협 분기 발생
+M30027	globalgamemanagers.assets	OK	OK	身有铁琵琶功，却在江陵大战後拒绝加入崆峒派	철비파공을 익혔으나 강릉 대전 후 공동파 입문을 거절함	身有铁琵琶功，却在江陵大战後拒绝加入崆峒派	철비파공을 익혔으나 강릉 대전 후 공동파 입문을 거절함
+M30028	globalgamemanagers.assets	OK	OK	飞侠千里行	비협천리행	飞侠千里行	비협천리행
+M30029	globalgamemanagers.assets	OK	OK	主角参战江陵大战	조활이 강릉 대전에 참전	主角参战江陵大战	조활이 강릉 대전에 참전
+M30030	globalgamemanagers.assets	OK	OK	向瑞杏许愿	서행에게 소원을 빎	向瑞杏许愿	서행에게 소원을 빎
+M30035	globalgamemanagers.assets	OK	OK	毛二壮帮南宫浅打通任督二脉	모이장이 남궁천의 임독이맥을 뚫어줌	毛二壮帮南宫浅打通任督二脉	모이장이 남궁천의 임독이맥을 뚫어줌
+M30036	globalgamemanagers.assets	OK	OK	上官萤的救命恩人	상관형의 생명의 은인	上官萤的救命恩人	상관형의 생명의 은인
+M30037	globalgamemanagers.assets	OK	OK	上官萤来到江陵	상관형이 강릉에 도착	上官萤来到江陵	상관형이 강릉에 도착
+M30038	globalgamemanagers.assets	OK	OK	叶云裳闲谈：碧润糕开启	엽운상 잡담 「벽윤고」 해금	叶云裳闲谈：碧润糕开启	엽운상 잡담 「벽윤고」 해금
+M30039	globalgamemanagers.assets	OK	OK	江陵大战触发瑞笙剧情	강릉 대전에서 서생 이야기 발생	江陵大战触发瑞笙剧情	강릉 대전에서 서생 이야기 발생
+M30040	globalgamemanagers.assets	OK	OK	青城留学 累积功勳	청성 유학: 누적 공훈	青城留学 累积功勳	청성 유학: 누적 공훈
+M30041	globalgamemanagers.assets	OK	OK	青城留学 散步	청성 유학: 산책	青城留学 散步	청성 유학: 산책
+M30042	globalgamemanagers.assets	OK	OK	青城留学 特殊遭遇	청성 유학: 특별한 만남	青城留学 特殊遭遇	청성 유학: 특별한 만남
+M30043	globalgamemanagers.assets	OK	OK	青城留学 触发旧识	청성 유학: 옛 지인 이벤트 발생	青城留学 触发旧识	청성 유학: 옛 지인 이벤트 발생
+M30044	globalgamemanagers.assets	OK	OK	青城留学 触发嘉勉	청성 유학: 격려 이벤트 발생	青城留学 触发嘉勉	청성 유학: 격려 이벤트 발생
+M30045	globalgamemanagers.assets	OK	OK	青城留学 勒索过青城弟子	청성 유학: 청성 제자에게 돈을 뜯은 적 있음	青城留学 勒索过青城弟子	청성 유학: 청성 제자에게 돈을 뜯은 적 있음
+M30046	globalgamemanagers.assets	OK	OK	青城留学 触发鬼神之相	청성 유학: 귀신의 상 이벤트 발생	青城留学 触发鬼神之相	청성 유학: 귀신의 상 이벤트 발생
+M30047	globalgamemanagers.assets	OK	OK	青城留学 触发邹博归来	청성 유학: 추박의 귀환 발생	青城留学 触发邹博归来	청성 유학: 추박의 귀환 발생
+M30048	globalgamemanagers.assets	OK	OK	青城留学 触发庸才	청성 유학: 범재 이벤트 발생	青城留学 触发庸才	청성 유학: 범재 이벤트 발생
+M30049	globalgamemanagers.assets	OK	OK	青城留学 修练次数	청성 유학: 수련 횟수	青城留学 修练次数	청성 유학: 수련 횟수
+M30050	globalgamemanagers.assets	OK	OK	青城留学 申屠龙送主角秘笈	청성 유학: 신도룡에게 비급을 받음	青城留学 申屠龙送主角秘笈	청성 유학: 신도룡에게 비급을 받음
+M30051	globalgamemanagers.assets	OK	OK	青城留学 与申屠龙切磋过	청성 유학: 신도룡과 겨룬 적 있음	青城留学 与申屠龙切磋过	청성 유학: 신도룡과 겨룬 적 있음
+M30052	globalgamemanagers.assets	OK	CHINESE_REMAINS	青城留学 云裳给申屠龙的秘笈	청성 유학: 엽운상이 신도룡에게 준 비급	青城留学 云裳给申屠龙的秘笈\r 1. 雪球\r 2. 盘古\r 3. 斩天	청성 유학: 엽운상이 신도룡에게 준 비급\r 1. 雪球\r 2. 盘古\r 3. 斩天
+M30053	globalgamemanagers.assets	OK	OK	青城留学 叶云裳回唐门	청성 유학: 엽운상이 당문으로 돌아감	青城留学 叶云裳回唐门	청성 유학: 엽운상이 당문으로 돌아감
+M30054	globalgamemanagers.assets	OK	OK	青城留学 申屠龙散步遭遇袭击	청성 유학: 산책 중 신도룡이 습격당함	青城留学 申屠龙散步遭遇袭击	청성 유학: 산책 중 신도룡이 습격당함
+M30055	globalgamemanagers.assets	OK	OK	青城留学 散步遭遇申屠龙机率上升	청성 유학: 산책 중 신도룡 조우 확률 증가	青城留学 散步遭遇申屠龙机率上升	청성 유학: 산책 중 신도룡 조우 확률 증가
+M30056	globalgamemanagers.assets	OK	OK	青城留学 听段氏世系谱表	청성 유학: 단씨 계보 이야기를 들음	青城留学 听段氏世系谱表	청성 유학: 단씨 계보 이야기를 들음
+M30057	globalgamemanagers.assets	OK	OK	青城留学 与段智秀打架过	청성 유학: 단지수와 싸운 적 있음	青城留学 与段智秀打架过	청성 유학: 단지수와 싸운 적 있음
+M30058	globalgamemanagers.assets	OK	OK	青城留学 幕後主使	청성 유학: 배후	青城留学 幕後主使	청성 유학: 배후
+M30059	globalgamemanagers.assets	OK	OK	你冒充大宋赵氏宗亲	송나라 조씨 황족을 사칭함	你冒充大宋赵氏宗亲	송나라 조씨 황족을 사칭함
+M30060	globalgamemanagers.assets	OK	OK	你赞同了赵逵	조규의 말에 동의함	你赞同了赵逵	조규의 말에 동의함
+M30061	globalgamemanagers.assets	OK	OK	青城留学 比试人选中，申屠龙在场	청성 유학: 비무 참가자를 정할 때 신도룡이 있음	青城留学 比试人选中，申屠龙在场	청성 유학: 비무 참가자를 정할 때 신도룡이 있음
+M30062	globalgamemanagers.assets	OK	OK	青城留学 赵逵上山	청성 유학: 조규가 산에 오름	青城留学 赵逵上山	청성 유학: 조규가 산에 오름
+M30063	globalgamemanagers.assets	OK	OK	青城道长的地位	청성 도장의 지위	青城道长的地位	청성 도장의 지위
+M30064	globalgamemanagers.assets	OK	OK	青城留学跟牛头马面打过	청성 유학 중 우두마면과 싸운 적 있음	青城留学跟牛头马面打过	청성 유학 중 우두마면과 싸운 적 있음
+M30065	globalgamemanagers.assets	OK	OK	在青城听赵逵跟邹博论道	청성에서 조규와 추박의 도에 관한 논의를 들음	在青城听赵逵跟邹博论道	청성에서 조규와 추박의 도에 관한 논의를 들음
+M30066	globalgamemanagers.assets	OK	OK	青城归来邂逅木仙姑	청성에서 돌아오며 목선고를 만남	青城归来邂逅木仙姑	청성에서 돌아오며 목선고를 만남
+M30067	globalgamemanagers.assets	OK	OK	小竹送行	욱죽의 배웅	小竹送行	욱죽의 배웅
+M30068	globalgamemanagers.assets	OK	OK	开启江陵期间崆峒养成事件	강릉에 머무는 동안 공동 육성 이벤트 해금	开启江陵期间崆峒养成事件	강릉에 머무는 동안 공동 육성 이벤트 해금
+M30069	globalgamemanagers.assets	OK	OK	崆峒在江陵	강릉에 있는 공동파	崆峒在江陵	강릉에 있는 공동파
+M30070	globalgamemanagers.assets	OK	OK	在襄阳跟孟仙谣讨要葡萄	양양에서 맹선요에게 포도를 달라고 함	在襄阳跟孟仙谣讨要葡萄	양양에서 맹선요에게 포도를 달라고 함
+M30071	globalgamemanagers.assets	OK	OK	崆峒剧变 小梅道别	공동 격변: 우소매와의 작별	崆峒剧变 小梅道别	공동 격변: 우소매와의 작별
+M30072	globalgamemanagers.assets	OK	OK	诱拐宣言	유괴 선언	诱拐宣言	유괴 선언
+M30073	globalgamemanagers.assets	OK	OK	江陵大战期间 与南宫深切磋过	강릉 대전 중 남궁심과 겨룬 적 있음	江陵大战期间 与南宫深切磋过	강릉 대전 중 남궁심과 겨룬 적 있음
+M30074	globalgamemanagers.assets	OK	OK	女飞贼的报复	여도적의 복수	女飞贼的报复	여도적의 복수
+M30075	globalgamemanagers.assets	OK	OK	江陵大战 小梅现身	강릉 대전: 우소매 등장	江陵大战 小梅现身	강릉 대전: 우소매 등장
+M30076	globalgamemanagers.assets	OK	OK	制作虎战车	호전차 제작	制作虎战车	호전차 제작
+M30077	globalgamemanagers.assets	OK	OK	小竹参战江陵大战	욱죽이 강릉 대전에 참전	小竹参战江陵大战	욱죽이 강릉 대전에 참전
+M30078	globalgamemanagers.assets	OK	OK	小竹被抛弃	욱죽이 버림받음	小竹被抛弃	욱죽이 버림받음
+M30079	globalgamemanagers.assets	OK	OK	关心上官萤	상관형을 걱정함	关心上官萤	상관형을 걱정함
+M30080	globalgamemanagers.assets	OK	OK	小竹同行	욱죽 동행	小竹同行	욱죽 동행
+M30081	globalgamemanagers.assets	OK	OK	严厉的二师兄	엄격한 이사형	严厉的二师兄	엄격한 이사형
+M30082	globalgamemanagers.assets	OK	OK	主动请缨出战胡嵩	호숭과의 싸움에 자원	主动请缨出战胡嵩	호숭과의 싸움에 자원
+M30083	globalgamemanagers.assets	OK	OK	虎战车触发火烧屋	호전차로 집에 불이 남	虎战车触发火烧屋	호전차로 집에 불이 남
+M40001	globalgamemanagers.assets	OK	OK	与飞石帮进入交战	비석방과 교전	与飞石帮进入交战	비석방과 교전
+M40002	globalgamemanagers.assets	OK	OK	与崆峒派进入交战	공동파와 교전	与崆峒派进入交战	공동파와 교전
+M40003	globalgamemanagers.assets	OK	OK	与点苍派进入交战	점창파와 교전	与点苍派进入交战	점창파와 교전
+M40004	globalgamemanagers.assets	OK	OK	与丐帮进入交战	개방과 교전	与丐帮进入交战	개방과 교전
+M40005	globalgamemanagers.assets	OK	OK	假赵活事件	가짜 조활 사건	假赵活事件	가짜 조활 사건
+M40006	globalgamemanagers.assets	OK	OK	上官萤的口才	상관형의 말솜씨	上官萤的口才	상관형의 말솜씨
+M40007	globalgamemanagers.assets	OK	OK	唐杉心冷	당삼이 마음을 닫음	唐杉心冷	당삼이 마음을 닫음
+M40008	globalgamemanagers.assets	OK	OK	曾经提案嚐试与飞石帮和解	비석방과의 화해를 제안한 적 있음	曾经提案嚐试与飞石帮和解	비석방과의 화해를 제안한 적 있음
+M40009	globalgamemanagers.assets	OK	OK	触发接掌练丹房事件	연단방 인계 이벤트 발생	触发接掌练丹房事件	연단방 인계 이벤트 발생
+M40010	globalgamemanagers.assets	OK	OK	大师兄痊癒	대사형 완치	大师兄痊癒	대사형 완치
+M40011	globalgamemanagers.assets	OK	OK	知道大师兄有受伤	대사형의 부상을 알고 있음	知道大师兄有受伤	대사형의 부상을 알고 있음
+M40012	globalgamemanagers.assets	OK	OK	知道石公远以前是山贼	석공원이 과거 산적이었음을 알고 있음	知道石公远以前是山贼	석공원이 과거 산적이었음을 알고 있음
+M40013	globalgamemanagers.assets	OK	OK	朱婶葱肉包子	주 아주머니의 파고기만두	朱婶葱肉包子	주 아주머니의 파고기만두
+M40014	globalgamemanagers.assets	OK	OK	决战卧云冈回返同行者	와운강 결전 후 귀로의 동행인	决战卧云冈回返同行者\r 1.龙湘\r 2.福韫	와운강 결전 후 귀로의 동행인\r 1.용상\r 2.복온
+M40015	globalgamemanagers.assets	OK	OK	决战卧云岗大师兄施展金刚神枪指	와운강 결전에서 대사형이 금강신창지를 사용함	决战卧云岗大师兄施展金刚神枪指	와운강 결전에서 대사형이 금강신창지를 사용함
+M40016	globalgamemanagers.assets	OK	OK	龙湘全属性强化	용상의 모든 능력치 강화	龙湘全属性强化	용상의 모든 능력치 강화
+M40017	globalgamemanagers.assets	OK	OK	触发店小二事件	점소이 이벤트 발생	触发店小二事件	점소이 이벤트 발생
+M40018	globalgamemanagers.assets	OK	OK	小梅与主角们同行回唐门	우소매가 일행과 함께 당문으로 돌아감	小梅与主角们同行回唐门	우소매가 일행과 함께 당문으로 돌아감
+M40019	globalgamemanagers.assets	OK	OK	触发女飞贼追杀事件	여도적의 추격 이벤트 발생	触发女飞贼追杀事件	여도적의 추격 이벤트 발생
+M40020	globalgamemanagers.assets	OK	CHINESE_REMAINS	卧云岗回程结果	와운강 귀로 결과	卧云岗回程结果\r 1.被金乌上人敲头\r 2.被申屠龙吸内力	와운강 귀로 결과\r 1.금오상인에게 머리를 맞음\r 2.被신도룡吸내력
+M40021	globalgamemanagers.assets	OK	OK	战胜金乌上人	금오상인에게 승리	战胜金乌上人	금오상인에게 승리
+M40022	globalgamemanagers.assets	OK	OK	申屠龙吸取内力	신도룡이 내력을 흡수	申屠龙吸取内力	신도룡이 내력을 흡수
+M40023	globalgamemanagers.assets	OK	OK	申屠龙内力大幅缩减	신도룡의 내력이 크게 감소	申屠龙内力大幅缩减	신도룡의 내력이 크게 감소
+M40024	globalgamemanagers.assets	OK	OK	申屠龙属性变为阳	신도룡의 내공이 양으로 변함	申屠龙属性变为阳	신도룡의 내공이 양으로 변함
+M40025	globalgamemanagers.assets	OK	OK	小梅内力大幅下降	우소매의 내력이 크게 감소	小梅内力大幅下降	우소매의 내력이 크게 감소
+M40026	globalgamemanagers.assets	OK	OK	见过成吉思汗	칭기즈 칸을 만난 적 있음	见过成吉思汗	칭기즈 칸을 만난 적 있음
+M40027	globalgamemanagers.assets	OK	OK	龙湘中毒值	용상의 중독 수치	龙湘中毒值	용상의 중독 수치
+M40028	globalgamemanagers.assets	OK	OK	福韫中毒值	복온의 중독 수치	福韫中毒值	복온의 중독 수치
+M40029	globalgamemanagers.assets	OK	OK	小梅给解药	우소매가 해독제를 줌	小梅给解药	우소매가 해독제를 줌
+M40030	globalgamemanagers.assets	OK	OK	说得唐守鸿	당수홍 설득	说得唐守鸿	당수홍 설득
+M40031	globalgamemanagers.assets	OK	OK	治癒量	치료량	治癒量	치료량
+M40032	globalgamemanagers.assets	OK	OK	开启炼丹房治癒判断	연단방 치료 판정 활성화	开启炼丹房治癒判断	연단방 치료 판정 활성화
+M40033	globalgamemanagers.assets	OK	OK	大师兄活	대사형 생존 상태	大师兄活	대사형 생존 상태
+M40034	globalgamemanagers.assets	OK	OK	大师兄幸存	대사형이 살아남음	大师兄幸存	대사형이 살아남음
+M40035	globalgamemanagers.assets	OK	OK	与青城派进入交战	청성파와 교전	与青城派进入交战	청성파와 교전
+M40036	globalgamemanagers.assets	OK	CHINESE_REMAINS	决斗卧云岗路线	와운강 결투 분기	决斗卧云岗路线\r 1 不跟随大师兄\r 2 跟随大师兄	와운강 결투 분기\r 1 不跟随대사형\r 2 跟随대사형
+M40037	globalgamemanagers.assets	OK	OK	发生三门会谈且小梅帮忙赶走敌人	삼문 회담 발생 및 우소매가 적을 쫓아냄	发生三门会谈且小梅帮忙赶走敌人	삼문 회담 발생 및 우소매가 적을 쫓아냄
+M40038	globalgamemanagers.assets	OK	OK	龙湘的免死金牌	용상의 면사금패	龙湘的免死金牌	용상의 면사금패
+M40039	globalgamemanagers.assets	OK	OK	云裳病情	운상의 병세	云裳病情	운상의 병세
+M40040	globalgamemanagers.assets	OK	OK	决战卧云岗大师兄胜败	와운강 결전: 대사형의 승패	决战卧云岗大师兄胜败	와운강 결전: 대사형의 승패
+M40041	globalgamemanagers.assets	OK	OK	帮大师兄疗伤	대사형의 치료를 도움	帮大师兄疗伤	대사형의 치료를 도움
+M40042	globalgamemanagers.assets	OK	OK	小梅赠刀	우소매에게 칼을 받음	小梅赠刀	우소매에게 칼을 받음
+M40043	globalgamemanagers.assets	OK	OK	天命-是你藏起来不让喝的猴儿酒	천명: 숨겨 두고 못 마시게 한 후아주	天命-是你藏起来不让喝的猴儿酒	천명: 숨겨 두고 못 마시게 한 후아주
+M40044	globalgamemanagers.assets	OK	OK	触发小师妹约束分支	소사매와의 약속 분기 발생	触发小师妹约束分支	소사매와의 약속 분기 발생
+M40045	globalgamemanagers.assets	OK	OK	4-2中办菜的那个师兄被招回唐门	4-2에서 장을 보던 사형이 당문으로 소환됨	4-2中办菜的那个师兄被招回唐门	4-2에서 장을 보던 사형이 당문으로 소환됨
+M40046	globalgamemanagers.assets	OK	OK	三门会谈与金乌上人交手过	삼문 회담에서 금오상인과 싸운 적 있음	三门会谈与金乌上人交手过	삼문 회담에서 금오상인과 싸운 적 있음
+M40047	globalgamemanagers.assets	OK	OK	内战时上官萤有帮助唐门	내전 중 상관형이 당문을 도움	内战时上官萤有帮助唐门	내전 중 상관형이 당문을 도움
+M40048	globalgamemanagers.assets	OK	OK	崆峒地牢救小梅	공동 지하 감옥에서 우소매를 구함	崆峒地牢救小梅	공동 지하 감옥에서 우소매를 구함
+M40049	globalgamemanagers.assets	OK	OK	帮石公远和石夫人和好	석공원 부부의 화해를 도움	帮石公远和石夫人和好	석공원 부부의 화해를 도움
+M40050	globalgamemanagers.assets	OK	OK	请泥教弟子来唐门避难	니교 제자를 당문으로 피신시킴	请泥教弟子来唐门避难	니교 제자를 당문으로 피신시킴
+M40051	globalgamemanagers.assets	OK	OK	派遣唐衫陪同大师兄	당삼을 대사형의 동행으로 파견	派遣唐衫陪同大师兄	당삼을 대사형의 동행으로 파견
+M40052	globalgamemanagers.assets	OK	OK	拿走大师兄的猴儿酒	대사형의 후아주를 가져감	拿走大师兄的猴儿酒	대사형의 후아주를 가져감
+M40053	globalgamemanagers.assets	OK	OK	捉住唐守鸿	당수홍을 붙잡음	捉住唐守鸿	당수홍을 붙잡음
+M40054	globalgamemanagers.assets	OK	OK	主角对唐衫友善	조활이 당삼에게 친절하게 대함	主角对唐衫友善	조활이 당삼에게 친절하게 대함
+M40055	globalgamemanagers.assets	OK	OK	唐芳赠丹	당방에게 단약을 받음	唐芳赠丹	당방에게 단약을 받음
+M40056	globalgamemanagers.assets	OK	OK	听说了寂灭三摩地	적멸삼마지에 관해 들음	听说了寂灭三摩地	적멸삼마지에 관해 들음
+M40057	globalgamemanagers.assets	OK	OK	听说过叶云舟曾经被吐蕃公主招婿	엽운주가 토번 공주의 부마로 간택되었다는 이야기를 들음	听说过叶云舟曾经被吐蕃公主招婿	엽운주가 토번 공주의 부마로 간택되었다는 이야기를 들음
+M40058	globalgamemanagers.assets	OK	OK	跟铁冠道人动手	철관도인과 싸움	跟铁冠道人动手	철관도인과 싸움
+M40059	globalgamemanagers.assets	OK	OK	叶云舟去金国求医	엽운주가 치료법을 구하러 금나라에 감	叶云舟去金国求医	엽운주가 치료법을 구하러 금나라에 감
+M40060	globalgamemanagers.assets	OK	OK	处置唐守鸿	당수홍의 처분	处置唐守鸿	당수홍의 처분
+M40061	globalgamemanagers.assets	OK	OK	神兵帖4锻冶场	신병첩 4: 대장간	神兵帖4锻冶场	신병첩 4: 대장간
+M40062	globalgamemanagers.assets	OK	OK	神兵帖4帮助同门	신병첩 4: 동문 돕기	神兵帖4帮助同门	신병첩 4: 동문 돕기
+M40063	globalgamemanagers.assets	OK	OK	救大师兄选择不收功被飞天弟子捅	대사형을 구할 때 운공을 멈추지 않아 비천문 제자에게 찔림	救大师兄选择不收功被飞天弟子捅	대사형을 구할 때 운공을 멈추지 않아 비천문 제자에게 찔림
+M40064	globalgamemanagers.assets	OK	CHINESE_REMAINS	进入世外桃源的来源	세외도원 진입 경로	进入世外桃源的来源\r 1. 真正的敌人\r 2. 收功\r 3. 其他	세외도원 진입 경로\r 1. 真正的敌人\r 2. 收功\r 3. 其他
+M40065	globalgamemanagers.assets	OK	OK	晚安	잘 자	晚安	잘 자
+M50001	globalgamemanagers.assets	OK	OK	唐门会议追加选项：前往崆峒 	당문 회의에 「공동으로 가기」 선택지 추가 	唐门会议追加选项：前往崆峒	당문 회의에 「공동으로 가기」 선택지 추가
+M50002	globalgamemanagers.assets	OK	OK	5-1劝离前往的场所次数 练武场+後山	5-1 퇴거 권유 장소 방문 횟수: 연무장·뒷산	5-1劝离前往的场所次数 练武场+後山	5-1 퇴거 권유 장소 방문 횟수: 연무장·뒷산
+M50003	globalgamemanagers.assets	OK	OK	小师妹出嫁与三师兄决斗	소사매 출가 때 삼사형과 결투	小师妹出嫁与三师兄决斗	소사매 출가 때 삼사형과 결투
+M50004	globalgamemanagers.assets	OK	OK	大地图事件追加江湖少侠追杀	세계 지도에 강호 소협의 추격 이벤트 추가	大地图事件追加江湖少侠追杀	세계 지도에 강호 소협의 추격 이벤트 추가
+M50005	globalgamemanagers.assets	OK	OK	南宫深的干话	남궁심의 헛소리	南宫深的干话	남궁심의 헛소리
+M50006	globalgamemanagers.assets	OK	OK	唐门会议选项：与南宫世家结盟	당문 회의 선택지: 남궁세가와 동맹	唐门会议选项：与南宫世家结盟	당문 회의 선택지: 남궁세가와 동맹
+M50007	globalgamemanagers.assets	OK	OK	南宫浅拜师夏侯兰	남궁천이 하후란의 제자가 됨	南宫浅拜师夏侯兰	남궁천이 하후란의 제자가 됨
+M50008	globalgamemanagers.assets	OK	CHINESE_REMAINS	解无尘VS南宫深	해무진 대 남궁심	解无尘VS南宫深\r 1. 南宫深胜\r 2. 解无尘胜	해무진 대 남궁심\r 1. 남궁심胜\r 2. 해무진胜
+M50009	globalgamemanagers.assets	OK	OK	迎战崆峒 小师妹参战	공동과의 싸움: 소사매 참전	迎战崆峒 小师妹参战	공동과의 싸움: 소사매 참전
+M50010	globalgamemanagers.assets	OK	OK	迎战崆峒 瑞笙参战	공동과의 싸움: 서생 참전	迎战崆峒 瑞笙参战	공동과의 싸움: 서생 참전
+M50011	globalgamemanagers.assets	OK	OK	迎战崆峒 叶云舟参战	공동과의 싸움: 엽운주 참전	迎战崆峒 叶云舟参战	공동과의 싸움: 엽운주 참전
+M50012	globalgamemanagers.assets	OK	OK	口嚼茶事件中小菊被烫	입으로 씹은 차 이벤트에서 위국이 화상을 입음	口嚼茶事件中小菊被烫	입으로 씹은 차 이벤트에서 위국이 화상을 입음
+M50013	globalgamemanagers.assets	OK	CHINESE_REMAINS	决斗崆峒派	공동파와 결투	决斗崆峒派\r 1. 围殴\r 2. 单挑决斗金乌上人	공동파와 결투\r 1. 围殴\r 2. 单挑决斗금오상인
+M50014	globalgamemanagers.assets	OK	OK	被金乌上人敲头	금오상인에게 머리를 맞음	被金乌上人敲头	금오상인에게 머리를 맞음
+M50015	globalgamemanagers.assets	OK	OK	飞天弟子颜疆死亡	비천문 제자 안강 사망	飞天弟子颜疆死亡	비천문 제자 안강 사망
+M50016	globalgamemanagers.assets	OK	OK	瑞笙好感度-20	서생 호감도 -20	瑞笙好感度-20	서생 호감도 -20
+M50017	globalgamemanagers.assets	OK	CHINESE_REMAINS	第一次决斗金乌上人结果	금오상인과의 첫 결투 결과	第一次决斗金乌上人结果\r 1. 胜\r 2. 败	금오상인과의 첫 결투 결과\r 1. 胜\r 2. 败
+M50018	globalgamemanagers.assets	OK	OK	金乌上人死亡	금오상인 사망	金乌上人死亡	금오상인 사망
+M50019	globalgamemanagers.assets	OK	OK	小师妹飞踢	소사매의 날아차기	小师妹飞踢	소사매의 날아차기
+M50020	globalgamemanagers.assets	OK	OK	 地狱道来访	 지옥도 방문	地狱道来访	지옥도 방문
+M50021	globalgamemanagers.assets	OK	OK	开启唐门会议提案 雪山行	당문 회의에 설산행 제안 해금	开启唐门会议提案 雪山行	당문 회의에 설산행 제안 해금
+M50022	globalgamemanagers.assets	OK	CHINESE_REMAINS	夏侯兰树屋规格	하후란의 나무집 규모	夏侯兰树屋规格\r 1. 普通\r 2. 高级	하후란의 나무집 규모\r 1. 普通\r 2. 高级
+M50023	globalgamemanagers.assets	OK	OK	金乌上人成为掌派人	금오상인이 장파인이 됨	金乌上人成为掌派人	금오상인이 장파인이 됨
+M50024	globalgamemanagers.assets	OK	OK	叶云裳结缘前置	엽운상 인연 선행 조건	叶云裳结缘前置	엽운상 인연 선행 조건
+M50025	globalgamemanagers.assets	OK	OK	腿伤	다리 부상	腿伤	다리 부상
+M50026	globalgamemanagers.assets	OK	OK	谷底的天数	골짜기 바닥에서 지낸 날수	谷底的天数	골짜기 바닥에서 지낸 날수
+M50027	globalgamemanagers.assets	OK	OK	第二柄传承小剑	두 번째 전승소검	第二柄传承小剑	두 번째 전승소검
+M50028	globalgamemanagers.assets	OK	OK	剑圣极招	검성극초	剑圣极招	검성극초
+M50029	globalgamemanagers.assets	OK	OK	记住了罗世峦	나세만을 기억함	记住了罗世峦	나세만을 기억함
+M50030	globalgamemanagers.assets	OK	OK	叶云裳有使用剑圣极招	엽운상이 검성극초를 사용함	叶云裳有使用剑圣极招	엽운상이 검성극초를 사용함
+M50031	globalgamemanagers.assets	OK	OK	在谷底吃到毒菇	골짜기 바닥에서 독버섯을 먹음	在谷底吃到毒菇	골짜기 바닥에서 독버섯을 먹음
+M50033	globalgamemanagers.assets	OK	OK	唐门守护者 放话	당문의 수호자: 선언	唐门守护者 放话	당문의 수호자: 선언
+M50034	globalgamemanagers.assets	OK	OK	唐门守护者 人肉炸弹	당문의 수호자: 인간 폭탄	唐门守护者 人肉炸弹	당문의 수호자: 인간 폭탄
+M50035	globalgamemanagers.assets	OK	OK	旗标暂存3	임시 플래그 3	旗标暂存3	임시 플래그 3
+M50036	globalgamemanagers.assets	OK	OK	逼供刺客	자객을 심문함	逼供刺客	자객을 심문함
+M50037	globalgamemanagers.assets	OK	OK	丹霞子的承诺	단하자의 약속	丹霞子的承诺	단하자의 약속
+M50038	globalgamemanagers.assets	OK	OK	军师赵活	군사 조활	军师赵活	군사 조활
+M50039	globalgamemanagers.assets	OK	OK	颜疆被狗啃	안강이 개에게 물림	颜疆被狗啃	안강이 개에게 물림
+M50040	globalgamemanagers.assets	OK	CHINESE_REMAINS	崆峒神威 来者何人	공동의 신위: 누구냐	崆峒神威 来者何人\r 1. 绿色的\r 2. 红色的	공동의 신위: 누구냐\r 1. 绿色的\r 2. 红色的
+M50041	globalgamemanagers.assets	OK	OK	小竹嘴炮	욱죽의 독설	小竹嘴炮	욱죽의 독설
+M50042	globalgamemanagers.assets	OK	OK	荆红死亡	형홍 사망	荆红死亡	형홍 사망
+M50043	globalgamemanagers.assets	OK	OK	娶回家	혼인하여 집으로 데려옴	娶回家	혼인하여 집으로 데려옴
+M50044	globalgamemanagers.assets	OK	OK	唤醒小梅	우소매를 깨움	唤醒小梅	우소매를 깨움
+M50045	globalgamemanagers.assets	OK	OK	第二次决斗魔小梅	마소매와의 두 번째 결투	第二次决斗魔小梅	마소매와의 두 번째 결투
+M50046	globalgamemanagers.assets	OK	OK	崆峒神威分支	공동의 신위 분기	崆峒神威分支\r 1. 小梅 \r 2. 小竹	공동의 신위 분기\r 1. 우소매 \r 2. 욱죽
+M50047	globalgamemanagers.assets	OK	OK	崆峒神威 内情	공동의 신위: 내막	崆峒神威 内情	공동의 신위: 내막
+M50048	globalgamemanagers.assets	OK	OK	金乌上人真面目	금오상인의 정체	金乌上人真面目	금오상인의 정체
+M60001	globalgamemanagers.assets	OK	CHINESE_REMAINS	委托四师兄的事情	사사형에게 부탁한 일	委托四师兄的事情\r 1. 想知道小师妹过得好不好\r 2. 听说华山有神仙，而神仙有灵丹	사사형에게 부탁한 일\r 1. 想知道소사매过得好不好\r 2. 听说华山有神仙，而神仙有灵丹
+M60002	globalgamemanagers.assets	OK	OK	与南宫世家结盟	남궁세가와 동맹	与南宫世家结盟	남궁세가와 동맹
+M60003	globalgamemanagers.assets	OK	OK	小师妹同行武林大会	소사매와 무림대회 동행	小师妹同行武林大会	소사매와 무림대회 동행
+M60004	globalgamemanagers.assets	OK	OK	小梅同行武林大会	우소매와 무림대회 동행	小梅同行武林大会	우소매와 무림대회 동행
+M60005	globalgamemanagers.assets	OK	OK	小竹同行武林大会	욱죽과 무림대회 동행	小竹同行武林大会	욱죽과 무림대회 동행
+M60006	globalgamemanagers.assets	OK	OK	叶云舟同行武林大会	엽운주와 무림대회 동행	叶云舟同行武林大会	엽운주와 무림대회 동행
+M60007	globalgamemanagers.assets	OK	OK	叶云裳同行武林大会	엽운상과 무림대회 동행	叶云裳同行武林大会	엽운상과 무림대회 동행
+M60008	globalgamemanagers.assets	OK	OK	叶云舟煎药侠曾触发	엽운주 전약협 이벤트 발생 이력	叶云舟煎药侠曾触发	엽운주 전약협 이벤트 발생 이력
+M60009	globalgamemanagers.assets	OK	OK	大地图追加遭遇事件：新通缉犯	세계 지도에 「새 수배자」 조우 이벤트 추가	大地图追加遭遇事件：新通缉犯	세계 지도에 「새 수배자」 조우 이벤트 추가
+M60010	globalgamemanagers.assets	OK	OK	宋悲同行武林大会	송비와 무림대회 동행	宋悲同行武林大会	송비와 무림대회 동행
+M60011	globalgamemanagers.assets	OK	OK	福韫同行武林大会	복온과 무림대회 동행	福韫同行武林大会	복온과 무림대회 동행
+M60012	globalgamemanagers.assets	OK	OK	嵩山派同行武林大会	숭산파와 무림대회 동행	嵩山派同行武林大会	숭산파와 무림대회 동행
+M60013	globalgamemanagers.assets	OK	OK	龙湘同行武林大会	용상과 무림대회 동행	龙湘同行武林大会	용상과 무림대회 동행
+M60014	globalgamemanagers.assets	OK	OK	樊啸天同行武林大会	번소천과 무림대회 동행	樊啸天同行武林大会	번소천과 무림대회 동행
+M60015	globalgamemanagers.assets	OK	OK	成为崆峒掌派人	공동의 장파인이 됨	成为崆峒掌派人	공동의 장파인이 됨
+M60016	globalgamemanagers.assets	OK	CHINESE_REMAINS	前往武林大会路线	무림대회로 가는 경로	前往武林大会路线\r 1. 委任师弟带队，独行江陵\r 2. 前往锦香宫作客	무림대회로 가는 경로\r 1. 委任师弟带队，独行江陵\r 2. 前往금향궁作客
+M60017	globalgamemanagers.assets	OK	OK	龙湘的反应	용상의 반응	龙湘的反应	용상의 반응
+M60018	globalgamemanagers.assets	OK	OK	开启正心堂养成：叶云裳弹琴	정심당 육성 「엽운상의 거문고 연주」 해금	开启正心堂养成：叶云裳弹琴	정심당 육성 「엽운상의 거문고 연주」 해금
+M60019	globalgamemanagers.assets	OK	OK	开启中间阶段选项：挑战画中仙	중간 단계 선택지 「화중선에게 도전」 해금	开启中间阶段选项：挑战画中仙	중간 단계 선택지 「화중선에게 도전」 해금
+M60020	globalgamemanagers.assets	OK	OK	解除金乌上人或申屠龙的DEBUFF	금오상인 또는 신도룡의 약화 효과 해제	解除金乌上人或申屠龙的DEBUFF	금오상인 또는 신도룡의 약화 효과 해제
+M60021	globalgamemanagers.assets	OK	OK	与画中仙决斗	화중선과 결투	与画中仙决斗	화중선과 결투
+M60022	globalgamemanagers.assets	OK	OK	触发大漠行	대막행 발생	触发大漠行	대막행 발생
+M60023	globalgamemanagers.assets	OK	OK	小梅全属性弱化	우소매의 모든 능력치 약화	小梅全属性弱化	우소매의 모든 능력치 약화
+M60024	globalgamemanagers.assets	OK	OK	小梅练玄烛心经	우소매가 현촉심경을 수련	小梅练玄烛心经	우소매가 현촉심경을 수련
+M60025	globalgamemanagers.assets	OK	OK	小梅属性提升，学会一趾神通	우소매의 능력치 상승 및 일지신통 습득	小梅属性提升，学会一趾神通	우소매의 능력치 상승 및 일지신통 습득
+M60026	globalgamemanagers.assets	OK	OK	上官萤远嫁日本	상관형이 일본으로 시집감	上官萤远嫁日本	상관형이 일본으로 시집감
+M60027	globalgamemanagers.assets	OK	OK	六戒刀	육계도	六戒刀	육계도
+M60028	globalgamemanagers.assets	OK	OK	知道温夫人是人间道法王	온부인이 인간도 법왕임을 알고 있음	知道温夫人是人间道法王	온부인이 인간도 법왕임을 알고 있음
+M60029	globalgamemanagers.assets	OK	OK	挑战上官隼	상관준에게 도전	挑战上官隼	상관준에게 도전
+M60030	globalgamemanagers.assets	OK	OK	叶云舟代表唐门出战	엽운주가 당문 대표로 출전	叶云舟代表唐门出战	엽운주가 당문 대표로 출전
+M60031	globalgamemanagers.assets	OK	OK	上官萤的可能性	상관형의 가능성	上官萤的可能性	상관형의 가능성
+M60032	globalgamemanagers.assets	OK	OK	主角打瑞笙	조활이 서생을 때림	主角打瑞笙	조활이 서생을 때림
+M60033	globalgamemanagers.assets	OK	CHINESE_REMAINS	挑战上官隼胜败	상관준과의 대결 승패	挑战上官隼胜败\r 1. 胜利\r 2. 失败	상관준과의 대결 승패\r 1. 胜利\r 2. 失败
+M60034	globalgamemanagers.assets	OK	OK	前往终南山	종남산으로 출발	前往终南山	종남산으로 출발
+M60035	globalgamemanagers.assets	OK	OK	龙之忧郁中触发龙湘的心事	「용의 우울」에서 용상의 속마음 이벤트 발생	龙之忧郁中触发龙湘的心事	「용의 우울」에서 용상의 속마음 이벤트 발생
+M60036	globalgamemanagers.assets	OK	OK	唐门收容龙湘	당문이 용상을 받아들임	唐门收容龙湘	당문이 용상을 받아들임
+M60037	globalgamemanagers.assets	OK	OK	带小梅拜见锦香宫	우소매를 데리고 금향궁 방문	带小梅拜见锦香宫	우소매를 데리고 금향궁 방문
+M60038	globalgamemanagers.assets	OK	CHINESE_REMAINS	武林大会选择支持对象	무림대회에서 지지 대상 선택	武林大会选择支持对象\r 1. 正道\r 2. 锦香宫	무림대회에서 지지 대상 선택\r 1. 正道\r 2. 금향궁
+M60039	globalgamemanagers.assets	OK	OK	武林大会决斗南宫深	무림대회에서 남궁심과 결투	武林大会决斗南宫深	무림대회에서 남궁심과 결투
+M60040	globalgamemanagers.assets	OK	OK	武林大会拜访锦香宫	무림대회에서 금향궁 방문	武林大会拜访锦香宫	무림대회에서 금향궁 방문
+M60041	globalgamemanagers.assets	OK	OK	锦香宫行被赶出来	금향궁 방문 중 쫓겨남	锦香宫行被赶出来	금향궁 방문 중 쫓겨남
+M60042	globalgamemanagers.assets	OK	OK	龙湘 天罡伏魔剑	용상: 천강복마검	龙湘 天罡伏魔剑	용상: 천강복마검
+M60043	globalgamemanagers.assets	OK	OK	龙湘 龙渊七绝	용상: 용연칠절	龙湘 龙渊七绝	용상: 용연칠절
+M60044	globalgamemanagers.assets	OK	OK	决斗袁无宪	원무헌과 결투	决斗袁无宪	원무헌과 결투
+M60045	globalgamemanagers.assets	OK	OK	战胜袁无宪与荆红	원무헌과 형홍에게 승리	战胜袁无宪与荆红	원무헌과 형홍에게 승리
+M60046	globalgamemanagers.assets	OK	OK	致哀中与南宫深谈话	조문 중 남궁심과 대화	致哀中与南宫深谈话	조문 중 남궁심과 대화
+M60047	globalgamemanagers.assets	OK	OK	投票	투표	投票	투표
+M60048	globalgamemanagers.assets	OK	OK	全真支持	전진의 지지	全真支持	전진의 지지
+M60049	globalgamemanagers.assets	OK	OK	嵩山支持	숭산의 지지	嵩山支持	숭산의 지지
+M60050	globalgamemanagers.assets	OK	OK	青城支持	청성의 지지	青城支持	청성의 지지
+M60051	globalgamemanagers.assets	OK	OK	点苍支持	점창의 지지	点苍支持	점창의 지지
+M60052	globalgamemanagers.assets	OK	OK	峨嵋支持	아미의 지지	峨嵋支持	아미의 지지
+M60053	globalgamemanagers.assets	OK	OK	崆峒支持	공동의 지지	崆峒支持	공동의 지지
+M60054	globalgamemanagers.assets	OK	OK	南宫支持	남궁의 지지	南宫支持	남궁의 지지
+M60055	globalgamemanagers.assets	OK	OK	丐帮支持	개방의 지지	丐帮支持	개방의 지지
+M60056	globalgamemanagers.assets	OK	OK	飞石帮支持	비석방의 지지	飞石帮支持	비석방의 지지
+M60057	globalgamemanagers.assets	OK	OK	晁和死亡	조화 사망	晁和死亡	조화 사망
+M60058	globalgamemanagers.assets	OK	OK	地狱道行	지옥도행	地狱道行	지옥도행
+M60059	globalgamemanagers.assets	OK	OK	投降正派	정파에 투항	投降正派	정파에 투항
+M60060	globalgamemanagers.assets	OK	CHINESE_REMAINS	伤亡结果	사상자 집계	伤亡结果\r 1. 死伤惨重\r 2. 有人死，有人伤\r 3. 万幸无人送命	사상자 집계\r 1. 死伤惨重\r 2. 有人死，有人伤\r 3. 万幸无人送命
+M60061	globalgamemanagers.assets	OK	OK	与上官萤有约	상관형과 약속함	与上官萤有约	상관형과 약속함
+M60062	globalgamemanagers.assets	OK	OK	选择投降	투항 선택	选择投降	투항 선택
+M60063	globalgamemanagers.assets	OK	OK	下楼喝酒	아래층에서 술 마시기	下楼喝酒	아래층에서 술 마시기
+M60064	globalgamemanagers.assets	OK	OK	小菊喝醉	위국이 취함	小菊喝醉	위국이 취함
+M60065	globalgamemanagers.assets	OK	OK	有任何人帮忙备马	말을 준비해 준 사람이 있음	有任何人帮忙备马	말을 준비해 준 사람이 있음
+M60066	globalgamemanagers.assets	OK	CHINESE_REMAINS	回程说点什麽	귀로에서 한 말	回程说点什麽\r 1. 威胁\r 2. 好言相劝\r 3. 唱歌	귀로에서 한 말\r 1. 威胁\r 2. 好言相劝\r 3. 唱歌
+M60067	globalgamemanagers.assets	OK	OK	向四师兄要求土特产	사사형에게 특산물을 부탁함	向四师兄要求土特产	사사형에게 특산물을 부탁함
+M60068	globalgamemanagers.assets	OK	OK	向邹博指控申屠龙	추박에게 신도룡을 고발함	向邹博指控申屠龙	추박에게 신도룡을 고발함
+M60069	globalgamemanagers.assets	OK	OK	武林大会选择接纳唐衫	무림대회에서 당삼을 받아들이기로 함	武林大会选择接纳唐衫	무림대회에서 당삼을 받아들이기로 함
+M60070	globalgamemanagers.assets	OK	OK	小师妹有同行风雨山并跟瑞笙见过面	소사매가 풍우산에 동행하여 서생을 만남	小师妹有同行风雨山并跟瑞笙见过面	소사매가 풍우산에 동행하여 서생을 만남
+M60071	globalgamemanagers.assets	OK	OK	武林大会对飞石帮友善	무림대회에서 비석방에게 우호적으로 대함	武林大会对飞石帮友善	무림대회에서 비석방에게 우호적으로 대함
+M60072	globalgamemanagers.assets	OK	OK	主角在武林大会支持锦香宫与上官隼对抗	무림대회에서 금향궁을 지지하며 상관준에게 맞섬	主角在武林大会支持锦香宫与上官隼对抗	무림대회에서 금향궁을 지지하며 상관준에게 맞섬
+M60073	globalgamemanagers.assets	OK	OK	主角在武林大会为上官萤出战	무림대회에서 상관형을 위해 출전	主角在武林大会为上官萤出战	무림대회에서 상관형을 위해 출전
+M60074	globalgamemanagers.assets	OK	OK	向邹博指控铁冠道人	추박에게 철관도인을 고발함	向邹博指控铁冠道人	추박에게 철관도인을 고발함
+M60075	globalgamemanagers.assets	OK	OK	南溪人情	남계에게 진 신세	南溪人情	남계에게 진 신세
+M60076	globalgamemanagers.assets	OK	OK	曾受觉慧传那由他劫指	각혜에게 나유타겁지를 전수받은 적 있음	曾受觉慧传那由他劫指	각혜에게 나유타겁지를 전수받은 적 있음
+M60077	globalgamemanagers.assets	OK	OK	叶云舟从武林大会离开	엽운주가 무림대회를 떠남	叶云舟从武林大会离开	엽운주가 무림대회를 떠남
+M60078	globalgamemanagers.assets	OK	OK	孟仙谣忌惮	맹선요의 경계심	孟仙谣忌惮	맹선요의 경계심
+M60079	globalgamemanagers.assets	OK	OK	县主的混乱暴言	현주의 첫 번째 혼란스러운 폭언	县主的混乱暴言	현주의 첫 번째 혼란스러운 폭언
+M60080	globalgamemanagers.assets	OK	OK	县主的二度混乱暴言	현주의 두 번째 혼란스러운 폭언	县主的二度混乱暴言	현주의 두 번째 혼란스러운 폭언
+M60081	globalgamemanagers.assets	OK	OK	县主的三度混乱暴言	현주의 세 번째 혼란스러운 폭언	县主的三度混乱暴言	현주의 세 번째 혼란스러운 폭언
+M60082	globalgamemanagers.assets	OK	OK	铁剑令	철검령	铁剑令	철검령
+M60083	globalgamemanagers.assets	OK	OK	孟仙谣赌注2	맹선요와의 내기 2	孟仙谣赌注2	맹선요와의 내기 2
+M60084	globalgamemanagers.assets	OK	OK	後山练功追加偶发事件：[小梅练功]	뒷산 수련에 「우소매의 수련」 돌발 이벤트 추가	後山练功追加偶发事件：[小梅练功]	뒷산 수련에 「우소매의 수련」 돌발 이벤트 추가
+M60085	globalgamemanagers.assets	OK	OK	邀请南宫浅	남궁천 초대	邀请南宫浅	남궁천 초대
+M60086	globalgamemanagers.assets	OK	OK	小梅告发申屠龙	우소매가 신도룡을 고발함	小梅告发申屠龙	우소매가 신도룡을 고발함
+M60087	globalgamemanagers.assets	OK	OK	过度幸福小竹	지나치게 행복한 욱죽	过度幸福小竹	지나치게 행복한 욱죽
+M60088	globalgamemanagers.assets	OK	OK	孟仙谣的抱怨	맹선요의 불평	孟仙谣的抱怨	맹선요의 불평
+M60089	globalgamemanagers.assets	OK	OK	泥教来袭	니교 습격	泥教来袭	니교 습격
+M60090	globalgamemanagers.assets	OK	OK	成功帮孟仙谣垫付	맹선요 대신 돈을 내줌	成功帮孟仙谣垫付	맹선요 대신 돈을 내줌
+M60091	globalgamemanagers.assets	OK	OK	孟仙谣在崆峒	맹선요가 공동에 있음	孟仙谣在崆峒	맹선요가 공동에 있음
+M60092	globalgamemanagers.assets	OK	OK	小梅赌气	우소매의 심통	小梅赌气	우소매의 심통
+M60093	globalgamemanagers.assets	OK	OK	接纳锦香宫弟子	금향궁 제자를 받아들임	接纳锦香宫弟子	금향궁 제자를 받아들임
+M60094	globalgamemanagers.assets	OK	OK	锦香宫提议去崆峒没有被拒绝	금향궁의 공동 방문 제안이 받아들여짐	锦香宫提议去崆峒没有被拒绝	금향궁의 공동 방문 제안이 받아들여짐
+M60095	globalgamemanagers.assets	OK	OK	武林大会途中遭遇铁匠	무림대회로 가는 길에 대장장이를 만남	武林大会途中遭遇铁匠	무림대회로 가는 길에 대장장이를 만남
+M70001	globalgamemanagers.assets	OK	OK	触发四师兄归来	사사형 귀환 발생	触发四师兄归来	사사형 귀환 발생
+M70002	globalgamemanagers.assets	OK	CHINESE_REMAINS	檄文结果	격문의 결과	檄文结果\r 1. 武林公敌\r 2. 朝廷号令	격문의 결과\r 1. 武林公敌\r 2. 朝廷号令
+M70003	globalgamemanagers.assets	OK	OK	小梅村曝光	소매촌의 정체가 드러남	小梅村曝光	소매촌의 정체가 드러남
+M70004	globalgamemanagers.assets	OK	OK	可成立西武林盟	서무림맹 결성 가능	可成立西武林盟	서무림맹 결성 가능
+M70005	globalgamemanagers.assets	OK	OK	与泥教结盟	니교와 동맹	与泥教结盟	니교와 동맹
+M70006	globalgamemanagers.assets	OK	OK	和平之路	평화의 길	和平之路	평화의 길
+M70007	globalgamemanagers.assets	OK	OK	唐门会议选项开启：暗杀盟主	당문 회의에 「맹주 암살」 선택지 해금	唐门会议选项开启：暗杀盟主	당문 회의에 「맹주 암살」 선택지 해금
+M70008	globalgamemanagers.assets	OK	OK	访问小菊	위국 방문	访问小菊	위국 방문
+M70009	globalgamemanagers.assets	OK	OK	遗策	남겨진 계책	遗策	남겨진 계책
+M70010	globalgamemanagers.assets	OK	OK	围攻泥教	니교 포위 공격	围攻泥教	니교 포위 공격
+M70011	globalgamemanagers.assets	OK	OK	票数：退隐江湖	득표수: 강호 은퇴	票数：退隐江湖	득표수: 강호 은퇴
+M70012	globalgamemanagers.assets	OK	OK	票数：战他娘亲	득표수: 결사 항전	票数：战他娘亲	득표수: 결사 항전
+M70013	globalgamemanagers.assets	OK	OK	票数：响应武林盟	득표수: 무림맹에 호응	票数：响应武林盟	득표수: 무림맹에 호응
+M70014	globalgamemanagers.assets	OK	CHINESE_REMAINS	三师兄的决策	삼사형의 결정	三师兄的决策\r 1. 退隐江湖\r 2. 战他娘亲\r 3. 响应武林盟	삼사형의 결정\r 1. 강호 은퇴\r 2. 战他娘亲\r 3. 响应무림맹
+M70015	globalgamemanagers.assets	OK	CHINESE_REMAINS	你的决策	조활의 결정	你的决策\r 1. 退隐江湖\r 2. 战他娘亲\r 3. 响应武林盟 4. 西武林盟	조활의 결정\r 1. 강호 은퇴\r 2. 战他娘亲\r 3. 响应무림맹 4. 西무림맹
+M70016	globalgamemanagers.assets	OK	OK	小师妹的票	소사매의 표	小师妹的票	소사매의 표
+M70017	globalgamemanagers.assets	OK	CHINESE_REMAINS	四师兄的决策	사사형의 결정	四师兄的决策\r 1. 退隐江湖\r 2. 战他娘亲\r 3. 响应武林盟	사사형의 결정\r 1. 강호 은퇴\r 2. 战他娘亲\r 3. 响应무림맹
+M70018	globalgamemanagers.assets	OK	CHINESE_REMAINS	票数相同决斗胜败	동수 득표에 따른 결투 승패	票数相同决斗胜败\r 1. 败\r 2. 胜	동수 득표에 따른 결투 승패\r 1. 败\r 2. 胜
+M70019	globalgamemanagers.assets	OK	OK	退隐江湖	강호 은퇴	退隐江湖	강호 은퇴
+M70020	globalgamemanagers.assets	OK	OK	小梅提出凶残的意见	우소매가 잔혹한 의견을 냄	小梅提出凶残的意见	우소매가 잔혹한 의견을 냄
+M70021	globalgamemanagers.assets	OK	OK	曾经在前往武林大会的旅途中答应老僧人去嵩山	무림대회로 가던 길에 노승에게 숭산 방문을 약속함	曾经在前往武林大会的旅途中答应老僧人去嵩山	무림대회로 가던 길에 노승에게 숭산 방문을 약속함
+M70022	globalgamemanagers.assets	OK	OK	四师兄出资上官萤	사사형이 상관형에게 자금을 지원함	四师兄出资上官萤	사사형이 상관형에게 자금을 지원함
+M70023	globalgamemanagers.assets	OK	OK	龙湘技能 勇气	용상의 기술: 용기	龙湘技能 勇气	용상의 기술: 용기
+M70024	globalgamemanagers.assets	OK	OK	已派人至青城派	청성파에 사절을 보냄	已派人至青城派	청성파에 사절을 보냄
+M70025	globalgamemanagers.assets	OK	OK	已派人至崆峒派	공동파에 사절을 보냄	已派人至崆峒派	공동파에 사절을 보냄
+M70026	globalgamemanagers.assets	OK	OK	已派人至峨嵋派	아미파에 사절을 보냄	已派人至峨嵋派	아미파에 사절을 보냄
+M70027	globalgamemanagers.assets	OK	OK	已派人至丐帮	개방에 사절을 보냄	已派人至丐帮	개방에 사절을 보냄
+M70028	globalgamemanagers.assets	OK	CHINESE_REMAINS	指派四师兄状态	사사형 파견 상태	指派四师兄状态\r 1. 青城派\r 2. 崆峒派\r 3. 丐帮\r 4. 中小门派	사사형 파견 상태\r 1. 青城派\r 2. 공동파\r 3. 개방\r 4. 中小门派
+M70029	globalgamemanagers.assets	OK	OK	福韫出使峨嵋派	복온이 아미파에 사절로 감	福韫出使峨嵋派	복온이 아미파에 사절로 감
+M70030	globalgamemanagers.assets	OK	OK	小梅出使崆峒派	우소매가 공동파에 사절로 감	小梅出使崆峒派	우소매가 공동파에 사절로 감
+M70031	globalgamemanagers.assets	OK	OK	小竹出使崆峒派	욱죽이 공동파에 사절로 감	小竹出使崆峒派	욱죽이 공동파에 사절로 감
+M70032	globalgamemanagers.assets	OK	OK	小菊出使崆峒派	위국이 공동파에 사절로 감	小菊出使崆峒派	위국이 공동파에 사절로 감
+M70033	globalgamemanagers.assets	OK	OK	上官萤写信至崆峒派	상관형이 공동파에 편지를 보냄	上官萤写信至崆峒派	상관형이 공동파에 편지를 보냄
+M70034	globalgamemanagers.assets	OK	OK	唐门弟子出使崆峒派	당문 제자가 공동파에 사절로 감	唐门弟子出使崆峒派	당문 제자가 공동파에 사절로 감
+M70035	globalgamemanagers.assets	OK	CHINESE_REMAINS	主角提议初始门派	조활이 처음 제안한 문파	主角提议初始门派\r 1. 青城派\r 2. 峨嵋派\r 3. 丐帮	조활이 처음 제안한 문파\r 1. 青城派\r 2. 峨嵋派\r 3. 개방
+M70036	globalgamemanagers.assets	OK	OK	唐门弟子出使青城派	당문 제자가 청성파에 사절로 감	唐门弟子出使青城派	당문 제자가 청성파에 사절로 감
+M70037	globalgamemanagers.assets	OK	OK	唐衫出使峨嵋派	당삼이 아미파에 사절로 감	唐衫出使峨嵋派	당삼이 아미파에 사절로 감
+M70038	globalgamemanagers.assets	OK	OK	三师兄出使峨嵋派	삼사형이 아미파에 사절로 감	三师兄出使峨嵋派	삼사형이 아미파에 사절로 감
+M70039	globalgamemanagers.assets	OK	OK	暂时获得掌门令牌	장문 영패를 임시로 받음	暂时获得掌门令牌	장문 영패를 임시로 받음
+M70040	globalgamemanagers.assets	OK	OK	成功帮助上官萤收买沧帮	상관형의 창방 매수를 도움	成功帮助上官萤收买沧帮	상관형의 창방 매수를 도움
+M70041	globalgamemanagers.assets	OK	OK	练武场特训：叶云舟加入敌对阵营	연무장 특훈: 엽운주가 적으로 참가	练武场特训：叶云舟加入敌对阵营	연무장 특훈: 엽운주가 적으로 참가
+M70042	globalgamemanagers.assets	OK	OK	练武场特训：龙湘加入敌对阵营	연무장 특훈: 용상이 적으로 참가	练武场特训：龙湘加入敌对阵营	연무장 특훈: 용상이 적으로 참가
+M70043	globalgamemanagers.assets	OK	OK	练武场特训：四师兄加入敌方阵营	연무장 특훈: 사사형이 적으로 참가	练武场特训：四师兄加入敌方阵营	연무장 특훈: 사사형이 적으로 참가
+M70044	globalgamemanagers.assets	OK	OK	支线：极端揍狗拳	곁가지 이야기: 극단·주구권	支线：极端揍狗拳	곁가지 이야기: 극단·주구권
+M70045	globalgamemanagers.assets	OK	CHINESE_REMAINS	说服丐帮结果	개방 설득 결과	说服丐帮结果\r 1. 马富贵协助\r 2. 失败\r 3. 丐帮加入唐门	개방 설득 결과\r 1. 마부귀协助\r 2. 失败\r 3. 개방加入唐门
+M70046	globalgamemanagers.assets	OK	CHINESE_REMAINS	说服峨嵋派结果	아미파 설득 결과	说服峨嵋派结果\r 1. 成功\r 2. 失败\r 3. 两不相帮	아미파 설득 결과\r 1. 成功\r 2. 失败\r 3. 两不相帮
+M70047	globalgamemanagers.assets	OK	OK	唐衫的支援	당삼의 지원	唐衫的支援	당삼의 지원
+M70048	globalgamemanagers.assets	OK	CHINESE_REMAINS	说服青城派结果	청성파 설득 결과	说服青城派结果\r 1.成功\r 2.失败	청성파 설득 결과\r 1.成功\r 2.失败
+M70049	globalgamemanagers.assets	OK	CHINESE_REMAINS	说服中小门派结果	중소 문파 설득 결과	说服中小门派结果\r 1. 成功\r 2. 失败\r 3. 观望	중소 문파 설득 결과\r 1. 成功\r 2. 失败\r 3. 观望
+M70050	globalgamemanagers.assets	OK	CHINESE_REMAINS	说服崆峒派结果	공동파 설득 결과	说服崆峒派结果\r 1. 成功\r 2. 失败	공동파 설득 결과\r 1. 成功\r 2. 失败
+M70051	globalgamemanagers.assets	OK	OK	设陷阱	함정 설치	设陷阱	함정 설치
+M70052	globalgamemanagers.assets	OK	OK	顽抗路线	끝까지 항전하는 분기	顽抗路线	끝까지 항전하는 분기
+M70053	globalgamemanagers.assets	OK	OK	瑞笙弱化	서생 약화	瑞笙弱化	서생 약화
+M70054	globalgamemanagers.assets	OK	OK	发生修罗场事件	연애 갈등 이벤트 발생	发生修罗场事件	연애 갈등 이벤트 발생
+M70055	globalgamemanagers.assets	OK	OK	应对之策提出西武林盟时(学问>60)&&(道德>中庸)	대책 논의에서 서무림맹 제안 시 학문 >60 및 도덕 >중용	应对之策提出西武林盟时(学问>60)&&(道德>中庸)	대책 논의에서 서무림맹 제안 시 학문 >60 및 도덕 >중용
+M70056	globalgamemanagers.assets	OK	OK	飞石帮支持西武林盟	비석방이 서무림맹을 지지	飞石帮支持西武林盟	비석방이 서무림맹을 지지
+M70057	globalgamemanagers.assets	OK	OK	狂剑客出没	광검객 출몰	狂剑客出没	광검객 출몰
+M70058	globalgamemanagers.assets	OK	OK	唐芳出使青城派	당방이 청성파에 사절로 감	唐芳出使青城派	당방이 청성파에 사절로 감
+M70059	globalgamemanagers.assets	OK	OK	启动修罗场事件	연애 갈등 이벤트 활성화	启动修罗场事件	연애 갈등 이벤트 활성화
+M70060	globalgamemanagers.assets	OK	OK	开启陪小师妹	소사매와 함께 있기 해금	开启陪小师妹	소사매와 함께 있기 해금
+M70061	globalgamemanagers.assets	OK	OK	开启陪叶云裳	엽운상과 함께 있기 해금	开启陪叶云裳	엽운상과 함께 있기 해금
+M70062	globalgamemanagers.assets	OK	OK	开启陪上官萤	상관형과 함께 있기 해금	开启陪上官萤	상관형과 함께 있기 해금
+M70063	globalgamemanagers.assets	OK	OK	开启陪龙湘	용상과 함께 있기 해금	开启陪龙湘	용상과 함께 있기 해금
+M70064	globalgamemanagers.assets	OK	OK	开启陪小兰	하후란과 함께 있기 해금	开启陪小兰	하후란과 함께 있기 해금
+M70065	globalgamemanagers.assets	OK	OK	龙湘的勇气	용상의 용기	龙湘的勇气	용상의 용기
+M70066	globalgamemanagers.assets	OK	OK	叶云裳设陷阱	엽운상이 함정을 설치함	叶云裳设陷阱	엽운상이 함정을 설치함
+M70067	globalgamemanagers.assets	OK	CHINESE_REMAINS	西武林盟提出的人	서무림맹을 제안한 사람	西武林盟提出的人\r 1. 主角\r 2. 小菊\r 3. 丐帮	서무림맹을 제안한 사람\r 1. 主角\r 2. 위국\r 3. 개방
+M70068	globalgamemanagers.assets	OK	OK	申屠龙支援西武林盟	신도룡이 서무림맹을 지원	申屠龙支援西武林盟	신도룡이 서무림맹을 지원
+M70069	globalgamemanagers.assets	OK	OK	小竹的秘密武器	욱죽의 비밀 무기	小竹的秘密武器	욱죽의 비밀 무기
+M70070	globalgamemanagers.assets	OK	OK	退隐江湖去崆峒	강호 은퇴 후 공동으로 감	退隐江湖去崆峒	강호 은퇴 후 공동으로 감
+M70071	globalgamemanagers.assets	OK	OK	退隐江湖加入金人	강호 은퇴 후 금나라에 가담	退隐江湖加入金人	강호 은퇴 후 금나라에 가담
+M70072	globalgamemanagers.assets	OK	OK	小梅吃赵活	우소매가 조활을 먹음	小梅吃赵活	우소매가 조활을 먹음
+M70073	globalgamemanagers.assets	OK	OK	丹霞子带操 支援	단하자의 체조 지도 지원	丹霞子带操 支援	단하자의 체조 지도 지원
+M70074	globalgamemanagers.assets	OK	OK	开启陪小梅	우소매와 함께 있기 해금	开启陪小梅	우소매와 함께 있기 해금
+M70075	globalgamemanagers.assets	OK	OK	开启陪小竹	욱죽과 함께 있기 해금	开启陪小竹	욱죽과 함께 있기 해금
+M80001	globalgamemanagers.assets	OK	CHINESE_REMAINS	8-1 你的对策	8-1 조활의 대책	8-1 你的对策\r 1. 福韫\r 2. 反论\r 3. 没什麽好说	8-1 조활의 대책\r 1. 복온\r 2. 反论\r 3. 没什麽好说
+M80002	globalgamemanagers.assets	OK	OK	对策	대책	对策	대책
+M80003	globalgamemanagers.assets	OK	OK	小师妹的保护	소사매의 보호	小师妹的保护	소사매의 보호
+M80004	globalgamemanagers.assets	OK	OK	上官衰弱	상관 약화	上官衰弱	상관 약화
+M80005	globalgamemanagers.assets	OK	OK	小梅改邪归正	우소매가 개과천선함	小梅改邪归正	우소매가 개과천선함
+M80006	globalgamemanagers.assets	OK	CHINESE_REMAINS	护卫三师兄第一个刺客	삼사형 호위: 첫 번째 자객	护卫三师兄第一个刺客\r 1. 谭霸刀\r 2. 方震天\r 3. 唐衫	삼사형 호위: 첫 번째 자객\r 1. 담패도\r 2. 方震天\r 3. 당삼
+M80007	globalgamemanagers.assets	OK	CHINESE_REMAINS	护卫三师兄第二个刺客	삼사형 호위: 두 번째 자객	护卫三师兄第二个刺客\r 1. 金乌上人\r 2. 火龙仙君\r 3. 释明\r 4. 店小二	삼사형 호위: 두 번째 자객\r 1. 금오상인\r 2. 화룡선군\r 3. 석명\r 4. 店小二
+M80008	globalgamemanagers.assets	OK	OK	护卫三师兄 小师妹同行	삼사형 호위: 소사매 동행	护卫三师兄 小师妹同行	삼사형 호위: 소사매 동행
+M80009	globalgamemanagers.assets	OK	OK	锦香宫支援唐门	금향궁이 당문을 지원	锦香宫支援唐门	금향궁이 당문을 지원
+M80010	globalgamemanagers.assets	OK	CHINESE_REMAINS	唐门出击的结果1	당문 출격 결과 1	唐门出击的结果1\r 1. 锦香宫加入西武林盟\r 2. 吼回去\r 3. 被吼 4. 开门迎战	당문 출격 결과 1\r 1. 금향궁加入西무림맹\r 2. 吼回去\r 3. 被吼 4. 开门迎战
+M80011	globalgamemanagers.assets	OK	CHINESE_REMAINS	东西武林盟在唐门的决策	당문에서 동서 무림맹이 내린 결정	东西武林盟在唐门的决策\r 1. 护卫三师兄\r 2. 唐门出击	당문에서 동서 무림맹이 내린 결정\r 1. 护卫삼사형\r 2. 唐门出击
+M80012	globalgamemanagers.assets	OK	OK	西武林盟战役人数	서무림맹 전역 참가 인원	西武林盟战役人数	서무림맹 전역 참가 인원
+M80013	globalgamemanagers.assets	OK	OK	东武林盟战役人数	동무림맹 전역 참가 인원	东武林盟战役人数	동무림맹 전역 참가 인원
+M80014	globalgamemanagers.assets	OK	OK	锦香宫失望	금향궁의 실망	锦香宫失望	금향궁의 실망
+M80015	globalgamemanagers.assets	OK	OK	发生围攻唐门	당문 포위 공격 발생	发生围攻唐门	당문 포위 공격 발생
+M80016	globalgamemanagers.assets	OK	CHINESE_REMAINS	围攻唐门弟子出走结果	당문 포위 중 제자 이탈 결과	围攻唐门弟子出走结果\r 1. 一个也没走\r 2. 走了小部分\r 3.走了大部分\r 4. 走光光	당문 포위 중 제자 이탈 결과\r 1. 一个也没走\r 2. 走了小部分\r 3.走了大部分\r 4. 走光光
+M80017	globalgamemanagers.assets	OK	CHINESE_REMAINS	武林盟的消耗	무림맹의 소모	武林盟的消耗\r 1. 损伤轻微\r 2. 损伤惨重\r 3. 毁灭性打击	무림맹의 소모\r 1. 损伤轻微\r 2. 损伤惨重\r 3. 毁灭性打击
+M80018	globalgamemanagers.assets	OK	OK	小兰VS向无忧	하후란 대 상무우	小兰VS向无忧	하후란 대 상무우
+M80019	globalgamemanagers.assets	OK	OK	龙湘VS向无忧	용상 대 상무우	龙湘VS向无忧	용상 대 상무우
+M80020	globalgamemanagers.assets	OK	OK	叶云裳劝退向无忧	엽운상이 상무우를 물러나도록 설득	叶云裳劝退向无忧	엽운상이 상무우를 물러나도록 설득
+M80021	globalgamemanagers.assets	OK	OK	向无忧战三师兄	상무우와 삼사형의 전투	向无忧战三师兄	상무우와 삼사형의 전투
+M80022	globalgamemanagers.assets	OK	OK	上官隼败	상관준 패배	上官隼败	상관준 패배
+M80023	globalgamemanagers.assets	OK	OK	已知山上情况	산 위의 상황을 알고 있음	已知山上情况	산 위의 상황을 알고 있음
+M80024	globalgamemanagers.assets	OK	OK	小兰VS上官隼	하후란 대 상관준	小兰VS上官隼	하후란 대 상관준
+M80025	globalgamemanagers.assets	OK	OK	龙湘VS上官隼	용상 대 상관준	龙湘VS上官隼	용상 대 상관준
+M80026	globalgamemanagers.assets	OK	OK	小师妹VS上官隼	소사매 대 상관준	小师妹VS上官隼	소사매 대 상관준
+M80027	globalgamemanagers.assets	OK	OK	南宫深败	남궁심 패배	南宫深败	남궁심 패배
+M80028	globalgamemanagers.assets	OK	OK	唐门大势已去	당문의 패색이 짙어짐	唐门大势已去	당문의 패색이 짙어짐
+M80029	globalgamemanagers.assets	OK	OK	龙湘觉醒	용상 각성	龙湘觉醒	용상 각성
+M80030	globalgamemanagers.assets	OK	OK	三师兄重伤	삼사형 중상	三师兄重伤	삼사형 중상
+M80031	globalgamemanagers.assets	OK	OK	大师兄归来	대사형 귀환	大师兄归来	대사형 귀환
+M80032	globalgamemanagers.assets	OK	OK	瑞笙来访 大侠的意思	서생 방문: 대협의 뜻	瑞笙来访 大侠的意思	서생 방문: 대협의 뜻
+M80033	globalgamemanagers.assets	OK	OK	武林群侠投降	무림 군협 투항	武林群侠投降	무림 군협 투항
+M80034	globalgamemanagers.assets	OK	OK	寻找龙湘	용상 찾기	寻找龙湘	용상 찾기
+M80035	globalgamemanagers.assets	OK	OK	寻找小兰	하후란 찾기	寻找小兰	하후란 찾기
+M80036	globalgamemanagers.assets	OK	OK	大师兄复活的原因	대사형이 살아 돌아온 이유	大师兄复活的原因	대사형이 살아 돌아온 이유
+M80037	globalgamemanagers.assets	OK	OK	大师兄你是怎麽回事	대사형의 사정	大师兄你是怎麽回事	대사형의 사정
+M80038	globalgamemanagers.assets	OK	OK	瑞笙来访时把瑞笙赶走	방문한 서생을 쫓아냄	瑞笙来访时把瑞笙赶走	방문한 서생을 쫓아냄
+M80039	globalgamemanagers.assets	OK	OK	丹霞子退隐	단하자 은퇴	丹霞子退隐	단하자 은퇴
+M80040	globalgamemanagers.assets	OK	OK	关心小师妹	소사매를 걱정함	关心小师妹	소사매를 걱정함
+M80041	globalgamemanagers.assets	OK	OK	进入最後决战	최후의 결전 진입	进入最後决战	최후의 결전 진입
+M80042	globalgamemanagers.assets	OK	OK	捅死瑞笙	서생을 찔러 죽임	捅死瑞笙	서생을 찔러 죽임
+M80043	globalgamemanagers.assets	OK	OK	南溪支援	남계의 지원	南溪支援	남계의 지원
+M80044	globalgamemanagers.assets	OK	OK	不杀店小二	점소이를 살려줌	不杀店小二	점소이를 살려줌
+M80045	globalgamemanagers.assets	OK	OK	无相祖师死亡	무상조사 사망	无相祖师死亡	무상조사 사망
+M80046	globalgamemanagers.assets	OK	OK	南溪vs向无忧	남계 대 상무우	南溪vs向无忧	남계 대 상무우
+M80047	globalgamemanagers.assets	OK	OK	南溪VS南宫深	남계 대 남궁심	南溪VS南宫深	남계 대 남궁심
+M80048	globalgamemanagers.assets	OK	OK	支线剑圣极招	곁가지 이야기: 검성극초	支线剑圣极招	곁가지 이야기: 검성극초
+M80049	globalgamemanagers.assets	OK	OK	云裳找你	운상이 찾아옴	云裳找你	운상이 찾아옴
+M80050	globalgamemanagers.assets	OK	OK	领悟剑圣极招	검성극초를 깨달음	领悟剑圣极招	검성극초를 깨달음
+M80051	globalgamemanagers.assets	OK	OK	决战前下山	결전 전 하산	决战前下山	결전 전 하산
+M80052	globalgamemanagers.assets	OK	OK	决战前後山	결전 전 뒷산	决战前後山	결전 전 뒷산
+M80053	globalgamemanagers.assets	OK	OK	剑圣传承与叶云舟出公差	검성 계승: 엽운주와 공무 수행	剑圣传承与叶云舟出公差	검성 계승: 엽운주와 공무 수행
+M80054	globalgamemanagers.assets	OK	OK	东西武林盟段智秀支援叶云舟	동서 무림맹: 단지수가 엽운주를 지원	东西武林盟段智秀支援叶云舟	동서 무림맹: 단지수가 엽운주를 지원
+M80055	globalgamemanagers.assets	OK	OK	第一次触发决战前後山	결전 전 뒷산 이벤트 최초 발생	第一次触发决战前後山	결전 전 뒷산 이벤트 최초 발생
+M80056	globalgamemanagers.assets	OK	OK	与任意人切磋	누군가와 대련	与任意人切磋	누군가와 대련
+M80057	globalgamemanagers.assets	OK	OK	战胜小师妹	소사매에게 승리	战胜小师妹	소사매에게 승리
+M80058	globalgamemanagers.assets	OK	OK	战胜邹博	추박에게 승리	战胜邹博	추박에게 승리
+M80059	globalgamemanagers.assets	OK	OK	战胜解无尘	해무진에게 승리	战胜解无尘	해무진에게 승리
+M80060	globalgamemanagers.assets	OK	OK	战胜大师兄	대사형에게 승리	战胜大师兄	대사형에게 승리
+M80061	globalgamemanagers.assets	OK	OK	战胜龙湘	용상에게 승리	战胜龙湘	용상에게 승리
+M80062	globalgamemanagers.assets	OK	OK	战胜夏侯兰	하후란에게 승리	战胜夏侯兰	하후란에게 승리
+M80063	globalgamemanagers.assets	OK	OK	战胜叶云舟	엽운주에게 승리	战胜叶云舟	엽운주에게 승리
+M80064	globalgamemanagers.assets	OK	OK	战胜丹霞子	단하자에게 승리	战胜丹霞子	단하자에게 승리
+M80065	globalgamemanagers.assets	OK	OK	战胜南溪	남계에게 승리	战胜南溪	남계에게 승리
+M80066	globalgamemanagers.assets	OK	OK	战胜向无忧	상무우에게 승리	战胜向无忧	상무우에게 승리
+M80067	globalgamemanagers.assets	OK	OK	战胜申屠龙	신도룡에게 승리	战胜申屠龙	신도룡에게 승리
+M80068	globalgamemanagers.assets	OK	OK	可与邹博切磋	추박과 대련 가능	可与邹博切磋	추박과 대련 가능
+M80069	globalgamemanagers.assets	OK	OK	可与解无尘切磋	해무진과 대련 가능	可与解无尘切磋	해무진과 대련 가능
+M80070	globalgamemanagers.assets	OK	OK	可与向无忧切磋	상무우와 대련 가능	可与向无忧切磋	상무우와 대련 가능
+M80071	globalgamemanagers.assets	OK	OK	可与申屠龙切磋	신도룡과 대련 가능	可与申屠龙切磋	신도룡과 대련 가능
+M80072	globalgamemanagers.assets	OK	OK	西武林盟崆峒支援	공동이 서무림맹을 지원	西武林盟崆峒支援	공동이 서무림맹을 지원
+M80073	globalgamemanagers.assets	OK	OK	石公远上大院	석공원이 대원에 올라옴	石公远上大院	석공원이 대원에 올라옴
+M80074	globalgamemanagers.assets	OK	OK	小竹已登场	욱죽 등장 완료	小竹已登场	욱죽 등장 완료
+M80075	globalgamemanagers.assets	OK	OK	有金念珠并败给上官隼	금염주를 지닌 채 상관준에게 패배	有金念珠并败给上官隼	금염주를 지닌 채 상관준에게 패배
+M80076	globalgamemanagers.assets	OK	OK	小梅找你	우소매가 찾아옴	小梅找你	우소매가 찾아옴
+M80077	globalgamemanagers.assets	OK	OK	小竹找你	욱죽이 찾아옴	小竹找你	욱죽이 찾아옴
+M80078	globalgamemanagers.assets	OK	OK	上官隼VS小梅	상관준 대 우소매	上官隼VS小梅	상관준 대 우소매
+M80079	globalgamemanagers.assets	OK	OK	掌派人的觉悟	장파인의 각오	掌派人的觉悟	장파인의 각오
+M80080	globalgamemanagers.assets	OK	OK	间章结束 锻冶场小竹	막간 종료: 대장간의 욱죽	间章结束 锻冶场小竹	막간 종료: 대장간의 욱죽
+M80081	globalgamemanagers.assets	OK	OK	瑞笙是朋友	서생과 친구 사이	瑞笙是朋友	서생과 친구 사이
+M80082	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+M80083	globalgamemanagers.assets	OK	OK	在山上等	산에서 기다림	在山上等	산에서 기다림
+M80084	globalgamemanagers.assets	OK	OK	瑞笙投降	서생 투항	瑞笙投降	서생 투항
+M80085	globalgamemanagers.assets	OK	OK	小竹全武装战役事件	욱죽의 완전 무장 전역 이벤트	小竹全武装战役事件	욱죽의 완전 무장 전역 이벤트
+M81000	globalgamemanagers.assets	OK	OK	西武林盟 丐帮 马富贵	서무림맹: 개방 마부귀	西武林盟 丐帮 马富贵	서무림맹: 개방 마부귀
+M81001	globalgamemanagers.assets	OK	OK	西武林盟 丐帮 	서무림맹: 개방 	西武林盟 丐帮	서무림맹: 개방
+M81002	globalgamemanagers.assets	OK	OK	西武林盟 青城 邹博	서무림맹: 청성 추박	西武林盟 青城 邹博	서무림맹: 청성 추박
+M81003	globalgamemanagers.assets	OK	OK	西武林盟 青城 部分	서무림맹: 청성 일부	西武林盟 青城 部分	서무림맹: 청성 일부
+M81004	globalgamemanagers.assets	OK	OK	西武林盟 峨嵋派	서무림맹: 아미파	西武林盟 峨嵋派	서무림맹: 아미파
+M81005	globalgamemanagers.assets	OK	OK	西武林盟 嵩山十八铜人	서무림맹: 숭산 십팔동인	西武林盟 嵩山十八铜人	서무림맹: 숭산 십팔동인
+M81006	globalgamemanagers.assets	OK	OK	西武林盟 锦香宫	서무림맹: 금향궁	西武林盟 锦香宫	서무림맹: 금향궁
+M81007	globalgamemanagers.assets	OK	OK	连环火箭	연환화전	连环火箭	연환화전
+M81008	globalgamemanagers.assets	OK	OK	沧帮的背叛	창방의 배신	沧帮的背叛	창방의 배신
+M81009	globalgamemanagers.assets	OK	OK	四师兄的阴损伎俩	사사형의 음흉한 계책	四师兄的阴损伎俩	사사형의 음흉한 계책
+M81010	globalgamemanagers.assets	OK	OK	邹博	추박	邹博	추박
+M81011	globalgamemanagers.assets	OK	OK	画中仙	화중선	画中仙	화중선
+M81012	globalgamemanagers.assets	OK	OK	小梅 守护唐门	우소매의 당문 수호	小梅 守护唐门	우소매의 당문 수호
+M81013	globalgamemanagers.assets	OK	OK	崆峒派	공동파	崆峒派	공동파
+M81014	globalgamemanagers.assets	OK	OK	崆峒派 小竹	공동파: 욱죽	崆峒派 小竹	공동파: 욱죽
+M82000	globalgamemanagers.assets	OK	OK	东武林盟 丐帮 马富贵	동무림맹: 개방 마부귀	东武林盟 丐帮 马富贵	동무림맹: 개방 마부귀
+M82001	globalgamemanagers.assets	OK	OK	东武林盟 丐帮 	동무림맹: 개방 	东武林盟 丐帮	동무림맹: 개방
+M82002	globalgamemanagers.assets	OK	OK	东武林盟 南宫世家	동무림맹: 남궁세가	东武林盟 南宫世家	동무림맹: 남궁세가
+M82003	globalgamemanagers.assets	OK	OK	东武林盟 上官世家	동무림맹: 상관세가	东武林盟 上官世家	동무림맹: 상관세가
+M82004	globalgamemanagers.assets	OK	OK	东武林盟 全真派	동무림맹: 전진파	东武林盟 全真派	동무림맹: 전진파
+M82005	globalgamemanagers.assets	OK	OK	东武林盟 崆峒派 金乌上人	동무림맹: 공동파 금오상인	东武林盟 崆峒派 金乌上人	동무림맹: 공동파 금오상인
+M82006	globalgamemanagers.assets	OK	OK	东武林盟 崆峒派	동무림맹: 공동파	东武林盟 崆峒派	동무림맹: 공동파
+M82007	globalgamemanagers.assets	OK	OK	东武林盟 嵩山派	동무림맹: 숭산파	东武林盟 嵩山派	동무림맹: 숭산파
+M82008	globalgamemanagers.assets	OK	OK	东武林盟 点苍派	동무림맹: 점창파	东武林盟 点苍派	동무림맹: 점창파
+M82009	globalgamemanagers.assets	OK	OK	东武林盟 锦香宫	동무림맹: 금향궁	东武林盟 锦香宫	동무림맹: 금향궁
+N00001	globalgamemanagers.assets	OK	OK	已赎回外堡	외보를 되찾음	已赎回外堡	외보를 되찾음
+N00002	globalgamemanagers.assets	OK	OK	已赎回练功塔	연공탑을 되찾음	已赎回练功塔	연공탑을 되찾음
+NewGamePlus	globalgamemanagers.assets	OK	OK	二周目	2회차	二周目	2회차
+Pinball_Award_01	globalgamemanagers.assets	OK	OK	大奖次数	1등 당첨 횟수	大奖次数	1등 당첨 횟수
+Pinball_Award_02	globalgamemanagers.assets	OK	OK	二奖次数	2등 당첨 횟수	二奖次数	2등 당첨 횟수
+Pinball_Award_02_01	globalgamemanagers.assets	OK	OK	二奖 小竹打工券	2등 상품: 욱죽의 일손 이용권	二奖 小竹打工券	2등 상품: 욱죽의 일손 이용권
+Pinball_Award_03	globalgamemanagers.assets	OK	OK	三奖次数	3등 당첨 횟수	三奖次数	3등 당첨 횟수
+Pinball_Award_03_01	globalgamemanagers.assets	OK	OK	三奖 小竹打工券	3등 상품: 욱죽의 일손 이용권	三奖 小竹打工券	3등 상품: 욱죽의 일손 이용권
+Pinball_Broken	globalgamemanagers.assets	OK	OK	弹珠台本场是否摇坏(0/1)	이번 핀볼에서 기계를 흔들어 고장 냈는지 여부(0/1)	弹珠台本场是否摇坏(0/1)	이번 핀볼에서 기계를 흔들어 고장 냈는지 여부(0/1)
+Pinball_Broken_Count	globalgamemanagers.assets	OK	OK	弹珠台摇坏累计次数	핀볼 기계를 흔들어 고장 낸 누적 횟수	弹珠台摇坏累计次数	핀볼 기계를 흔들어 고장 낸 누적 횟수
+Prison_01	globalgamemanagers.assets	OK	OK	被关次数	갇힌 횟수	被关次数	갇힌 횟수
+Prologue	globalgamemanagers.assets	OK	OK	序章旗标	서장 플래그	序章旗标	서장 플래그
+R0001	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+S0002	globalgamemanagers.assets	OK	OK	完成支线任务-反间谍	곁가지 임무 「방첩」 완료	完成支线任务-反间谍	곁가지 임무 「방첩」 완료
+S0002_01	globalgamemanagers.assets	OK	OK	煎药保存成败	달인 약 보관 성공 여부	煎药保存成败	달인 약 보관 성공 여부
+S0014_01	globalgamemanagers.assets	OK	OK	触发稻草人支线	허수아비 곁가지 이야기 발생	触发稻草人支线	허수아비 곁가지 이야기 발생
+S0014_02	globalgamemanagers.assets	OK	OK	拜夏侯兰为师	하후란을 스승으로 모심	拜夏侯兰为师	하후란을 스승으로 모심
+S0015_01	globalgamemanagers.assets	OK	OK	炼丹房支线成功	연단방 곁가지 이야기 성공	炼丹房支线成功	연단방 곁가지 이야기 성공
+S0016_01	globalgamemanagers.assets	OK	OK	炼丹房支线成功	연단방 곁가지 이야기 성공	炼丹房支线成功	연단방 곁가지 이야기 성공
+S0019_01	globalgamemanagers.assets	OK	OK	触发龙之忧郁	용의 우울 발생	触发龙之忧郁	용의 우울 발생
+S0021_01	globalgamemanagers.assets	OK	OK	龙之团圆中父女相认	용의 재회에서 부녀가 서로를 알아봄	龙之团圆中父女相认	용의 재회에서 부녀가 서로를 알아봄
+S0022_01	globalgamemanagers.assets	OK	OK	触发龙之忧郁	용의 우울 발생	触发龙之忧郁	용의 우울 발생
+S0023_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+S0305_01	globalgamemanagers.assets	OK	OK	触发小竹在江陵	강릉의 욱죽 이벤트 발생	触发小竹在江陵	강릉의 욱죽 이벤트 발생
+S0501_01	globalgamemanagers.assets	OK	OK	触发劝离事件	퇴거 권유 이벤트 발생	触发劝离事件	퇴거 권유 이벤트 발생
+S2001_01	globalgamemanagers.assets	OK	OK	帐务先生	회계 담당자	帐务先生	회계 담당자
+S2002_01	globalgamemanagers.assets	OK	OK	触发上官萤在唐门支线	당문의 상관형 곁가지 이야기 발생	触发上官萤在唐门支线	당문의 상관형 곁가지 이야기 발생
+S2003_01	globalgamemanagers.assets	OK	OK	绝世鸡腿事件	절세의 닭다리 이벤트	绝世鸡腿事件	절세의 닭다리 이벤트
+S2003_02	globalgamemanagers.assets	OK	OK	开启绝世鸡腿完结篇	절세의 닭다리 완결편 해금	开启绝世鸡腿完结篇	절세의 닭다리 완결편 해금
+S2321_02_03_Option_01	globalgamemanagers.assets	OK	OK	(解锁[崆峒探险队强袭六道峡]、[启程])	「공동 탐험대의 육도협 습격」·「출발」 해금	(解锁[崆峒探险队强袭六道峡]、[启程])	「공동 탐험대의 육도협 습격」·「출발」 해금
+S2600_01	globalgamemanagers.assets	OK	OK	触发飞天门事件 拜码头	비천문 이벤트 「입문 인사」 발생	触发飞天门事件 拜码头	비천문 이벤트 「입문 인사」 발생
+S2600_02	globalgamemanagers.assets	OK	CHINESE_REMAINS	拜码头 分支	입문 인사 분기	拜码头 分支\r 1. 成功逃跑\r 2. 铁拳飞天混战\r 3. 夏侯兰抓	입문 인사 분기\r 1. 成功逃跑\r 2. 铁拳飞天난전\r 3. 하후란抓
+S2700_01	globalgamemanagers.assets	OK	OK	触发铁拳门事件 不速之客	철권문 이벤트 「불청객」 발생	触发铁拳门事件 不速之客	철권문 이벤트 「불청객」 발생
+S2700_02	globalgamemanagers.assets	OK	OK	触发铁拳门事件 贵客	철권문 이벤트 「귀한 손님」 발생	触发铁拳门事件 贵客	철권문 이벤트 「귀한 손님」 발생
+S2700_03	globalgamemanagers.assets	OK	OK	触发铁拳门事件 情敌	철권문 이벤트 「연적」 발생	触发铁拳门事件 情敌	철권문 이벤트 「연적」 발생
+S2800_01	globalgamemanagers.assets	OK	OK	听过夺魄弟子抱怨小竹	탈백문 제자가 욱죽을 불평하는 말을 들음	听过夺魄弟子抱怨小竹	탈백문 제자가 욱죽을 불평하는 말을 들음
+S2800_02	globalgamemanagers.assets	OK	OK	(开启闲谈：犯案动机)	잡담 「범행 동기」 해금	(开启闲谈：犯案动机)	잡담 「범행 동기」 해금
+S2900_01	globalgamemanagers.assets	OK	OK	触发小竹回家	욱죽의 귀가 발생	触发小竹回家	욱죽의 귀가 발생
+S2900_02	globalgamemanagers.assets	OK	OK	小竹回家触发来源	욱죽의 귀가 발생 경로	小竹回家触发来源\r 1. 小梅\r 2. 小竹	욱죽의 귀가 발생 경로\r 1. 우소매\r 2. 욱죽
+S2900_03	globalgamemanagers.assets	OK	OK	可触发小竹回家	욱죽의 귀가 발생 가능	可触发小竹回家	욱죽의 귀가 발생 가능
+S2900_04	globalgamemanagers.assets	OK	OK	军火头子	무기 거래 우두머리	军火头子	무기 거래 우두머리
+S2900_05	globalgamemanagers.assets	OK	OK	胡荽不耐受	고수를 먹지 못함	胡荽不耐受	고수를 먹지 못함
+S2901_01	globalgamemanagers.assets	OK	OK	追上小竹	욱죽을 따라잡음	追上小竹	욱죽을 따라잡음
+S2901_02	globalgamemanagers.assets	OK	OK	让小梅发挥	우소매에게 맡김	让小梅发挥	우소매에게 맡김
+S2901_03	globalgamemanagers.assets	OK	OK	揍小竹全家 余公子胜败	욱죽의 가족 응징: 여 공자와의 승패	揍小竹全家 余公子胜败	욱죽의 가족 응징: 여 공자와의 승패
+S2901_04_02_Talk_01	globalgamemanagers.assets	OK	OK	闲谈：家人	잡담: 가족	闲谈：家人	잡담: 가족
+S2901_04_02_Talk_02	globalgamemanagers.assets	OK	OK	闲谈：崆峒派	잡담: 공동파	闲谈：崆峒派	잡담: 공동파
+S2901_04_02_Talk_03	globalgamemanagers.assets	OK	OK	闲谈：我的家人	잡담: 나의 가족	闲谈：我的家人	잡담: 나의 가족
+S2902_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+S2915_01	globalgamemanagers.assets	OK	OK	触发可疑的行踪	수상한 행적 발생	触发可疑的行踪	수상한 행적 발생
+S2916_01	globalgamemanagers.assets	OK	OK	触发画皮妖	화피요 발생	触发画皮妖	화피요 발생
+S8000	globalgamemanagers.assets	OK	OK	炼丹房支线成功	연단방 곁가지 이야기 성공	炼丹房支线成功	연단방 곁가지 이야기 성공
+S8400	globalgamemanagers.assets	OK	OK	已触发霸凌1	괴롭힘 1 발생 완료	已触发霸凌1	괴롭힘 1 발생 완료
+S9001	globalgamemanagers.assets	OK	OK	已触发偷懒怪1	게으름뱅이 1 발생 완료	已触发偷懒怪1	게으름뱅이 1 발생 완료
+S9100	globalgamemanagers.assets	OK	OK	已触发同门关怀	동문의 관심 발생 완료	已触发同门关怀	동문의 관심 발생 완료
+S9200	globalgamemanagers.assets	OK	OK	是否下雨	비가 오는지 여부	是否下雨	비가 오는지 여부
+S9904_01	globalgamemanagers.assets	OK	CHINESE_REMAINS	支持肩甲状态 	견갑 지원 상태 	支持肩甲状态  0:未知 1:支持 2: 反对	견갑 지원 상태  0:未知 1:支持 2: 反对
+S9904_02	globalgamemanagers.assets	OK	OK	大师兄谈论南宫世家	대사형의 남궁세가 이야기	大师兄谈论南宫世家	대사형의 남궁세가 이야기
+S9907_01	globalgamemanagers.assets	OK	OK	是否触发通缉叶云舟	엽운주 수배 발생 여부	是否触发通缉叶云舟	엽운주 수배 발생 여부
+Score_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Shop_01	globalgamemanagers.assets	OK	OK	商店累积消费	상점 누적 소비액	商店累积消费	상점 누적 소비액
+Shop_02	globalgamemanagers.assets	OK	OK	商店总累积消费	전체 상점 누적 소비액	商店总累积消费	전체 상점 누적 소비액
+T0001	globalgamemanagers.assets	OK	OK	通用数值 - 信心	공통 수치: 자신감	通用数值 - 信心	공통 수치: 자신감
+T0002	globalgamemanagers.assets	OK	OK	通用数值 - 下一回合减少行动回合数	공통 수치: 다음 턴 행동 감소 횟수	通用数值 - 下一回合减少行动回合数	공통 수치: 다음 턴 행동 감소 횟수
+T0003	globalgamemanagers.assets	OK	OK	段考难度	정기 시험 난이도	段考难度	정기 시험 난이도
+TC0001	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0002	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0003	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0004	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0005	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0006	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0007	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0008	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0009	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0010	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0011	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+TC0012	globalgamemanagers.assets	OK	OK	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1	决斗泛用事件旗标1	결투 공통 이벤트 플래그 1
+Talk_Brother3_03_04	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_07_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_07_02	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_08_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_09_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_09_02	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_10_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_10_02	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_10_03	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother3_11_01	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Talk_Brother4	globalgamemanagers.assets	OK	OK	弟子房四师兄闲聊	제자방에서 사사형과 잡담	弟子房四师兄闲聊	제자방에서 사사형과 잡담
+Talk_Brother4_00	globalgamemanagers.assets	OK	OK	弟子房四师兄闲聊	제자방에서 사사형과 잡담	弟子房四师兄闲聊	제자방에서 사사형과 잡담
+Talk_Girl_05_11_001	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Z00001	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+Z00002	globalgamemanagers.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1
+R0002	sharedassets6.assets	OK	OK	旗标暂存1	임시 플래그 1	旗标暂存1	임시 플래그 1

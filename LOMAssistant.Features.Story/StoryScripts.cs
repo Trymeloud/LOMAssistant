@@ -510,20 +510,46 @@ public static class StoryScripts
 	{
 		StoryScript s = Get(script);
 		string legend = s == null ? "" : s.Records.Select(Legend).FirstOrDefault(t => t.Length > 0) ?? "";
-		return legend.Length == 0 ? script : legend.Length > 16 ? legend.Substring(0, 16) + "…" : legend;
+		if (legend.Length == 0) return script;
+		string title = TextConverter.ForDisplay(legend);
+		return title.Length > 16 ? title.Substring(0, 16) + "…" : title;
 	}
 
 	/// <summary>去处写成一句话：走过哪些分岔，接到哪段剧情、推进到哪个主线任务。</summary>
 	public static string Describe(StoryExit exit)
 	{
 		var parts = exit.Path.Select(Describe).ToList();
-		string where = exit.ToTitle ? "回到标题（结局）" : exit.ToMap ? "回到地图" : exit.Target.Length > 0 ? (exit.AfterScene ? "战斗之后接到「" : "接到「") + SegmentName(exit.Target) + "」" : "";
+		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
+
+		// The target and mission IDs remain untouched; only UI phrases change.
+		// Do not compose a Chinese sentence first and expect the whole string
+		// to match the Korean translation dictionary.
+		string where;
+		if (korean)
+		{
+			where = exit.ToTitle ? "타이틀 화면으로 돌아감 (결말)"
+				: exit.ToMap ? "지도로 돌아감"
+				: exit.Target.Length > 0 ? (exit.AfterScene ? "전투 후 " : "") + "「" + TextConverter.ForDisplay(SegmentName(exit.Target)) + "」로 이어짐"
+				: "";
+		}
+		else
+		{
+			where = exit.ToTitle ? "回到标题（结局）" : exit.ToMap ? "回到地图" : exit.Target.Length > 0 ? (exit.AfterScene ? "战斗之后接到「" : "接到「") + SegmentName(exit.Target) + "」" : "";
+		}
 		if (exit.MainMission.Length > 0)
 		{
 			StoryMission mission = StoryAtlas.Find(exit.MainMission);
-			where = (where.Length > 0 ? where + "，" : "") + "主线推进到「" + (mission != null ? mission.Title : exit.MainMission) + "」";
+			string title = mission != null ? mission.Title : exit.MainMission;
+			if (korean)
+			{
+				where = (where.Length > 0 ? where + ", " : "") + "주요 이야기 「" + TextConverter.ForDisplay(title) + "」로 진행";
+			}
+			else
+			{
+				where = (where.Length > 0 ? where + "，" : "") + "主线推进到「" + title + "」";
+			}
 		}
-		parts.Add(where.Length > 0 ? where : "（这一段里接着往下）");
+		parts.Add(where.Length > 0 ? where : (korean ? "이 구간에서 계속 진행" : "（这一段里接着往下）"));
 		return string.Join(" → ", parts.ToArray());
 	}
 }

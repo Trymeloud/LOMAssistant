@@ -262,7 +262,8 @@ public partial class StoryReviewPanel
 			case StoryStep.Option:
 				return "「" + StoryScripts.OptionText(step.Key) + "」";
 			case StoryStep.Dice:
-				return "掷出 " + (step.Range.Length > 0 ? step.Range : Short(StoryScripts.OptionText(step.Key), 6));
+				return (TextConverter.DisplayLanguage == UiText.Korean ? "주사위 판정 " : "掷出 ")
+					+ (step.Range.Length > 0 ? step.Range : Short(StoryScripts.OptionText(step.Key), 6));
 			default:
 				if (step.Arm == 0)
 				{
@@ -275,7 +276,9 @@ public partial class StoryReviewPanel
 					return StoryScripts.Otherwise(step.Key, false);
 				}
 				text = System.Text.RegularExpressions.Regex.Replace(text, @" → 当前[^ ]*", "").Replace(" 需", "").Trim();
-				return text.Length > 0 ? "如果 " + text : "条件不明";
+				return text.Length > 0
+					? (TextConverter.DisplayLanguage == UiText.Korean ? "조건: " + TextConverter.ForDisplay(text) : "如果 " + text)
+					: (TextConverter.DisplayLanguage == UiText.Korean ? "조건 불명" : "条件不明");
 		}
 	}
 

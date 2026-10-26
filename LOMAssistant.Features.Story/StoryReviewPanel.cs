@@ -659,7 +659,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 
 	private static string Short(string text, int length)
 	{
-		text = RichText.Strip(text ?? "").Replace("\n", " ");
+		text = RichText.Strip(TextConverter.ForDisplay(text ?? "")).Replace("\n", " ");
 		return text.Length <= length ? text : text.Substring(0, length) + "…";
 	}
 
