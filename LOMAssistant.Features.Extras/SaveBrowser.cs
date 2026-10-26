@@ -530,14 +530,16 @@ public class SaveBrowser : MonoBehaviour
 
 	private List<Entry> ManualEntries(bool includeEmpty) => SortManual(ManualEntriesBySlot(includeEmpty));
 
-	// 设置里选了「最近在上」：「开始新游戏」仍在最上面，有存档的按保存时间从新到旧，空栏位放最后（按栏位号）
+	// 设置里选了「最近在上」：「开始新游戏」仍在最上面，有存档的按保存时间从新到旧，空栏位放最后（按栏位号）。
+	// 存档页最上面先放第一个空栏位，存新档不用滚到最底下，也不会只能覆盖最新那个
 	private static List<Entry> SortManual(List<Entry> list)
 	{
 		if (ConfigManager.SaveListOrder.Value != 1)
 		{
 			return list;
 		}
-		return list.OrderBy(e => e.Caption == NewGame ? 0 : e.Data != null ? 1 : 2)
+		Entry firstEmpty = list.FirstOrDefault(e => e.Caption != NewGame && e.Data == null);
+		return list.OrderBy(e => e.Caption == NewGame || e == firstEmpty ? 0 : e.Data != null ? 1 : 2)
 			.ThenByDescending(e => e.Caption != NewGame && e.Data != null ? e.Data.TimeTick : 0L)
 			.ToList();
 	}

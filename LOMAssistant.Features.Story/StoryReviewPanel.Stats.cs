@@ -87,6 +87,8 @@ public partial class StoryReviewPanel
 		{ GameStatType.全鍛造點數, "累计锻造点" },
 		{ GameStatType.全毒藥點數, "累计炼丹点" },
 		{ GameStatType.全貢獻度, "累计贡献度" },
+		// 不是玩家的贡献度（那个在「角色数值」里叫贡献度），是门派用的门槛，游戏限制在 10～50
+		{ GameStatType.門派貢獻, "门派贡献门槛（10～50）" },
 	};
 
 	/// <summary>F9：打开面板并切到「数值」页；已经在这一页就关掉。</summary>
