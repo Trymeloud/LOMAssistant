@@ -635,6 +635,13 @@ public static class LlmClient
 				pendingResults.Add(new JObject { ["type"] = "tool_result", ["tool_use_id"] = m.CallId, ["content"] = m.Text });
 				continue;
 			}
+			// 紧跟在工具结果后面的话（查满轮数时的「直接作答」）并进同一条 user 消息，不连发两条 user
+			if (m.Role == ChatMessage.User && pendingResults != null)
+			{
+				pendingResults.Add(new JObject { ["type"] = "text", ["text"] = m.Text });
+				pendingResults = null;
+				continue;
+			}
 			pendingResults = null;
 			// 同一问里 Claude 自己的回复：原样传回（思考块不能删也不能改，删了缓存就从这里失效）
 			if (m.Role == ChatMessage.Assistant && m.Raw != null && m.Raw.Count > 0)

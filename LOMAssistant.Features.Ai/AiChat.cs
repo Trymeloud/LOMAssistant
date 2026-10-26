@@ -144,12 +144,16 @@ public static class AiChat
 			// 最后一轮（查满了，或者上一条回答被工具调用格式截断）：不带工具，把这一问查到的资料整理成一段文字交给它直接写。
 			// 带着工具调用的历史再禁止调用，DeepSeek 常会把调用格式写进正文，回答只剩半截
 			bool last = round >= MaxRounds - 1 || rewrite;
-			var send = last
+			// Claude 查满轮数时不换成摘要：原样带着这一问的查询记录和工具定义，只是不许再调用，前面的缓存全部接得上
+			bool keep = last && !rewrite && provider.Claude;
+			var send = keep
+				? History.Concat(new[] { asking }).Concat(turn.Skip(1)).Concat(new[] { new ChatMessage { Role = ChatMessage.User, Text = "查资料的轮数用完了，不能再查。直接用上面查到的资料回答；没查到的就说没查到。" } }).ToList()
+				: last
 				? History.Concat(new[] { asking, new ChatMessage { Role = ChatMessage.User, Text = Digest(turn) } }).ToList()
 				: History.Concat(new[] { asking }).Concat(turn.Skip(1)).ToList();
 			Partial = "";
 			yield return LlmClient.Complete(provider, ConfigManager.AiBaseUrl.Value, ConfigManager.AiApiKey.Value, Model,
-				system, send, !last, last ? (Deep ? 8000 : 6000) : Deep ? 4000 : 2000, r => reply = r, false, text => Partial = Showable(text));
+				system, send, !last || keep, last ? (Deep ? 8000 : 6000) : Deep ? 4000 : 2000, r => reply = r, keep, text => Partial = Showable(text));
 			Partial = "";
 			if (_stop)
 			{
@@ -449,6 +453,9 @@ public static class AiChat
 			+ "- 剧本的对白很长时会分页，需要时再翻页，不要一次全翻。\n\n"
 			+ "怎么回答\n"
 			+ "- 先给结论，再分条说清楚条件、每条路的结果和依据；可以引用一两句原文对白。\n"
+			+ "- 查到几条不同的途径（不同任务、不同时期、不同条件）都要列出来，按时间先后排，不要只挑其中一条讲。\n"
+			+ "- 说「一定会」「没有办法」「只能」之前，先用 usage 查相关的旗标（名字里带「幸存」「复活」「在唐门」这类的）确认没有别的路。\n"
+			+ "- 问「怎么才能…」「怎么换成…」时，先讲游戏里怎么做到（剧情、条件、选项）；能用 propose_change 直接改的，放在最后当另一个办法提一句，不要一上来就提修改。\n"
 			+ "- 好感、数值、旗标的变化只说资料「变化」里写了的；资料里没写某人的好感变化，就是这段剧情不改她的好感，不要说「好感容易涨」「好感涨得最多」这类话。\n"
 			+ "- 「准备」只说具体能做的（提高哪项数值到多少、先存档、用 Mod 的骰子自选），不说空泛的话。\n"
 			+ "- 用游戏里的叫法（人名、数值名、任务名）。任务编号可以括注在任务名后面，方便玩家在剧情图里找；剧本编号（ch4_9_3_8、S2700_01_03 这类）不要写给玩家，用「之后」「接下来的剧情」代替；不要提工具、文件、数据这些词。\n"

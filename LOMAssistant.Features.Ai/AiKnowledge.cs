@@ -386,7 +386,7 @@ public static class AiKnowledge
 		catch
 		{
 		}
-		var flags = AiAnalysis.FlagsNamed(q, 8);
+		var flags = AiAnalysis.FlagsNamed(q, 15);
 		if (flags.Count > 0)
 		{
 			sb.Append("【旗标】（用 usage 看在哪改、在哪判定）\n");

@@ -277,7 +277,9 @@ public static class AiAnalysis
 	/// <summary>名字或说明里有这几个字的旗标（编号：说明），search 用。</summary>
 	public static List<string> FlagsNamed(string query, int max)
 	{
+		// 剧情里用得多的旗标排前面：「大师兄幸存」「大师兄归来」这类关键旗标不会被零星用到的挤掉
 		return StoryUsage.FlagIds.Select(id => (Id: id, Name: FlagName(id))).Where(x => x.Name.Contains(query) || x.Id.Equals(query, StringComparison.OrdinalIgnoreCase))
+			.OrderByDescending(x => StoryUsage.Flag(x.Id)?.Count ?? 0)
 			.Take(max).Select(x => x.Id + "「" + x.Name + "」").ToList();
 	}
 

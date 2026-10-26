@@ -49,6 +49,15 @@ for f in glob.glob(os.path.join(gamedata, "json3", "sharedassets6__*.json")):
 
 OPS = {"EQ": "=", "GE": "≥", "LE": "≤", "GT": ">", "LT": "<", "NE": "≠"}
 
+# 旗标的开发备注（M50044「唤醒小梅」这类），给「计数」补上名字
+flag_notes = {}
+flags_file = os.path.join(gamedata, "json3", "globalgamemanagers__FlagData.json")
+if os.path.exists(flags_file):
+    for x in json.load(open(flags_file, encoding="utf-8")):
+        # 「决斗泛用事件旗标」「旗标暂存」这类通用旗标的备注不说明什么，不补
+        if x.get("m_Name") and x.get("_devNote") and not re.search("泛用|暫存|暂存", x["_devNote"]):
+            flag_notes[x["m_Name"]] = t2s(x["_devNote"]).strip()
+
 
 def cond_text(name):
     name = t2s((name or "").lstrip("@"))
@@ -60,7 +69,8 @@ def cond_text(name):
         return "%s%s %s %s%%" % (m.group(1), m.group(2), OPS[m.group(3)], m.group(4))
     m = re.fullmatch(r"旗标_(\w+?)_(EQ|GE|LE|GT|LT|NE)_(-?\d+)", name)
     if m:
-        return "计数 %s %s %s" % (m.group(1), OPS[m.group(2)], m.group(3))
+        note = flag_notes.get(m.group(1), "")
+        return "计数 %s%s %s %s" % (m.group(1), "「%s」" % note if note else "", OPS[m.group(2)], m.group(3))
     if name.startswith("旗标回合_"):
         return "到了约定的回合"
     return t2s(name).replace("_", " ")
@@ -77,7 +87,12 @@ def action_text(name):
     m = re.fullmatch(r"(我方|敌方)_(新增|移除)_\w+", name)
     if m and effect:
         who = re.sub(r"^[A-Z]\d+_?", "", effect) or effect
-        return "%s%s「%s」" % (m.group(1), "加入" if m.group(2) == "新增" else "移除", t2s(who))
+        text = "%s%s「%s」" % (m.group(1), "加入" if m.group(2) == "新增" else "移除", t2s(who))
+        # C_Effect_103「依序嘴攻台詞」：带这个状态的人每嘴攻一次，换下一句台词，并把记录旗标（这场的计数）+1
+        units = [u.lstrip("@") for u in assets.get(effect, {}).get("_units", []) if isinstance(u, str)]
+        if m.group(2) == "新增" and any(u.startswith("C_Effect_103") for u in units):
+            text += "（每用一次嘴攻，「%s」的计数 +1）" % t2s(who)
+        return text
     if name == "读取下一个场景":
         return "战斗结束"
     m = re.fullmatch(r"旗标_C00000_(\d)", name)
