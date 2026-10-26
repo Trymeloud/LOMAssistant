@@ -2,6 +2,12 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.2 (2026-10-26)
+
+- **Fixed Claude showing "（AI 没有说话）" (no reply) after looking things up**: within one question, Claude's thinking is now passed back unchanged, so the cache no longer resets every round; if a reply still comes back empty, the AI is asked to write the answer directly from what it found.
+- **Steadier lookups with DeepSeek, Kimi and others**: within one question, the model's thinking is passed back unchanged, and Gemini 3's thought signatures are kept too.
+- **The guide looks things up right away** instead of first asking whether it should.
+
 ## 3.0.1 (2026-10-26)
 
 - **Tang Buyi, the Eldest Brother, joins the AI companion**: like the heroines, he speaks in his own voice, his portrait changes expression with what he says, and he only knows the story you have read.
