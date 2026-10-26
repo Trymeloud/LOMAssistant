@@ -357,6 +357,7 @@ public class MapEventHints : MonoBehaviour
 		}
 		// 能触发、或在时间内的写全（状态、时间、条件）；不在时间内的只在最后写一行名字和时间，提示不至于太长
 		var later = new List<string>();
+		int hidden = 0;
 		foreach (var (check, main, series) in missions)
 		{
 			StoryMission mission = StoryAtlas.Ready ? StoryAtlas.Find(check.Key) : null;
@@ -379,6 +380,12 @@ public class MapEventHints : MonoBehaviour
 				inPeriod = inPeriod && clauses.All(c => c.Ok);
 			}
 			string unseen = mission != null && !mission.Visited ? "　" + RichText.Golden("没看过") : "";
+			// 设置页「地图提示只列能触发的」：现在不能触发的一概不列，只在最后写个数
+			if (!now && ConfigManager.MapHintsNowOnly.Value)
+			{
+				hidden++;
+				continue;
+			}
 			if (!now && !inPeriod)
 			{
 				later.Add(head + "　" + period);
@@ -402,6 +409,10 @@ public class MapEventHints : MonoBehaviour
 			{
 				text.Append("\n<color=#9A9286>" + line + "</color>");
 			}
+		}
+		if (hidden > 0)
+		{
+			text.Append($"\n\n<color=#9A9286>另有 {hidden} 个主线、支线现在还不能触发</color>");
 		}
 		if (events.Count == 0 && !PositionEventCache.Available)
 		{

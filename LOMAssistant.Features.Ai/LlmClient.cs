@@ -127,22 +127,8 @@ public static class LlmClient
 		{
 			body["tool_choice"] = provider.Claude ? (JToken)new JObject { ["type"] = "none" } : "none";
 		}
-		StreamHandler stream = null;
-		if (onText != null && !_noStream)
-		{
-			try
-			{
-				stream = new StreamHandler(provider.Claude);
-				stream.OnText = onText;
-			}
-			catch (Exception ex)
-			{
-				_noStream = true;
-				stream = null;
-				FileLogger.Log("[AI] 流式下载器用不了，改成整段接收: " + ex.Message);
-			}
-		}
-		if (stream != null)
+		bool streaming = onText != null && !_noStream;
+		if (streaming)
 		{
 			body["stream"] = true;
 			// 流式时用量放在最后一块里，要明说才给（本地 Ollama 不一定认，不加）
@@ -151,52 +137,109 @@ public static class LlmClient
 				body["stream_options"] = new JObject { ["include_usage"] = true };
 			}
 		}
-		var request = new UnityWebRequest(url + (provider.Claude ? "/messages" : "/chat/completions"), "POST")
+		byte[] payload = Encoding.UTF8.GetBytes(body.ToString(Formatting.None));
+		// 服务商一时忙不过来（429、5xx、Claude 的 529）且还没收到任何内容时，等一会儿自动再试，最多再试两次
+		for (int attempt = 0; ; attempt++)
 		{
-			uploadHandler = new UploadHandlerRaw(Encoding.UTF8.GetBytes(body.ToString(Formatting.None))),
-			downloadHandler = stream != null ? stream : new DownloadHandlerBuffer(),
-			timeout = 180
-		};
-		request.SetRequestHeader("Content-Type", "application/json");
-		if (provider.Claude)
-		{
-			request.SetRequestHeader("x-api-key", key ?? "");
-			request.SetRequestHeader("anthropic-version", "2023-06-01");
-		}
-		else if (!string.IsNullOrEmpty(key))
-		{
-			request.SetRequestHeader("Authorization", "Bearer " + key.Trim());
-		}
-		_current = request;
-		using (request)
-		{
-			yield return request.SendWebRequest();
-			_current = null;
-			string text = stream != null ? stream.Raw.ToString() : request.downloadHandler?.text ?? "";
-			if (request.result != UnityWebRequest.Result.Success)
+			StreamHandler stream = null;
+			if (streaming)
 			{
-				done(new LlmReply { Error = Describe(request, text) });
+				try
+				{
+					stream = new StreamHandler(provider.Claude);
+					stream.OnText = onText;
+				}
+				catch (Exception ex)
+				{
+					_noStream = true;
+					stream = null;
+					FileLogger.Log("[AI] 流式下载器用不了，改成整段接收: " + ex.Message);
+				}
+			}
+			var request = new UnityWebRequest(url + (provider.Claude ? "/messages" : "/chat/completions"), "POST")
+			{
+				uploadHandler = new UploadHandlerRaw(payload),
+				downloadHandler = stream != null ? stream : new DownloadHandlerBuffer(),
+				// 流式不设总时长（思考久的模型、长回答几分钟很正常），改成下面「多久没收到数据」；整段接收给 5 分钟
+				timeout = stream != null ? 0 : 300
+			};
+			request.SetRequestHeader("Content-Type", "application/json");
+			if (provider.Claude)
+			{
+				request.SetRequestHeader("x-api-key", key ?? "");
+				request.SetRequestHeader("anthropic-version", "2023-06-01");
+			}
+			else if (!string.IsNullOrEmpty(key))
+			{
+				request.SetRequestHeader("Authorization", "Bearer " + key.Trim());
+			}
+			_current = request;
+			bool stalled = false;
+			using (request)
+			{
+				UnityWebRequestAsyncOperation op = request.SendWebRequest();
+				float last = UnityEngine.Time.realtimeSinceStartup;
+				long got = 0;
+				while (!op.isDone)
+				{
+					long now = (long)request.downloadedBytes;
+					if (now != got)
+					{
+						got = now;
+						last = UnityEngine.Time.realtimeSinceStartup;
+					}
+					else if (stream != null && UnityEngine.Time.realtimeSinceStartup - last > StallSeconds)
+					{
+						stalled = true;
+						request.Abort();
+					}
+					yield return null;
+				}
+				_current = null;
+				string text = stream != null ? stream.Raw.ToString() : request.downloadHandler?.text ?? "";
+				if (stalled)
+				{
+					FileLogger.LogWarning("[AI] 服务商 " + StallSeconds + " 秒没有发来任何内容，停掉这次请求");
+					done(new LlmReply { Error = "服务商很久没有回应，稍后再试，或换个快一点的模型" });
+					yield break;
+				}
+				if (request.result != UnityWebRequest.Result.Success)
+				{
+					long code = request.responseCode;
+					bool busy = code == 429 || code == 529 || (code >= 500 && code <= 504);
+					if (busy && attempt < 2 && (stream == null || stream.Events == 0))
+					{
+						FileLogger.LogWarning("[AI] 服务商忙（" + code + "），" + (attempt == 0 ? 3 : 8) + " 秒后自动重试");
+						yield return new UnityEngine.WaitForSecondsRealtime(attempt == 0 ? 3f : 8f);
+						continue;
+					}
+					done(new LlmReply { Error = Describe(request, text) });
+					yield break;
+				}
+				try
+				{
+					if (stream != null && stream.Events > 0)
+					{
+						done(stream.Reply());
+					}
+					else
+					{
+						// 没开流式，或者服务商不理 stream 直接回了整段
+						done(provider.Claude ? ParseClaude(JObject.Parse(text)) : ParseOpenAi(JObject.Parse(text)));
+					}
+				}
+				catch (Exception ex)
+				{
+					FileLogger.LogWarning("[AI] 回复解析失败: " + ex.Message + "\n" + (text.Length > 500 ? text.Substring(0, 500) : text));
+					done(new LlmReply { Error = "看不懂服务商的回复\n" + ex.Message });
+				}
 				yield break;
-			}
-			try
-			{
-				if (stream != null && stream.Events > 0)
-				{
-					done(stream.Reply());
-				}
-				else
-				{
-					// 没开流式，或者服务商不理 stream 直接回了整段
-					done(provider.Claude ? ParseClaude(JObject.Parse(text)) : ParseOpenAi(JObject.Parse(text)));
-				}
-			}
-			catch (Exception ex)
-			{
-				FileLogger.LogWarning("[AI] 回复解析失败: " + ex.Message + "\n" + (text.Length > 500 ? text.Substring(0, 500) : text));
-				done(new LlmReply { Error = "看不懂服务商的回复\n" + ex.Message });
 			}
 		}
 	}
+
+	// 流式时多久没收到任何数据算卡住
+	private const int StallSeconds = 120;
 
 	/// <summary>
 	/// 流式接收：服务商发来的是一行行「data: {...}」（Server-Sent Events），每来一块就拼起来，
@@ -242,7 +285,15 @@ public static class LlmClient
 				Raw.Append(c);
 				if (c == '\n')
 				{
-					Line(_line.ToString().TrimEnd('\r'));
+					// 一行解析出错不能往外抛：Unity 会把整个请求判成「Unable to write data」断掉
+					try
+					{
+						Line(_line.ToString().TrimEnd('\r'));
+					}
+					catch (Exception ex)
+					{
+						FileLogger.LogWarning("[AI] 流式数据有一行看不懂，跳过: " + ex.Message);
+					}
 					_line.Length = 0;
 				}
 				else
@@ -310,7 +361,9 @@ public static class LlmClient
 
 		private void OpenAi(JObject json)
 		{
-			JToken delta = json["choices"]?[0]?["delta"];
+			// OpenAI 最后那块用量的 choices 是空数组，不能直接取 [0]
+			JToken choice = json["choices"] is JArray choices && choices.Count > 0 ? choices[0] : null;
+			JToken delta = choice?["delta"];
 			if (delta != null)
 			{
 				if (delta["content"]?.Type == JTokenType.String)
@@ -343,9 +396,9 @@ public static class LlmClient
 					_calls[index] = c;
 				}
 			}
-			if (json["choices"]?[0]?["finish_reason"]?.Type == JTokenType.String)
+			if (choice?["finish_reason"]?.Type == JTokenType.String)
 			{
-				_stopReason = json["choices"][0]["finish_reason"].ToString();
+				_stopReason = choice["finish_reason"].ToString();
 			}
 			if (json["usage"] is JObject usage)
 			{
@@ -543,7 +596,7 @@ public static class LlmClient
 	private static LlmReply ParseOpenAi(JObject json)
 	{
 		var reply = new LlmReply();
-		JToken message = json["choices"]?[0]?["message"];
+		JToken message = json["choices"] is JArray choices && choices.Count > 0 ? choices[0]["message"] : null;
 		if (message == null)
 		{
 			reply.Error = "服务商没有返回内容";
@@ -551,7 +604,7 @@ public static class LlmClient
 		}
 		reply.Text = message["content"]?.Type == JTokenType.String ? message["content"].ToString() : "";
 		reply.Reasoning = message["reasoning_content"]?.Type == JTokenType.String ? message["reasoning_content"].ToString() : "";
-		reply.StopReason = json["choices"]?[0]?["finish_reason"]?.ToString() ?? "";
+		reply.StopReason = json["choices"][0]["finish_reason"]?.ToString() ?? "";
 		foreach (JToken call in message["tool_calls"] as JArray ?? new JArray())
 		{
 			reply.Calls.Add(new ToolCall { Id = call["id"]?.ToString() ?? Guid.NewGuid().ToString("N"), Name = call["function"]?["name"]?.ToString() ?? "", Args = ParseArgs(call["function"]?["arguments"]?.ToString()), Extra = call["extra_content"] as JObject });

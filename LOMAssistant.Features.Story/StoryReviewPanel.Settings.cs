@@ -115,6 +115,7 @@ public partial class StoryReviewPanel
 				Row(ConfigManager.PinballFixedScore, "弹珠固定总分（-1=关）", -1f, 9999999f),
 				Row(ConfigManager.EnableSkipAction, "养成「空过」按钮"),
 				Row(ConfigManager.EnableMapHints, "地图建筑事件提示"),
+				Row(ConfigManager.MapHintsNowOnly, "地图提示只列能触发的"),
 			}),
 			("战斗", new List<SettingRow>
 			{
