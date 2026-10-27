@@ -85,5 +85,7 @@ internal static class FlagAudit
             $"Actual cached game conditions: {liveTotal}; Chinese remaining (strict): {liveMissing.Count-1}\n";
         File.WriteAllText(Path.Combine(folder, "flag-audit-summary.txt"), summary);
         Console.WriteLine(summary);
+        if (variantFailures > 0 || liveMissing.Count > 1)
+            throw new Exception("Flag display or live condition translations failed; see the failure TSV files.");
     }
 }

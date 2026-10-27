@@ -6,6 +6,13 @@ namespace LOMAssistant;
 
 internal static partial class UiTextKorean
 {
+    // Flow labels must resolve complete condition names before shortening them.
+    public static string ConditionSummary(string text, bool full)
+    {
+        string translated = UiText.Translate(text, UiText.Korean);
+        return !full && translated.Length > 18 ? translated.Substring(0, 18) + "…" : translated;
+    }
+
     public static (Regex, MatchEvaluator) ConditionWords()
     {
         var names = Conditions.Concat(SupplementalConditions).ToDictionary(row => row[0], row => row[1]);
@@ -29,6 +36,7 @@ internal static partial class UiTextKorean
         new[] { "技能_不坏金身", "기술 「불괴금신」" },
         new[] { "技能_轻微骨裂", "기술 「미세 골절」" },
         new[] { "旗标收留小梅或小竹", "우소매 또는 욱죽을 받아들임" },
+        new[] { "收留小梅 (收留小梅或小竹)", "우소매를 받아들임 (우소매 또는 욱죽)" },
         new[] { "条件_晚安且收留小梅", "「잘 자」 및 우소매를 받아들임" },
         new[] { "条件_心上人_小梅或小竹", "마음에 둔 사람이 우소매 또는 욱죽" },
         new[] { "书籍_仙鹤迷踪拳", "선학미종권 보유 수량" },

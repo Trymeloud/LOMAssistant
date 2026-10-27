@@ -510,13 +510,13 @@ public static class StoryScripts
 		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
 		if (arms.Count == 0)
 			return korean ? "그 외" : "否则";
-		if (!full)
-			arms = arms.Select(a => a.Length > 18 ? a.Substring(0, 18) + "…" : a).ToList();
 		if (korean)
 		{
-			arms = arms.Select(a => TextConverter.ForDisplay(a)).ToList();
+			arms = arms.Select(a => UiTextKorean.ConditionSummary(a, full)).ToList();
 			return arms.Count == 1 ? "그 외 (불충족: " + arms[0] + ")" : "그 외 (모두 불충족: " + string.Join("; ", arms.ToArray()) + ")";
 		}
+		if (!full)
+			arms = arms.Select(a => a.Length > 18 ? a.Substring(0, 18) + "…" : a).ToList();
 		return arms.Count == 1 ? "否则（不满足：" + arms[0] + "）" : "否则（以下都不满足：" + string.Join("；", arms.ToArray()) + "）";
 	}
 

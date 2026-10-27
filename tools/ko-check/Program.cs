@@ -37,6 +37,7 @@ internal static class Program
         Expect("未知文本", "未知文本");
         Expect("技能_轻微骨裂 需>=1", "기술 「미세 골절」 필요 >=1");
         Expect("旗标收留小梅或小竹 = 1", "우소매 또는 욱죽을 받아들임 = 1");
+        Expect("收留小梅 (收留小梅或小竹) 需=1", "우소매를 받아들임 (우소매 또는 욱죽) 필요 =1");
         Expect("条件_晚安且收留小梅 需=1", "「잘 자」 및 우소매를 받아들임 필요 =1");
         Expect("条件_心上人_小梅或小竹 需=1", "마음에 둔 사람이 우소매 또는 욱죽 필요 =1");
         Expect("〈虎战车判断〉", "〈호전차 판정〉");
@@ -83,6 +84,15 @@ internal static class Program
             using var input = File.OpenRead(args[0]);
             using var gzip = new GZipStream(input, CompressionMode.Decompress);
             using var json = JsonDocument.Parse(gzip);
+            // Screenshot regression: the "otherwise" edge used to cut a Chinese
+            // condition name before looking it up, leaving "그리고 迎战崆峒…".
+            string flowCondition = json.RootElement.GetProperty("Switches").GetProperty("Ch_5_5_1_001")[0].GetString().Replace(" 需", "");
+            string flowFull = UiTextKorean.ConditionSummary(flowCondition, true);
+            string flowShort = UiTextKorean.ConditionSummary(flowCondition, false);
+            Check(!Han.IsMatch(flowFull) && !Han.IsMatch(flowShort), "Flow otherwise condition: " + flowShort);
+            Check(flowFull.Contains(">=60") && flowFull.Contains("M50009") && flowFull.Contains("M50017"), "Full flow condition lost values or flag IDs: " + flowFull);
+            Check(flowShort.Length == 19 && flowShort.EndsWith("…") && flowShort.StartsWith("소사매 호감도"), "Flow condition preview: " + flowShort);
+            Check(UiTextKorean.ConditionSummary("性情>=60", false) == "성정>=60", "Short flow condition unnecessarily abbreviated");
             var missing = new SortedSet<string>();
             foreach (var section in new[] { "Conditions", "Switches" })
                 foreach (var property in json.RootElement.GetProperty(section).EnumerateObject())
@@ -93,6 +103,11 @@ internal static class Program
                         // Chinese IDs in parentheses are technical identifiers, kept intentionally.
                         string visible = Regex.Replace(translated, @"\([^()]*\)", "");
                         if (Han.IsMatch(visible)) missing.Add(text + "\t" + translated);
+                        if (section == "Switches")
+                        {
+                            string preview = UiTextKorean.ConditionSummary(text.Replace(" 需", ""), false);
+                            if (Han.IsMatch(preview)) missing.Add("Flow preview: " + text + "\t" + preview);
+                        }
                     }
             File.WriteAllLines(Path.Combine(AppContext.BaseDirectory, "untranslated-conditions.tsv"), missing);
             Console.WriteLine("Built-in condition strings with remaining Chinese: " + missing.Count);
