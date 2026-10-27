@@ -18,9 +18,9 @@
 
 ## 진행 상태
 
-**현재 배포 버전: [v2.9.3-ko.1 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v2.9.3-ko.1). 개발 및 검수 중입니다.**
+**현재 배포 버전: [v3.0.6-ko.2 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.6-ko.2).**
 
-**이 브랜치의 소스·패키지 버전: 3.0.6-ko.2.** 원본 [v3.0.6](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.6)과 게임 `release_1.0.6001.0`을 기준으로 한국어 패치를 갱신했습니다. 흐름도의 「그 외」 조건은 한국어 번역 후 축약하도록 수정했습니다. [설치 안내와 변경 사항](releases/v3.0.6-ko.2.md), [3.0.6 이식 검토](reports/compatibility-3.0.6-ko.1.md)를 참고하세요. 별도로 시도했던 흐름도·수집 현황·진행 경로 UI 재설계는 포함하지 않습니다.
+원본 [v3.0.6](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.6)과 게임 `release_1.0.6001.0`을 기준으로 한국어 패치를 갱신했습니다. 흐름도의 「그 외」 조건은 한국어 번역 후 축약하도록 수정했습니다. [설치 안내와 변경 사항](releases/v3.0.6-ko.2.md), [3.0.6 이식 검토](reports/compatibility-3.0.6-ko.1.md)를 참고하세요.
 
 - 내장 스토리 조건의 중국어 잔존 검사: 0건
 - 자동 번역 검사: 3,108건 통과(흐름도 조건 축약 검사 포함)
@@ -28,7 +28,7 @@
 - 현재 게임 실행에서 수집된 조건 5,060건 재검사: 중국어 잔여 0건
 - F9 플래그 전체 설명에는 한중 혼합 표기 47건이 남아 있습니다. [검사 보고서](reports/flag-localization-audit.md)
 - 일부 스토리 제목과 수집 현황에는 중국어가 남아 있을 수 있습니다.
-- 3.0.6-ko.2는 빌드·데이터 검사를 완료했습니다. 사용자가 제공한 화면의 오류를 재현해 검사했으며, 수정 DLL을 게임에서 실행해 표시·저장·AI 연결을 확인하는 검증은 수행하지 않았습니다.
+- 3.0.6-ko.2는 빌드·데이터 검사를 완료했으며, 사용자 환경에서 실행과 흐름도 조건의 한국어 표시 수정을 확인했습니다. 모든 게임 상황과 AI 서비스 연결을 검증한 것은 아닙니다.
 
 위 검사 결과는 전체 게임 텍스트의 완전한 한국어화를 의미하지 않습니다.
 
@@ -36,7 +36,7 @@
 
 현재 소스로 만드는 배포 파일은 **원본 LOMAssistant 3.0.6이 설치된 BepInEx 6 환경에 적용하는 한국어 개선 패치**입니다. 게임 1.0.6001의 공식 한국어를 기준으로 작업했습니다. BepInEx와 Newtonsoft.Json은 패치에 포함하지 않습니다. 2.9.3-ko.1 사용자는 원본 3.0.6으로 업데이트한 뒤 이 패치를 적용하세요.
 
-1. 설치 파일은 `LOMAssistant-3.0.6-ko.2-patch.zip`입니다. 로컬 패키징 결과는 `bin/release/3.0.6-ko.2/`에 생성됩니다. 공개 배포 여부는 [이 포크의 릴리스](https://github.com/Trymeloud/LOMAssistant/releases)에서 확인하세요. GitHub의 `Source code` 압축 파일은 설치용이 아닙니다.
+1. [릴리스](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.6-ko.2)에서 `LOMAssistant-3.0.6-ko.2-patch.zip`을 받습니다. GitHub의 `Source code` 압축 파일은 설치용이 아닙니다.
 2. 게임을 종료하고 기존 `BepInEx/plugins/LOMAssistant/LOMAssistant.dll`과 `event-names-ko.tsv`가 있으면 게임 폴더 밖에 백업합니다.
 3. ZIP의 `BepInEx` 폴더를 게임 설치 폴더에 덮어씁니다. `LOMAssistant.dll`과 `event-names-ko.tsv`가 같은 폴더에 있어야 합니다.
 4. 게임과 모드의 표시 언어를 한국어로 설정한 뒤 다시 실행합니다. 번역표 수정도 재실행 후 적용됩니다.
