@@ -2,6 +2,13 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.4 (2026-10-26)
+
+- **Easier to bring the UI back**: after hiding the UI with right-click in a story, right-click, left-click, any other key or a gamepad button restores it. F1-F12, the screenshot key, Alt, Ctrl, Shift, Win and Tab don't count.
+- **The AI guide sees your progress in this playthrough**: flag lookups and quest lookups include each flag's current value, so whether you can still reach a scene is answered from your quest progress and sect.
+- **AI companion input box**: the text cursor shows reliably after you click into it.
+- **Windows can't be dragged off-screen**: part of the Coffee Companion title bar always stays on screen, and the random event picker stays fully on screen.
+
 ## 3.0.3 (2026-10-26)
 
 - **Fixed time jumping twice after loading a save made mid-story**: if the story had already moved time forward, the save now records the time from the start of that scene, so replaying it after loading doesn't skip again and main quests that only trigger in one period aren't missed.
