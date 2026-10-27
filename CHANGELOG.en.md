@@ -2,6 +2,17 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.7 (2026-10-27)
+
+- **Fixed battles being won the moment they start**: the Stats tab's "allow negative values" also affected enemy factions' health, so enemies fell as soon as they appeared. It now applies only to the hero's own stats.
+- **Right-click hide UI**: with the system menu or the status (training) screen open, right-click closes them as usual.
+- **"Original" sort on the load screen**: by slot, with every empty slot shown; click an empty slot to start a new game there.
+- **Pass hotkey**: new in the Settings hotkeys, unbound by default.
+- **Save anywhere**: filter by story, training or with notes; grouped by in-game month, foldable, with group delete (noted saves are kept); no longer deleted automatically by default, set a limit in Settings.
+- **Traditional Chinese UI**: characters such as 劍聖 and 症 now show correctly.
+- **Export diagnostics**: if the desktop can't be written, saves to Documents or another folder instead and selects the file in Explorer.
+- **Installer**: if another tool switched the mod loader off, reinstalling turns it back on.
+
 ## 3.0.6 (2026-10-27)
 
 - **Updated for game version 1.0.6001**: check records go into the new backlog, only during story scenes and in small text; identical checks are recorded once per period, and quests only when they actually trigger.
