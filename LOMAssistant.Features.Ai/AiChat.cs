@@ -132,6 +132,7 @@ public static class AiChat
 		string answer = null;
 		// 系统提示词这一问只算一次，每轮都一样（缓存靠它）；会变的现状接在这次问题前面
 		string system = (persona != null ? persona.Prompt(ReplyLanguage, Spoiler) : SystemPrompt()) + DeepRule;
+		system = AiReplyLanguage.Apply(system, TextConverter.DisplayLanguage, persona?.Id);
 		string context = persona != null ? persona.Context() : "";
 		var asking = new ChatMessage { Role = ChatMessage.User, Text = context.Length > 0 ? context + "\n\n" + asked : asked };
 		// 同一个问题里一模一样的查询不再重查、不再把结果再发一遍
@@ -350,7 +351,7 @@ public static class AiChat
 		{
 			t = t.Substring(0, tag);
 		}
-		return MoodTag.Replace(t, "").Trim();
+		return AiReplyLanguage.MoodTag.Replace(t, "").Trim();
 	}
 
 	// 剧本编号（ch4_9_3_8、S2700_01_03）；女主角口中连任务编号、旗标编号（S2700_01、G11006）也不要
@@ -393,19 +394,10 @@ public static class AiChat
 		AiSessions.Save(session);
 	}
 
-	private static readonly System.Text.RegularExpressions.Regex MoodTag = new System.Text.RegularExpressions.Regex(@"\[\s*(?:表情|mood)\s*[:：]\s*([A-Za-z_0-9]+)\s*\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
-
 	// 回复末尾的「[表情: shy]」拿出来，不显示；不在她能用的表情里就用默认
 	private static string TakeMood(string answer, AiPersona persona, out string mood)
 	{
-		mood = persona.Moods[0];
-		System.Text.RegularExpressions.Match m = MoodTag.Match(answer);
-		if (m.Success)
-		{
-			string raw = m.Groups[1].Value.ToLowerInvariant();
-			mood = persona.Moods.Contains(raw) ? raw : persona.Moods.FirstOrDefault(x => x.TrimEnd('1', '2', '3') == raw.TrimEnd('1', '2', '3')) ?? persona.Moods[0];
-		}
-		return MoodTag.Replace(answer, "").Trim();
+		return AiReplyLanguage.TakeMood(answer, persona.Moods, out mood);
 	}
 
 	/// <summary>试一下能不能连上：不带工具，问一句很短的话。</summary>

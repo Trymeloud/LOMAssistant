@@ -7,6 +7,7 @@ using System.Reflection;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using LOMAssistant;
+using LOMAssistant.Features.Ai;
 
 internal static class Program
 {
@@ -58,6 +59,22 @@ internal static class Program
         Expect("설정", "설정");
         Expect("", "");
         Expect(null, null);
+        string sourcePrompt = "叫赵活「赵哥哥」，自称「裳儿」，句末常带「的说」。";
+        string koreanPrompt = AiReplyLanguage.Apply(sourcePrompt, UiText.Korean, "girl2");
+        Check(koreanPrompt.StartsWith("[응답 언어 규칙: 한국어]") && koreanPrompt.Contains(sourcePrompt)
+            && koreanPrompt.Contains("오라버니") && koreanPrompt.Contains("[mood: laugh1]"), "Korean persona output rules");
+        string assistantPrompt = AiReplyLanguage.Apply(sourcePrompt, UiText.Korean, "");
+        Check(!assistantPrompt.Contains("엽운상 말투:") && !assistantPrompt.Contains("[mood:"), "Assistant should not receive heroine speech or mood rules");
+        Check(AiReplyLanguage.Apply(sourcePrompt, UiText.Japanese, "girl2") == sourcePrompt, "Non-Korean prompt changed");
+        foreach (string tag in new[] { "[표정: laugh]", "[表情: laugh]", "[mood: laugh]", "[MOOD：laugh]" })
+        {
+            string dialogue = AiReplyLanguage.TakeMood("오라버니, 아깝잖아.\n" + tag, new[] { "normal", "laugh1", "laugh2" }, out string mood);
+            Check(dialogue == "오라버니, 아깝잖아." && mood == "laugh1", "Localized mood marker: " + tag);
+        }
+        Check(AiReplyLanguage.TakeMood("[표정: invalid] 안녕!", new[] { "normal", "laugh1" }, out string invalidMood) == "안녕!"
+            && invalidMood == "normal", "Invalid mood fallback");
+        Check(AiReplyLanguage.TakeMood("[아이템]은 여기 있어.", new[] { "normal" }, out string noMood) == "[아이템]은 여기 있어."
+            && noMood == "normal", "Normal bracketed dialogue changed");
         foreach (string[] row in UiTextKorean.Flags)
         {
             Check(UiText.Translate(row[0], UiText.Korean) == row[1], "Flag: " + row[0]);

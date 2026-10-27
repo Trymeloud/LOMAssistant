@@ -15,6 +15,7 @@ foreach ($file in @('UiText', 'UiTextEnglish', 'UiQuestNames', 'UiConditionNames
 $arguments += "$PSScriptRoot/Program.cs"
 $arguments += "$PSScriptRoot/Audit.cs"
 $arguments += "$PSScriptRoot/FlagAudit.cs"
+$arguments += "$root/LOMAssistant.Features.Ai/AiReplyLanguage.cs"
 foreach ($assembly in @('Microsoft.CodeAnalysis', 'Microsoft.CodeAnalysis.CSharp')) {
     $file = Join-Path (Split-Path $compiler -Parent) "$assembly.dll"
     $arguments += "-r:$file"

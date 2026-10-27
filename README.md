@@ -20,6 +20,8 @@
 
 **현재 배포 버전: [v3.0.6-ko.2 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.6-ko.2).**
 
+개발 소스는 AI 답변의 한국어 규칙과 표정 태그 처리를 보완한 **3.0.6-ko.3**입니다. [수정 사항과 테스트 방법](releases/v3.0.6-ko.3.md)을 참고하세요.
+
 원본 [v3.0.6](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.6)과 게임 `release_1.0.6001.0`을 기준으로 한국어 패치를 갱신했습니다. 흐름도의 「그 외」 조건은 한국어 번역 후 축약하도록 수정했습니다. [설치 안내와 변경 사항](releases/v3.0.6-ko.2.md), [3.0.6 이식 검토](reports/compatibility-3.0.6-ko.1.md)를 참고하세요.
 
 - 내장 스토리 조건의 중국어 잔존 검사: 0건
