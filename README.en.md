@@ -73,7 +73,7 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/story-flow.webp" width="640" alt="Story map: options, conditions and destinations between story segments">
 
-- **Branch saves**: progress is recorded at quest starts and key options; click **Replay from here** to go back and try another path. Separate per save, uses no save slots, synced with Steam Cloud.
+- **Branch saves**: progress is recorded when the game autosaves at story save points and at the start of each period; click **Replay from here** to go back and try another path. Separate per save, uses no save slots, synced with Steam Cloud.
 
   <img src="media/story-nodes.webp" width="640" alt="Branch saves: recorded story segments by date, replay or delete">
 
