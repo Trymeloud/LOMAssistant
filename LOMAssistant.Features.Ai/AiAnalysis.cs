@@ -49,7 +49,8 @@ public static class AiAnalysis
 		foreach (string id in flags)
 		{
 			List<StoryUse> uses = StoryUsage.Flag(id) ?? new List<StoryUse>();
-			sb.Append("\n【旗标 ").Append(id).Append("「").Append(FlagName(id)).Append("」】改的地方 ").Append(uses.Count(u => u.Changes)).Append(" 处，判定的地方 ").Append(uses.Count(u => !u.Changes)).Append(" 处\n");
+			sb.Append("\n【旗标 ").Append(id).Append("「").Append(FlagName(id)).Append("」】改的地方 ").Append(uses.Count(u => u.Changes)).Append(" 处，判定的地方 ").Append(uses.Count(u => !u.Changes)).Append(" 处")
+				.Append(AiKnowledge.FlagNow(id) is int now ? "；这一局现在 = " + now : "").Append('\n');
 			AppendUses(sb, uses.OrderByDescending(u => u.Changes));
 		}
 		return sb.Length > 0 ? sb.ToString() : "没找到「" + name + "」的旗标或好感判定。换个说法（旗标说明里的词、人名），或者先用 search。";

@@ -35,13 +35,13 @@ public static class AiKnowledge
 			Schema(("name", "string", "人名或称呼，如 唐默铃、小梅、二师兄、火龙仙君"))),
 		("heroine", "看一位可结缘女主角的结缘路线：要经过哪些任务、每一站的好感门槛和要设的结缘旗标、玩家现在做到哪一步。",
 			Schema(("name", "string", "女主角的名字或称呼，如 小师妹、唐默铃、小竹、郁竹"))),
-		("usage", "反查：一面旗标（名字或编号）、某人的好感，在哪些剧情里被改、被判定（剧本、所属任务、走哪条分岔、改成多少或要多少）。问「某个旗标在哪设」「某人好感在哪被判定」「要满足什么才能触发」时用。",
+		("usage", "反查：一面旗标（名字或编号）、某人的好感，在哪些剧情里被改、被判定（剧本、所属任务、走哪条分岔、改成多少或要多少），以及这一局现在的值。问「某个旗标在哪设」「某人好感在哪被判定」「要满足什么才能触发」时用。",
 			Schema(("name", "string", "旗标的名字（说明里的词，如 小竹告白）或编号（如 G11006）；或人名（查她的好感在哪被判定）"))),
 		("routes", "整条路线算账：从一个任务的开头剧本走到底，列出每一条完整的路（要选什么、掷骰掷多少、满足什么条件），以及这一条路上加减的好感、数值合计和设的旗标、结局。分岔互斥，一次只走一条，所以「这个任务最多能加多少好感」「哪条路最好」一定要用它，不要把各剧本的变化自己加起来。",
 			Schema(("key", "string", "任务编号（如 S2700_01）或剧本编号"), ("focus", "string", "关心的那一项，如 郁竹好感、心相；按它从多到少排，并给出最多、最少。不关心就传空字符串"))),
 		("settings", "看咖啡伴侣（本 Mod）的设置项：名字、现在的值、可选值或范围、说明、改了要不要重启。玩家想改 Mod 的设置时先用它，再用 propose_change 提出修改。",
 			Schema(("query", "string", "关键词，如 倍速、骰子、随时存档；传空字符串列出全部"))),
-		("player_state", "看玩家现在的进度：游戏日期、主线和可触发的支线、正在进行的剧情、主要数值、所有人的好感、结缘对象。回答和玩家当前进度有关的问题前先看一次。",
+		("player_state", "看玩家现在的进度：游戏日期、主线和可触发的支线、正在进行的剧情、主要数值、所有人的好感、结缘对象。不含旗标：进的哪一门、任务进度计数、某段剧情触发过没有，用 usage 查旗标的当前值。回答和玩家当前进度有关的问题前先看一次。",
 			new JObject { ["type"] = "object", ["properties"] = new JObject() }),
 		("propose_change", "向玩家提议修改数值：会在对话里显示一张卡片，写着每项的当前值和新值，玩家点「确认」才会改，点「不改」就不改。"
 			+ "能改的是 Mod 数值页里有的：各项数值（心相、银两、体力……）、好感（写成「好感·人名」）、心上人（新值可以写女主角的名字）、天赋、旗标（写编号或名字，如「旗标·小竹告白」，新值 1 是做到、0 是没做到）、书籍和物品数量等；"
@@ -409,6 +409,36 @@ public static class AiKnowledge
 		return sb.Length > 0 ? sb.ToString() : "没有找到「" + query + "」。换个说法试试（人名、地名、任务名里的词）。";
 	}
 
+	/// <summary>这一局旗标的当前值（玩家在标题画面、没读档时为空）。</summary>
+	internal static int? FlagNow(string id)
+	{
+		if (PlayerStatManagerData.Instance == null || UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Title")
+		{
+			return null;
+		}
+		try
+		{
+			return MissionManagerData.Instance?.GetFlag(id)?.State;
+		}
+		catch
+		{
+			return null;
+		}
+	}
+
+	private static string FlagsNow(IEnumerable<string> ids)
+	{
+		var parts = new List<string>();
+		foreach (string id in ids.Distinct())
+		{
+			if (FlagNow(id) is int v)
+			{
+				parts.Add(Clean(DataHelper.GetFlagName(id)) + " (" + id + ") = " + v);
+			}
+		}
+		return string.Join("，", parts.ToArray());
+	}
+
 	private static string Quest(string key)
 	{
 		StoryMission m = StoryAtlas.Find(key) ?? StoryAtlas.Missions.FirstOrDefault(x => Clean(x.Title).Contains(key));
@@ -427,6 +457,11 @@ public static class AiKnowledge
 		if (cond.Length > 0)
 		{
 			sb.Append("触发条件：").Append(cond).Append('\n');
+			string now = FlagsNow(Regex.Matches(cond, @"\(([A-Z]\d{5})\)").Cast<Match>().Select(x => x.Groups[1].Value));
+			if (now.Length > 0)
+			{
+				sb.Append("条件里的旗标这一局现在：").Append(now).Append("（拿它对照触发条件，判断玩家还能不能触发）\n");
+			}
 		}
 		foreach (StoryEntry e in m.Entries)
 		{

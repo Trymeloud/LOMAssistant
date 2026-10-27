@@ -386,6 +386,40 @@ public partial class StoryReviewPanel
 	// 输入框的控件编号（画完输入框时记下），回车判断在画它之前，要靠它认
 	private int _aiInputId;
 	private float _aiRefocusLogged = -100f;
+	// 自己画的光标：闪烁从光标最后一次移动算起，打字、移动时一直亮着
+	private int _aiCaretIndex = -1;
+	private float _aiCaretMoved;
+
+	// Unity 自带的竖线光标时有时无，输入框真有键盘焦点时自己画一条（自带的在画输入框时设成透明）
+	private void DrawAiCaret(Rect box)
+	{
+		if (_aiInputId == 0 || GUIUtility.keyboardControl != _aiInputId || !string.IsNullOrEmpty(Input.compositionString))
+		{
+			return;
+		}
+		var editor = GUIUtility.GetStateObject(typeof(TextEditor), _aiInputId) as TextEditor;
+		if (editor == null || editor.cursorIndex != editor.selectIndex)
+		{
+			return;
+		}
+		int index = Mathf.Clamp(editor.cursorIndex, 0, _aiInput.Length);
+		if (index != _aiCaretIndex)
+		{
+			_aiCaretIndex = index;
+			_aiCaretMoved = Time.realtimeSinceStartup;
+		}
+		if (Mathf.Repeat(Time.realtimeSinceStartup - _aiCaretMoved, 1f) >= 0.5f)
+		{
+			return;
+		}
+		Vector2 at = _aiField.GetCursorPixelPosition(box, new GUIContent(_aiInput), index) - editor.scrollOffset;
+		float height = _aiField.lineHeight;
+		if (at.y < box.y || at.y + height > box.yMax)
+		{
+			return;
+		}
+		Fill(new Rect(at.x, at.y, Mathf.Max(1f, Mathf.Round(S(1))), height), Ink);
+	}
 	private int _aiSeenFrame;
 
 	/// <summary>窗口关了、换到别的页、点了窗口外面：不再算正在输入（每次 OnGUI 开头调用）。</summary>
@@ -856,7 +890,11 @@ public partial class StoryReviewPanel
 			send = e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter;
 			e.Use();
 		}
+		// 自带的光标藏起来（透明），只留 DrawAiCaret 画的那条，不然两条闪烁节奏不同，忽粗忽细
+		Color caret = GUI.skin.settings.cursorColor;
+		GUI.skin.settings.cursorColor = Color.clear;
 		_aiInput = GUI.TextArea(box, _aiInput, 500, _aiField);
+		GUI.skin.settings.cursorColor = caret;
 		if (GUI.GetNameOfFocusedControl() == "AiInput")
 		{
 			_aiInputId = GUIUtility.keyboardControl;
@@ -884,6 +922,7 @@ public partial class StoryReviewPanel
 			{
 				GUI.Label(box, "点这里输入问题，回车发送，Shift+回车换行", _aiHint);
 			}
+			DrawAiCaret(box);
 		}
 		var button = new Rect(r.xMax - S(140), r.yMax - inputHeight, S(140), inputHeight);
 		if (AiChat.Busy)
