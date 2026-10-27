@@ -2,6 +2,14 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.5 (2026-10-27)
+
+- **The AI guide can look up items and development projects**: what an item does when used, which stories give it, check for it or take it, and which month's shop sells it; for forge, alchemy and poison projects, which project has to reach which level before it appears, and what it can evolve into.
+- **The AI guide covers more game systems**: what Fourth Brother's shop has now and what the food does; sect size, sect funds, and each facility's income and effects per period; for martial arts manuals, the points each level needs, the training requirements and what each level changes; what talents do and where they come from; gallery rewards for a new game plus.
+- **Fuller AI lookups**: stats and skills such as mood, temperament, change of heart and sect size can be looked up for where they are checked and changed; branch checks now show what happens on that branch. Deaths that no story or duel leads to are reported as unreachable in the current version.
+- **AI reply layout**: text wraps by character width, "·" and "1." no longer sit alone on a line, and no half characters show at the end of a line.
+- **Fewer branch saves**: they now follow the game's autosaves and are recorded only at story save points and at the start of each period, not at every key option.
+
 ## 3.0.4 (2026-10-26)
 
 - **Easier to bring the UI back**: after hiding the UI with right-click in a story, right-click, left-click, any other key or a gamepad button restores it. F1-F12, the screenshot key, Alt, Ctrl, Shift, Win and Tab don't count.
