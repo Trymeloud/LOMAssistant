@@ -16,8 +16,8 @@ namespace LOMAssistant;
 /// </summary>
 internal static class EventNameKorean
 {
-    private static readonly Dictionary<string, string> Overrides = new Dictionary<string, string>(StringComparer.Ordinal);
-    private static readonly SortedDictionary<string, string> Seen = new SortedDictionary<string, string>(StringComparer.Ordinal);
+    private static readonly EventNameTable Overrides = new EventNameTable();
+    private static readonly SortedSet<string> Seen = new SortedSet<string>(StringComparer.Ordinal);
     private static bool loaded;
     private static PositionResultConfig lastExported;
     private static readonly string Folder = Path.GetDirectoryName(typeof(EventNameKorean).Assembly.Location) ?? ".";
@@ -50,9 +50,10 @@ internal static class EventNameKorean
             {
                 if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#", StringComparison.Ordinal)) continue;
                 string[] fields = line.TrimStart('\uFEFF').Split('\t');
-                // Format: event ID <tab> Chinese original <tab> Korean translation
+                // Format: event ID <tab> Chinese original <tab> Korean translation.
+                // Both the ID and original identify a label; IDs alone are reused.
                 if (fields.Length < 3 || string.IsNullOrWhiteSpace(fields[0]) || string.IsNullOrWhiteSpace(fields[2])) continue;
-                Overrides[fields[0]] = fields[2].Trim();
+                Overrides.Add(fields[0], TextConverter.ToSimplified(Clean(fields[1])), fields[2].Trim());
             }
         }
         catch (Exception ex)
@@ -66,9 +67,8 @@ internal static class EventNameKorean
         if (TextConverter.DisplayLanguage != UiText.Korean) return original;
         Load();
         string id = data != null ? data.name : null;
-        if (!string.IsNullOrEmpty(id) && Overrides.TryGetValue(id, out string korean)) return korean;
-
         string text = TextConverter.ToSimplified(original ?? "");
+        if (Overrides.TryGet(id, Clean(text), out string korean)) return korean;
         // Small, reviewed defaults; all other original names are exported for manual review.
         // Do not interpret or replace game IDs, random-event probability or selection keys.
         text = text.Replace("排队的", "대기 중인 ")
@@ -97,13 +97,13 @@ internal static class EventNameKorean
                 foreach (PositionEventData data in pool.List)
                 {
                     if (data == null || string.IsNullOrWhiteSpace(data.name)) continue;
-                    Seen[data.name] = Clean(Raw(data));
+                    Seen.Add(Clean(data.name) + "\t" + Clean(Raw(data)));
                 }
             }
             if (Seen.Count == previous) return;
             var lines = new List<string> { "# event ID\tChinese developer label\tKorean translation (fill this column in event-names-ko.tsv)" };
-            foreach (var item in Seen)
-                lines.Add(Clean(item.Key) + "\t" + item.Value + "\t");
+            foreach (string item in Seen)
+                lines.Add(item + "\t");
             File.WriteAllLines(AuditFile, lines, new UTF8Encoding(true));
         }
         catch (Exception ex)

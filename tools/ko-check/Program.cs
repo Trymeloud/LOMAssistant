@@ -130,6 +130,23 @@ internal static class Program
             Console.WriteLine("Built-in condition strings with remaining Chinese: " + missing.Count);
             Check(missing.Count == 0, "Untranslated built-in conditions; see untranslated-conditions.tsv");
         }
+        if (args.Length > 1)
+        {
+            var eventNames = new EventNameTable();
+            var eventPairs = new HashSet<(string, string)>();
+            foreach (string line in File.ReadAllLines(Path.Combine(args[1], "localization", "event-names-ko.tsv")))
+            {
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+                string[] fields = line.Split('\t');
+                Check(fields.Length == 3 && eventPairs.Add((fields[0], fields[1].Trim())) && !Han.IsMatch(fields[2]), "Event translation row: " + line);
+                eventNames.Add(fields[0], fields[1], fields[2]);
+            }
+            Check(eventNames.TryGet("Travel_F_01", "P_失敗_001", out string ordinaryTravel) && ordinaryTravel == "실패 이벤트 001", "Ordinary travel mislabeled as hell-path encounter");
+            Check(eventNames.TryGet("Travel_F_01", "遭遇地獄道鬼卒攔路", out string hellTravel) && hellTravel == "지옥도 귀졸의 길막", "Actual hell-path encounter lost its label");
+            Check(eventNames.TryGet("Travel_F_03", "P_失敗_003", out string otherTravel) && otherTravel == "실패 이벤트 003", "Ordinary travel mislabeled as hungry-ghost encounter");
+            Check(eventNames.TryGet("Travel_E_01", "官兵護航", out string escort) && escort == "관군의 호송", "Escort mislabeled as unrelated special event");
+            Check(!eventNames.TryGet("Travel_F_01", "unknown context", out _), "Unrecognized context must not borrow a label from another pool");
+        }
         Console.WriteLine("PASS: " + count + " translation checks");
         if (args.Length > 1) Audit.Run(args[1]);
         if (args.Length > 3) FlagAudit.Run(args[2], args[3]);

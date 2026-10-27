@@ -29,10 +29,10 @@ $ids = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]
 foreach ($line in [IO.File]::ReadAllLines($table, [Text.Encoding]::UTF8)) {
     if ([string]::IsNullOrWhiteSpace($line) -or $line.StartsWith('#')) { continue }
     $fields = $line.Split([char]9)
-    if ($fields.Length -ne 3 -or [string]::IsNullOrWhiteSpace($fields[0]) -or [string]::IsNullOrWhiteSpace($fields[2])) {
+    if ($fields.Length -ne 3 -or [string]::IsNullOrWhiteSpace($fields[0]) -or [string]::IsNullOrWhiteSpace($fields[1]) -or [string]::IsNullOrWhiteSpace($fields[2])) {
         throw 'Event translation table has an invalid row.'
     }
-    if (-not $ids.Add($fields[0])) { throw "Duplicate event ID: $($fields[0])" }
+    if (-not $ids.Add($fields[0] + [char]9 + $fields[1].Trim())) { throw "Duplicate event ID and original label: $($fields[0])" }
     if ($fields[2] -match '[\u3400-\u4DBF\u4E00-\u9FFF]') { throw "Untranslated event label: $($fields[0])" }
 }
 if ($ids.Count -eq 0) { throw 'Event translation table is empty.' }

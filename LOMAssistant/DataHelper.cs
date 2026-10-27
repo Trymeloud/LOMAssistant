@@ -468,7 +468,7 @@ public static class DataHelper
 			text = fieldValue2;
 		}
 		// In Korean, _devNote is a Chinese developer label rather than official localized text.
-		// Use the stable event ID to look up a Korean display name when available.
+		// Match both the event ID and developer label: travel pools reuse event IDs.
 		if (TextConverter.DisplayLanguage == UiText.Korean)
 			text = EventNameKorean.Resolve(eventData, text);
 		return RichText.Golden(TextConverter.ToSimplified(text));
