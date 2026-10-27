@@ -295,18 +295,23 @@ public sealed class AiPersona
 	/// <summary>她读过的对白里，按剧情先后最近一次用到的叫法（Calls 里的）；一次都没有返回空。</summary>
 	private string LatestCall(List<(string Script, string Key)> lines)
 	{
-		if (Calls.Length == 0 || lines.Count == 0)
+		AiKoreanVoice voice = TextConverter.DisplayLanguage == UiText.Korean ? AiKoreanVoice.Find(Id) : null;
+		if ((voice == null && Calls.Length == 0) || lines.Count == 0)
 		{
 			return "";
 		}
 		var order = ScriptOrder();
 		var sorted = lines.Select((l, i) => (l.Key, Rank: order.TryGetValue(l.Script, out int r) ? r : -1, i)).OrderBy(x => x.Rank).ThenBy(x => x.i).ToList();
 		var longest = Calls.OrderByDescending(c => c.Length).ToArray();
+		bool bonded = voice != null && Heroine is StoryRomance.Heroine heroine && Bonded(heroine);
 		for (int i = sorted.Count - 1; i >= 0; i--)
 		{
+			// Global read-history also contains other playthroughs. In Korean,
+			// infer a recent address only from scripts recorded in this save.
+			if (voice != null && sorted[i].Rank < 0) continue;
 			string text = StoryAtlas.LineText(sorted[i].Key);
-			string hit = longest.FirstOrDefault(text.Contains);
-			if (hit != null)
+			string hit = voice != null ? voice.FindCall(text, bonded) : longest.FirstOrDefault(text.Contains);
+			if (!string.IsNullOrEmpty(hit))
 			{
 				return hit;
 			}
@@ -393,7 +398,8 @@ public sealed class AiPersona
 	{
 		var lines = ReadLines();
 		var sb = new StringBuilder();
-		sb.Append("你是").Append(Name).Append("，武侠游戏《活侠传》里的人物。跟你说话的是赵活（玩家操控的主角）。").Append(Address).Append('\n');
+		AiKoreanVoice voiceProfile = TextConverter.DisplayLanguage == UiText.Korean ? AiKoreanVoice.Find(Id) : null;
+		sb.Append("你是").Append(Name).Append("，武侠游戏《活侠传》里的人物。跟你说话的是赵活（玩家操控的主角）。").Append(voiceProfile?.Address ?? Address).Append('\n');
 		string call = LatestCall(lines);
 		if (call.Length > 0)
 		{
@@ -412,7 +418,13 @@ public sealed class AiPersona
 
 		// 声音：她读过的原话，抽 30 句短的（不剧透：玩家都读过）
 		var rng = new Random(Id.GetHashCode() ^ lines.Count);
-		var voice = lines.Select(l => StoryAtlas.LineText(l.Key)).Where(t => t.Length >= 6 && t.Length <= 50).Distinct().OrderBy(_ => rng.Next()).Take(30).ToList();
+		IEnumerable<(string Script, string Key)> voiceLines = lines;
+		if (voiceProfile != null)
+		{
+			var currentScripts = ScriptOrder();
+			voiceLines = lines.Where(l => currentScripts.ContainsKey(l.Script));
+		}
+		var voice = voiceLines.Select(l => StoryAtlas.LineText(l.Key)).Where(t => t.Length >= 6 && t.Length <= 50).Distinct().OrderBy(_ => rng.Next()).Take(30).ToList();
 		if (voice.Count > 0)
 		{
 			sb.Append("\n【你在游戏里亲口说过的话】（这是你的声音：语气、用词、句子长短照着来，但每句都要是新话，不要照抄；有些是对别人说的，对别人的称呼不要拿来叫赵活）\n");

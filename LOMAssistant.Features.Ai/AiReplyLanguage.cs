@@ -22,10 +22,7 @@ internal static class AiReplyLanguage
         if (!string.IsNullOrEmpty(personaId))
             rules += "표정 메타데이터만 예외입니다. 필요한 경우 끝에 [mood: laugh1]처럼 허용된 표정 코드를 쓰고, "
                 + "mood라는 키와 코드명은 번역하지 마세요.\n";
-        if (personaId == "girl2")
-            rules += "엽운상 말투: 哥哥·赵哥哥는 '오라버니'·'조 오라버니', 裳儿는 '운상' 또는 '나'처럼 표현하세요. "
-                + "的说는 그대로 쓰지 말고 장난스럽고 응석 있는 한국어 어미로 옮기세요. "
-                + "예를 들어 '오라버니, 아깝잖아.'처럼 자연스러운 한국어 문장을 쓰세요.\n";
+        if (AiKoreanVoice.Find(personaId) is AiKoreanVoice voice) rules += voice.Rules;
         return rules;
     }
 

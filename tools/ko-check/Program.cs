@@ -66,6 +66,34 @@ internal static class Program
         string assistantPrompt = AiReplyLanguage.Apply(sourcePrompt, UiText.Korean, "");
         Check(!assistantPrompt.Contains("엽운상 말투:") && !assistantPrompt.Contains("[mood:"), "Assistant should not receive heroine speech or mood rules");
         Check(AiReplyLanguage.Apply(sourcePrompt, UiText.Japanese, "girl2") == sourcePrompt, "Non-Korean prompt changed");
+        var officialCalls = new[]
+        {
+            (Id: "sister1", Line: "사형.", Call: "사형"),
+            (Id: "girl1", Line: "조 군……", Call: "조 군"),
+            (Id: "girl2", Line: "조 오라버니!", Call: "조 오라버니"),
+            (Id: "girl4", Line: "아, 조 동생, 또 만났구나!", Call: "조 동생"),
+            (Id: "girl5", Line: "아활.", Call: "아활"),
+            (Id: "girl6", Line: "제자야.", Call: "제자야"),
+            (Id: "girl7", Line: "조활!", Call: "조활"),
+            (Id: "girl8", Line: "조 사형……!", Call: "조 사형"),
+            (Id: "girl9", Line: "조활.", Call: "조활"),
+            (Id: "brother1", Line: "사제!", Call: "사제"),
+        };
+        foreach (var row in officialCalls)
+        {
+            AiKoreanVoice voice = AiKoreanVoice.Find(row.Id);
+            Check(voice != null && !Han.IsMatch(voice.Address + voice.Rules), "Missing or untranslated official Korean voice: " + row.Id);
+            Check(voice.FindCall(row.Line, false) == row.Call, "Official Korean address not recognized: " + row.Id);
+            Check(AiReplyLanguage.Apply(sourcePrompt, UiText.Korean, row.Id).Contains(voice.Rules), "Voice guidance not included: " + row.Id);
+        }
+        Check(AiKoreanVoice.Find("girl2").Address.Contains("'상아'"), "Ye Yunshang must use the official Korean self-address");
+        Check(AiKoreanVoice.Find("girl5").Address.Contains("'본매'") && AiKoreanVoice.Find("girl1").Address.Contains("'신첩'"), "Distinct self-addresses lost");
+        Check(AiKoreanVoice.Find("sister1").FindCall("대사형이 오셨어.", false) == "", "Do not mistake another senior brother for the player's address");
+        Check(AiKoreanVoice.Find("girl7").FindCall("조랑!", false) == "", "Romantic address before bonding");
+        Check(AiKoreanVoice.Find("girl7").FindCall("조랑!", true) == "조랑", "Romantic address after bonding");
+        Check(AiKoreanVoice.Find("girl7").FindCall("조 랑, 조 랑……", true) == "조 랑", "Official spaced address variant");
+        Check(AiKoreanVoice.Find("girl8").FindCall("낭군감을 찾는 이야기입니다.", true) == "", "Do not infer an address from part of another word");
+        Check(AiKoreanVoice.Find("") == null && AiKoreanVoice.Find(null) == null, "Assistant must not inherit a character voice");
         foreach (string tag in new[] { "[표정: laugh]", "[表情: laugh]", "[mood: laugh]", "[MOOD：laugh]" })
         {
             string dialogue = AiReplyLanguage.TakeMood("오라버니, 아깝잖아.\n" + tag, new[] { "normal", "laugh1", "laugh2" }, out string mood);
@@ -132,6 +160,9 @@ internal static class Program
         }
         if (args.Length > 1)
         {
+            string personasSource = File.ReadAllText(Path.Combine(args[1], "LOMAssistant.Features.Ai", "AiPersonas.cs"));
+            foreach (Match match in Regex.Matches(personasSource, @"\bId\s*=\s*""([^""]+)"""))
+                Check(AiKoreanVoice.Find(match.Groups[1].Value) != null, "Runtime persona has no Korean voice: " + match.Groups[1].Value);
             var eventNames = new EventNameTable();
             var eventPairs = new HashSet<(string, string)>();
             foreach (string line in File.ReadAllLines(Path.Combine(args[1], "localization", "event-names-ko.tsv")))

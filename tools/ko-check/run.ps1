@@ -16,6 +16,7 @@ $arguments += "$PSScriptRoot/Program.cs"
 $arguments += "$PSScriptRoot/Audit.cs"
 $arguments += "$PSScriptRoot/FlagAudit.cs"
 $arguments += "$root/LOMAssistant.Features.Ai/AiReplyLanguage.cs"
+$arguments += "$root/LOMAssistant.Features.Ai/AiKoreanVoice.cs"
 $arguments += "$root/LOMAssistant/EventNameTable.cs"
 foreach ($assembly in @('Microsoft.CodeAnalysis', 'Microsoft.CodeAnalysis.CSharp')) {
     $file = Join-Path (Split-Path $compiler -Parent) "$assembly.dll"
