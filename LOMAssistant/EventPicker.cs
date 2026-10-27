@@ -348,6 +348,9 @@ public class EventPicker : MonoBehaviour
 			_scroll = Vector2.zero;
 		}
 		_windowRect = GUILayout.Window(584131, _windowRect, DrawWindow, "", _window);
+		// 选事件时游戏停着等，窗口拖不出屏幕：左右整个留在屏幕里，上下至少露出 40 像素
+		_windowRect.x = Mathf.Clamp(_windowRect.x, 0f, Mathf.Max(0f, Screen.width - _windowRect.width));
+		_windowRect.y = Mathf.Clamp(_windowRect.y, 0f, Mathf.Max(0f, Screen.height - 40f * scale));
 		InputGuard.Report("EventPicker", _windowRect);
 	}
 

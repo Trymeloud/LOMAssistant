@@ -291,6 +291,10 @@ public partial class StoryReviewPanel : MonoBehaviour
 			return;
 		}
 		_windowRect = GUI.Window(WindowId, _windowRect, DrawWindow, "", _window);
+		// 拖动时标题栏至少留 160 像素在屏幕里，拖不丢；位置不存，重启回到默认位置
+		float keep = S(160);
+		_windowRect.x = Mathf.Clamp(_windowRect.x, keep - _windowRect.width, Screen.width - keep);
+		_windowRect.y = Mathf.Clamp(_windowRect.y, 0f, Mathf.Max(0f, Screen.height - S(56)));
 		InputGuard.Report("StoryReview", _windowRect);
 	}
 
