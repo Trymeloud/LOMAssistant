@@ -225,14 +225,14 @@ public class SaveBrowser : MonoBehaviour
 		if (_isLoad)
 		{
 			BuildTabs(margin, top);
-			// 手动存档页列表右上角：排序切换（配置 SaveListOrder），字样和「删除」一样，不加边框
+			// 手动存档页列表右上角：排序切换（配置 SaveListOrder，按栏位 → 最近在上 → 原版：按栏位、空栏位也列出），字样和「删除」一样，不加边框
 			_sortButton = TextButton(_root, "排序：按栏位");
 			Place((RectTransform)_sortButton.transform, margin + listWidth - 240f, top + 16f, 240f, 40f);
 			_sortButton.GetComponentInChildren<Text>().fontSize = 24;
 			_sortButton.GetComponentInChildren<Text>().alignment = TextAnchor.MiddleRight;
 			_sortButton.onClick.AddListener(() =>
 			{
-				ConfigManager.SaveListOrder.Value = ConfigManager.SaveListOrder.Value == 1 ? 0 : 1;
+				ConfigManager.SaveListOrder.Value = (ConfigManager.SaveListOrder.Value + 1) % 3;
 				_selected = -1;
 				Refresh();
 			});
@@ -500,7 +500,8 @@ public class SaveBrowser : MonoBehaviour
 			if (_sortButton != null)
 			{
 				_sortButton.gameObject.SetActive(_isLoad && _tab == 0);
-				_sortButton.GetComponentInChildren<Text>().text = ConfigManager.SaveListOrder.Value == 1 ? "排序：最近在上" : "排序：按栏位";
+				int order = ConfigManager.SaveListOrder.Value;
+				_sortButton.GetComponentInChildren<Text>().text = order == 1 ? "排序：最近在上" : order == 2 ? "排序：原版" : "排序：按栏位";
 			}
 			for (int i = 0; i < _tabs.Count; i++)
 			{
@@ -557,8 +558,13 @@ public class SaveBrowser : MonoBehaviour
 				GameSave data = SaveSystem.Instance.GetSaveData(name);
 				if (data == null)
 				{
-					// 原来的界面点空栏位就是开新游戏：最上面放一条「开始新游戏」，用第一个空栏位
-					if (!list.Any(e => e.Caption == NewGame))
+					// 原来的界面点空栏位就是开新游戏：最上面放一条「开始新游戏」，用第一个空栏位；
+					// 选了「含空栏位」就和原版一样，每个空栏位留在原位，点哪格就在哪格开新游戏
+					if (ConfigManager.SaveListOrder.Value == 2)
+					{
+						list.Add(new Entry { Slot = name, Label = SlotLabel(name), Caption = NewGame, Compact = true, Primary = () => slot.OnTitleClick() });
+					}
+					else if (!list.Any(e => e.Caption == NewGame))
 					{
 						list.Insert(0, new Entry { Slot = name, Label = SlotLabel(name), Caption = NewGame, Compact = true, Primary = () => slot.OnTitleClick() });
 					}

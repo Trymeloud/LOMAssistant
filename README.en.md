@@ -104,7 +104,7 @@ Connect a large language model with your own API key to ask about the story and 
 
 ### Saves
 
-- **Save anywhere**: save during dialogue, options, dice rolls or on the training map, without using the game's slots. F5 saves, F7 loads the latest, F6 lists them all (notes, the dialogue at that point); up to 100 are kept. Not available in combat.
+- **Save anywhere**: save during dialogue, options, dice rolls or on the training map, without using the game's slots. F5 saves, F7 loads the latest, F6 lists them all (notes, the dialogue at that point, grouped by month with filters and group delete); no limit by default, set one in Settings. Not available in combat.
 - **Roll back**: after seeing a check, press F4 to go back to the line before it, adjust stats with F9 and continue; the check is re-evaluated.
 
   <img src="media/anytime-save.webp" width="640" alt="Save-anywhere page: all saves, load, note, delete">

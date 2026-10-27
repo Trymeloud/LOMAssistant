@@ -134,7 +134,7 @@ public partial class StoryReviewPanel
 			{
 				Row(ConfigManager.EnableAnytimeSave, "随时存档"),
 				Row(ConfigManager.EnableStoryReview, "节点存档"),
-				Row(ConfigManager.AnytimeSaveLimit, "随时存档最多保留几个", 1f, 999f),
+				Row(ConfigManager.AnytimeSaveLimit, "随时存档最多保留几个（0=不限）", 0f, 999f),
 				Row(ConfigManager.SaveSlotCount, "手动存档栏位", 20f, 999f),
 				Row(ConfigManager.LegendSlotPages, "传奇栏位页数", 1f, 50f),
 				Row(ConfigManager.AutoSaveHistory, "自动存档多留旧档", 0f, 50f),
@@ -173,6 +173,7 @@ public partial class StoryReviewPanel
 				Row(ConfigManager.SaveNoteKey, "存档备注"),
 				Row(ConfigManager.HideUIKey, "隐藏界面看 CG"),
 				Row(ConfigManager.SkipReadKey, "一键快进已读对话"),
+				Row(ConfigManager.SkipActionKey, "空过一次行动"),
 				Row(ConfigManager.AiPanelKey, "AI陪玩页"),
 				Row(ConfigManager.AnytimePanelKey, "随时存档页"),
 				Row(ConfigManager.AnytimeSaveKey, "随时存档：存新档"),

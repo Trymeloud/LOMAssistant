@@ -222,8 +222,9 @@ public partial class AnytimeSave
 		summaries.RemoveAll(s => s.file == name);
 		summaries.Add(Summarize(data, name));
 		Sort();
-		int limit = Math.Max(1, ConfigManager.AnytimeSaveLimit.Value);
-		while (summaries.Count > limit)
+		// 0 = 不限，不自动删
+		int limit = ConfigManager.AnytimeSaveLimit.Value;
+		while (limit > 0 && summaries.Count > limit)
 		{
 			SaveSummary oldest = summaries[summaries.Count - 1];
 			DeleteFiles(oldest.file);
