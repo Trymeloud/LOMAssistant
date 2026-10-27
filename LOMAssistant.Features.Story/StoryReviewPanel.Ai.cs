@@ -561,6 +561,169 @@ public partial class StoryReviewPanel
 		return Mathf.Min(max, single.CalcSize(new GUIContent(text)).x + 2f);
 	}
 
+	// Unity 自带的折行只在空格处断：一整段中文算一个词，放不下就整段挪到下一行（「·」「1.」单独留一行），
+	// 硬断时行尾的字还会露出半截。这里按字宽自己折行：中文每个字前后都能断，英文按单词断，「，。」」等不放行首
+	private static readonly Dictionary<string, string> _wrapCache = new Dictionary<string, string>();
+	private static readonly Dictionary<(int, int, bool, char), float> _charWidth = new Dictionary<(int, int, bool, char), float>();
+	private static readonly GUIStyle _measure = new GUIStyle { wordWrap = false, richText = true };
+
+	private static string Wrap(string rich, GUIStyle style, float width)
+	{
+		if (width <= 0f || string.IsNullOrEmpty(rich))
+		{
+			return rich;
+		}
+		string key = style.fontSize + "|" + (int)width + "|" + rich;
+		if (_wrapCache.TryGetValue(key, out string done))
+		{
+			return done;
+		}
+		if (_wrapCache.Count > 300)
+		{
+			_wrapCache.Clear();
+		}
+		_measure.font = style.font;
+		_measure.fontSize = style.fontSize;
+		_measure.fontStyle = style.fontStyle;
+		var sb = new StringBuilder(rich.Length + 32);
+		var open = new List<string>();
+		string[] lines = rich.Split('\n');
+		for (int li = 0; li < lines.Length; li++)
+		{
+			if (li > 0)
+			{
+				sb.Append('\n');
+			}
+			string line = lines[li];
+			float x = 0f;
+			int i = 0;
+			while (i < line.Length)
+			{
+				// 一个单位：前面挂着的富文本标签 + 一个汉字，或一个英文单词，或一个空格；后面跟着的不能放行首的标点也算进来
+				var unit = new StringBuilder();
+				var tagsAfter = new List<string>(open);
+				float w = 0f;
+				int start = i;
+				void TakeTags()
+				{
+					while (i < line.Length && line[i] == '<')
+					{
+						int end = line.IndexOf('>', i);
+						if (end < 0)
+						{
+							break;
+						}
+						string tag = line.Substring(i, end - i + 1);
+						unit.Append(tag);
+						if (tag.StartsWith("</"))
+						{
+							if (tagsAfter.Count > 0)
+							{
+								tagsAfter.RemoveAt(tagsAfter.Count - 1);
+							}
+						}
+						else
+						{
+							tagsAfter.Add(tag);
+						}
+						i = end + 1;
+					}
+				}
+				float Take()
+				{
+					char c = line[i++];
+					unit.Append(c);
+					return CharWidth(c, tagsAfter.Exists(t => t == "<b>"));
+				}
+				TakeTags();
+				if (i >= line.Length)
+				{
+					sb.Append(unit);
+					open = tagsAfter;
+					break;
+				}
+				char first = line[i];
+				bool space = first == ' ';
+				if (space || first > 0x2E7F)
+				{
+					w += Take();
+				}
+				else
+				{
+					while (i < line.Length && line[i] != ' ' && line[i] <= 0x2E7F && line[i] != '<')
+					{
+						w += Take();
+					}
+				}
+				while (true)
+				{
+					int save = i;
+					var saveTags = new List<string>(tagsAfter);
+					int saveLen = unit.Length;
+					TakeTags();
+					if (i < line.Length && NoLineStart.IndexOf(line[i]) >= 0)
+					{
+						w += Take();
+						continue;
+					}
+					i = save;
+					tagsAfter = saveTags;
+					unit.Length = saveLen;
+					break;
+				}
+				if (x > 0f && x + w > width)
+				{
+					for (int k = open.Count - 1; k >= 0; k--)
+					{
+						sb.Append("</").Append(TagName(open[k])).Append('>');
+					}
+					sb.Append('\n');
+					foreach (string t in open)
+					{
+						sb.Append(t);
+					}
+					x = 0f;
+					if (space)
+					{
+						open = tagsAfter;
+						continue;
+					}
+				}
+				sb.Append(unit);
+				x += w;
+				open = tagsAfter;
+				if (i == start)
+				{
+					sb.Append(line[i++]);
+				}
+			}
+		}
+		string result = sb.ToString();
+		_wrapCache[key] = result;
+		return result;
+	}
+
+	private static string TagName(string tag)
+	{
+		string name = tag.Substring(1, tag.Length - 2);
+		int cut = name.IndexOfAny(new[] { '=', ' ' });
+		return cut >= 0 ? name.Substring(0, cut) : name;
+	}
+
+	private static float CharWidth(char c, bool bold)
+	{
+		var key = (_measure.font != null ? _measure.font.GetInstanceID() : 0, _measure.fontSize, bold, c);
+		if (_charWidth.TryGetValue(key, out float w))
+		{
+			return w;
+		}
+		string open = bold ? "<b>" : "", close = bold ? "</b>" : "";
+		// 单个字量出来的宽度含首尾空白，夹在两个字中间量更准；空格单独量会是 0
+		w = _measure.CalcSize(new GUIContent(open + "国" + c + "国" + close)).x - _measure.CalcSize(new GUIContent(open + "国国" + close)).x;
+		_charWidth[key] = w = Mathf.Max(0f, w);
+		return w;
+	}
+
 	private static void DrawSprite(Rect r, Sprite sprite)
 	{
 		if (sprite == null || Event.current.type != EventType.Repaint)
@@ -744,7 +907,7 @@ public partial class StoryReviewPanel
 					// 玩家的话靠右
 					GUILayout.BeginHorizontal();
 					GUILayout.FlexibleSpace();
-					string said = TextConverter.Verbatim + Escape(entry.Text);
+					string said = Wrap(TextConverter.Verbatim + Escape(entry.Text), _aiUser, bubbleMax - _aiUser.padding.horizontal);
 					GUILayout.Label(said, _aiUser, GUILayout.Width(BubbleWidth(said, _aiUser, bubbleMax)));
 					GUILayout.EndHorizontal();
 					break;
@@ -758,7 +921,7 @@ public partial class StoryReviewPanel
 					if (words.Length > 0)
 					{
 						GUILayout.BeginHorizontal();
-						string reply = TextConverter.Verbatim + RichFromMarkdown(words);
+						string reply = Wrap(TextConverter.Verbatim + RichFromMarkdown(words), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
 						GUILayout.Label(reply, _aiBot, GUILayout.Width(BubbleWidth(reply, _aiBot, area.width - S(30))));
 						GUILayout.FlexibleSpace();
 						GUILayout.EndHorizontal();
@@ -767,7 +930,8 @@ public partial class StoryReviewPanel
 					{
 						GUILayout.BeginVertical(_aiHintBox, GUILayout.MaxWidth(area.width - S(30)));
 						GUILayout.Label("<b>攻略提示</b>", _aiHintTitle);
-						GUILayout.Label(TextConverter.Verbatim + RichFromMarkdown(hint), _aiHintText);
+						float hintWidth = area.width - S(30) - _aiHintBox.margin.left - _aiHintBox.padding.horizontal;
+						GUILayout.Label(Wrap(TextConverter.Verbatim + RichFromMarkdown(hint), _aiHintText, hintWidth - _aiHintText.padding.horizontal), _aiHintText, GUILayout.Width(hintWidth));
 						GUILayout.EndVertical();
 					}
 					break;
@@ -845,7 +1009,7 @@ public partial class StoryReviewPanel
 			// 一边收一边显示
 			GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : "攻略助手", _aiName);
 			GUILayout.BeginHorizontal();
-			string partial = TextConverter.Verbatim + RichFromMarkdown(AiChat.Partial.Replace("【攻略提示】", "\n攻略提示\n"));
+			string partial = Wrap(TextConverter.Verbatim + RichFromMarkdown(AiChat.Partial.Replace("【攻略提示】", "\n攻略提示\n")), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
 			GUILayout.Label(partial, _aiBot, GUILayout.Width(BubbleWidth(partial, _aiBot, area.width - S(30))));
 			GUILayout.FlexibleSpace();
 			GUILayout.EndHorizontal();

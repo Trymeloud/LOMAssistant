@@ -31,6 +31,9 @@ public static class AiKnowledge
 			Schema(("query", "string", "关键词；传空字符串列出全部名称"))),
 		("events", "查场所事件和随机事件：在某个场所修炼、工作、闲逛时随机抽到的事件（如求仙问道、跑步邀请、赤脚大仙），列出在哪个场所、事件名、抽中的权重和加减权重的条件、可能的结果、对应剧本（再用 script 看分岔）。任务以外的事件用它找，比搜对白快。",
 			Schema(("query", "string", "事件名、场所名或事件里的一句对白，如 求仙问道、飞天殿、赤脚大仙"))),
+		("item", "查物品和开发项目：物品（书、杂物、剧情物品、消耗品）的说明、这一局有几个、使用效果、哪些剧情给它判定它收走它、哪家店卖、哪个开发项目练满送它；"
+			+ "铁铺、炼丹、制毒的开发项目（武器、暗器、陷阱、防具、丹药、毒）的门派规模要求、花费、各级点数、这一局开发到哪、从哪个项目练到几级进化出来、能进化成什么。问某个物品做什么用、哪里拿、某件装备怎么开发出来时先用它。",
+			Schema(("name", "string", "物品或开发项目的名字，如 睡丹、逆鳞宝衣、唐门小剑、鞭炮"))),
 		("person", "看一个人物的游戏人物志：称号、出身、门派、亲属、性格（游戏「人物」页的介绍）。问某人是谁、什么来历、哪一门、父母师父是谁时先用它，一次就够。",
 			Schema(("name", "string", "人名或称呼，如 唐默铃、小梅、二师兄、火龙仙君"))),
 		("heroine", "看一位可结缘女主角的结缘路线：要经过哪些任务、每一站的好感门槛和要设的结缘旗标、玩家现在做到哪一步。",
@@ -103,6 +106,7 @@ public static class AiKnowledge
 				case "endings": return EndingList(Arg("query"));
 				case "heroine": return Heroine(Arg("name"));
 				case "person": return Person(Arg("name"));
+				case "item": return AiItems.Lookup(Arg("name"));
 				case "events": return Events(Arg("query"));
 				case "player_state": return StoryReviewPanel.AiPlayerState();
 				case "settings": return StoryReviewPanel.AiSettingsText(Arg("query"));
@@ -130,6 +134,7 @@ public static class AiKnowledge
 			case "endings": return "查结局「" + Arg("query") + "」";
 			case "heroine": return "查看「" + Arg("name") + "」的结缘路线";
 			case "person": return "查看「" + Arg("name") + "」的人物志";
+			case "item": return "查物品「" + Arg("name") + "」";
 			case "events": return "查场所事件「" + Arg("query") + "」";
 			case "player_state": return "查看当前进度";
 			case "settings": return "查看设置项" + (Arg("query").Length > 0 ? "「" + Arg("query") + "」" : "");
