@@ -19,6 +19,8 @@ public sealed class StoryUse
 	public List<StoryStep> Path = new List<StoryStep>();
 	/// <summary>改动（改旗标、给收物品）为 true，判定为 false。</summary>
 	public bool Changes;
+	/// <summary>分支判定：满足这条时走的那一支（Path 后面接上它就是这一支里面）；别的为 null。</summary>
+	public StoryStep Arm;
 }
 
 /// <summary>
@@ -135,9 +137,12 @@ public static class StoryUsage
 				IEnumerable<string> texts = isSwitch
 					? ConditionBook.Switches.TryGetValue(checkpoint, out List<string> arms) ? arms : Enumerable.Empty<string>()
 					: ConditionBook.Conditions.TryGetValue(checkpoint, out string single) ? new[] { single } : Enumerable.Empty<string>();
+				int arm = 0;
 				foreach (string text in texts)
 				{
-					AddConditions(text, isSwitch ? "分支判定" : "选项条件", new StoryUse { Script = script.Name, Mission = mission, Path = path }, itemNames, seen);
+					arm++;
+					var template = new StoryUse { Script = script.Name, Mission = mission, Path = path, Arm = isSwitch ? new StoryStep { Kind = StoryStep.Branch, Key = checkpoint, Arm = arm } : null };
+					AddConditions(text, isSwitch ? "分支判定" : "选项条件", template, itemNames, seen);
 				}
 			}
 		}
@@ -211,7 +216,7 @@ public static class StoryUsage
 		Regex.Replace(Regex.Replace(clause, @"旗标(\w+)〔([^〕]*)〕", "$2 ($1)"), @"旗标(\w+)", "$1");
 
 	private static StoryUse Copy(StoryUse template, string kind, string detail) =>
-		new StoryUse { Script = template.Script, Mission = template.Mission, Path = template.Path, Kind = kind, Detail = detail };
+		new StoryUse { Script = template.Script, Mission = template.Mission, Path = template.Path, Arm = template.Arm, Kind = kind, Detail = detail };
 
 	private static void Add(Dictionary<string, List<StoryUse>> index, string key, StoryUse use, HashSet<string> seen)
 	{

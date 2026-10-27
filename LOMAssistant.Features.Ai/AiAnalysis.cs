@@ -121,8 +121,37 @@ public static class AiAnalysis
 			{
 				sb.Append("｜走：").Append(string.Join(" → ", u.Path.Select(s => AiKnowledge.Clean(StoryScripts.Describe(s))).ToArray()));
 			}
+			string after = ArmEffects(u);
+			if (after.Length > 0)
+			{
+				sb.Append("｜满足时这一支里：").Append(after);
+			}
 			sb.Append('\n');
 		}
+	}
+
+	// 分支判定满足后走的那一支里加减了什么（不用再翻剧本就知道这个判定管什么）
+	private static string ArmEffects(StoryUse u)
+	{
+		if (u.Arm == null || u.Changes)
+		{
+			return "";
+		}
+		StoryScript script = StoryScripts.Get(u.Script);
+		if (script == null)
+		{
+			return "";
+		}
+		var prefix = new List<StoryStep>(u.Path) { u.Arm };
+		var effects = script.Effects.Where(e => StoryScripts.IsPrefix(prefix, e.Path) && !e.Text.Contains("暂存")).Select(e => AiKnowledge.Clean(e.Text))
+			.Concat(script.Fights.Where(f => StoryScripts.IsPrefix(prefix, f.Path)).Select(f => "决斗 " + f.Level))
+			.Concat(script.Exits.Where(x => StoryScripts.IsPrefix(prefix, x.Path) && x.Target.Length > 0).Select(x => "接剧本 " + x.Target))
+			.Distinct().ToList();
+		if (effects.Count == 0)
+		{
+			return "";
+		}
+		return string.Join("、", effects.Take(6).ToArray()) + (effects.Count > 6 ? "等 " + effects.Count + " 项" : "");
 	}
 
 	// ---------- 整条路线算账 ----------

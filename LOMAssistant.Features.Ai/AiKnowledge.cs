@@ -27,7 +27,7 @@ public static class AiKnowledge
 			Schema(("key", "string", "任务编号，如 S2700_01（从 search 结果里拿）"))),
 		("script", "看一个剧本的详情：游戏的剧情记录、选项、每条分岔路径上的数值和旗标变化、接到哪个剧本、结局和死亡、决斗；以及按分岔分开的对白原文。对白多时分页。",
 			Schema(("name", "string", "剧本编号，如 S2700_02_01"), ("page", "integer", "对白第几页，从 1 开始，默认 1"))),
-		("endings", "按关键词查结局（汗青书）、死亡（生死簿）、成就、结局 CG：名称、说明，以及在哪个剧本、走哪条分岔能达成。也能按图鉴编号查，如「生死簿3」「结局4」。关键词留空则列出全部名称。",
+		("endings", "按关键词查结局（汗青书）、死亡（生死簿）、成就、结局 CG：名称、说明，以及在哪个剧本、走哪条分岔能达成。也能按图鉴编号查，如「生死簿3」「结局4」。关键词带「奖励」「二周目」「命运」时，先列出图鉴奖励（收集多少条生死簿、汗青书、哪些成就，开二周目时加什么）。关键词留空则列出全部名称。",
 			Schema(("query", "string", "关键词；传空字符串列出全部名称"))),
 		("events", "查场所事件和随机事件：在某个场所修炼、工作、闲逛时随机抽到的事件（如求仙问道、跑步邀请、赤脚大仙），列出在哪个场所、事件名、抽中的权重和加减权重的条件、可能的结果、对应剧本（再用 script 看分岔）。任务以外的事件用它找，比搜对白快。",
 			Schema(("query", "string", "事件名、场所名或事件里的一句对白，如 求仙问道、飞天殿、赤脚大仙"))),
@@ -107,7 +107,18 @@ public static class AiKnowledge
 				case "search": return Search(Arg("query"));
 				case "quest": return Quest(Arg("key"));
 				case "script": return Script(Arg("name"), int.TryParse(Arg("page"), out int p) ? p : 1);
-				case "endings": return EndingList(Arg("query"));
+				case "endings":
+				{
+					string q = Arg("query");
+					// 「图鉴奖励」「二周目有什么奖励」「收集多少条加命运」
+					bool awards = System.Text.RegularExpressions.Regex.IsMatch(TextConverter.ToSimplified(q), "奖励|周目|命运|新游戏");
+					if (!awards)
+					{
+						return EndingList(q);
+					}
+					string rest = System.Text.RegularExpressions.Regex.Replace(TextConverter.ToSimplified(q), "奖励|二周目|周目|命运|新游戏\\+?|图鉴|收集|有什么|的", "").Trim();
+					return AiItems.LibraryAwards() + (rest.Length > 0 ? "\n" + EndingList(rest) : "");
+				}
 				case "heroine": return Heroine(Arg("name"));
 				case "person": return Person(Arg("name"));
 				case "item": return AiItems.Lookup(Arg("name"));
@@ -642,7 +653,8 @@ public static class AiKnowledge
 					}
 					if (e.Ways.Count == 0)
 					{
-						sb.Append("\n  · 剧本里没找到直接走到它的地方（可能由游戏代码判定）。照实告诉玩家没查到，不要拿别的剧情去猜。");
+						// 游戏只有两条路记生死簿、汗青书：剧本跳到死亡或结局画面（ChangeScene），决斗输了（关卡上写着死法）；两样都没有就是哪里都触发不到
+						sb.Append("\n  · 剧本和决斗里都没有走到它的地方。游戏代码里也只有这两条路会记下死法和结局，所以当前版本大概触发不到（没用上的条目）。照实告诉玩家，不要拿别的剧情去猜。");
 					}
 					foreach (StoryEndingWay w in e.Ways.Take(6))
 					{

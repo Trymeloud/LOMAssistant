@@ -296,6 +296,55 @@ public static class AiItems
 		return sb.ToString();
 	}
 
+	/// <summary>
+	/// 图鉴（讲经堂）奖励：开二周目（新游戏+）时按收集了几条生死簿、汗青书加命运等，几条成就另有奖励。
+	/// 数据同游戏的 SaveSystem.ExecuteLibraryAwardStat：每个 LibraryAwardData 收集数到了门槛就给，成就条目自带奖励。
+	/// </summary>
+	public static string LibraryAwards()
+	{
+		var sb = new StringBuilder("【图鉴奖励】开二周目（新游戏+）时一次性给，按全部存档累计收集的条数算：\n");
+		foreach (LibraryAwardData award in Resources.FindObjectsOfTypeAll<LibraryAwardData>().Where(a => a?.Data != null).Distinct())
+		{
+			int have = award.Data.GetAchieveCount();
+			string what = award.Data == LibrarySystem.Instance?.Dead ? "生死簿" : award.Data == LibrarySystem.Instance?.EndGame ? "汗青书（结局）" : TextConverter.ToSimplified(award.Data.name);
+			var tiers = (award.AwardList ?? new LibraryAwardItem[0]).Where(t => t != null).ToList();
+			if (tiers.Count == 0)
+			{
+				continue;
+			}
+			var gifts = tiers.Select(t => "收集 " + t.Count + " 条：" + string.Join("、", (t.Items ?? new LibraryAwardStatItem[0]).Where(i => i?.Stat != null).Select(i => StatName(i.Stat) + " " + Signed(i.Value)).ToArray())).ToList();
+			// 档位都一样时合起来说
+			var first = tiers[0].Items ?? new LibraryAwardStatItem[0];
+			bool same = tiers.All(t => (t.Items ?? new LibraryAwardStatItem[0]).Length == first.Length && (t.Items ?? new LibraryAwardStatItem[0]).Select((i, k) => i?.Stat == first[k]?.Stat && i?.Value == first[k]?.Value).All(x => x));
+			int step = tiers.Count > 1 ? tiers[1].Count - tiers[0].Count : tiers[0].Count;
+			sb.Append("- ").Append(what).Append("：");
+			if (same && tiers.Select((t, k) => t.Count == tiers[0].Count + k * step).All(x => x))
+			{
+				sb.Append("每收集 ").Append(step).Append(" 条 ").Append(string.Join("、", first.Where(i => i?.Stat != null).Select(i => StatName(i.Stat) + " " + Signed(i.Value)).ToArray()))
+					.Append("，最多算到 ").Append(tiers[tiers.Count - 1].Count).Append(" 条");
+			}
+			else
+			{
+				sb.Append(string.Join("；", gifts.ToArray()));
+			}
+			sb.Append("。现在收集了 ").Append(have).Append(" 条，二周目能拿 ").Append(tiers.Count(t => t.Count <= have)).Append(" 档\n");
+		}
+		LibraryItemCollection achievements = LibrarySystem.Instance?.Achievement;
+		var special = Resources.FindObjectsOfTypeAll<LibraryItemData>().Where(i => i != null && (i.AwardStatItems ?? new LibraryAwardStatItem[0]).Length > 0).Distinct().ToList();
+		if (special.Count > 0)
+		{
+			sb.Append("- 成就（风云史）自带的奖励：\n");
+			foreach (LibraryItemData item in special)
+			{
+				string title = Text(item.GetTitleKey());
+				sb.Append("  · 「").Append(title.Length > 0 ? title : item.name).Append("」").Append(item.Count > 0 ? "（已达成）" : "（未达成）").Append("：")
+					.Append(string.Join("、", item.AwardStatItems.Where(i => i?.Stat != null).Select(i => StatName(i.Stat) + " " + Signed(i.Value)).ToArray())).Append('\n');
+			}
+		}
+		sb.Append("额外行动次数_1、_2、_3 分别是每月上旬、中旬、下旬多一次行动。\n");
+		return sb.ToString();
+	}
+
 	private static string StatName(GameStat stat) => AiKnowledge.Clean(TextConverter.ToSimplified(string.IsNullOrEmpty(stat.Name) ? stat.StatType.ToString() : stat.Name));
 
 	private static string Modifies(FacilityModifyItem[] items)
