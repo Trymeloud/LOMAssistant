@@ -2,6 +2,13 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.6 (2026-10-27)
+
+- **Updated for game version 1.0.6001**: check records go into the new backlog, only during story scenes and in small text; identical checks are recorded once per period, and quests only when they actually trigger.
+- **Save anywhere**: after going back to a point, the backlog no longer repeats what came after it.
+- **Branch saves**: recorded normally on the new game version.
+- **Condition data**: story checks and duel round conditions updated to the new game version.
+
 ## 3.0.5 (2026-10-27)
 
 - **The AI guide can look up items and development projects**: what an item does when used, which stories give it, check for it or take it, and which month's shop sells it; for forge, alchemy and poison projects, which project has to reach which level before it appears, and what it can evolve into.
