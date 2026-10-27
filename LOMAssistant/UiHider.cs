@@ -3,6 +3,7 @@ using LOMAssistant.Config;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using UnityEngine.InputSystem.Controls;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
@@ -10,7 +11,7 @@ namespace LOMAssistant;
 
 /// <summary>
 /// 隐藏界面看 CG（类似 galgame 的右键隐藏）：剧情里按热键（默认鼠标右键，可改成别的键）隐藏对话框、标题等文字界面和本 Mod 的窗口，
-/// 只留背景、CG 和立绘，方便截图；再按一次恢复，其它按键（如 F12 截图）不会把界面叫回来，隐藏期间的点击也不会推进对话。
+/// 只留背景、CG 和立绘，方便截图；再按一次、点左键或按别的键恢复（截图键、功能键、修饰键不算），恢复的那一下不会推进对话。
 /// 判断哪些界面要藏：画布里有文字或按钮的藏，只有图片的（背景、CG、立绘）留着。
 /// </summary>
 public class UiHider : MonoBehaviour
@@ -76,8 +77,8 @@ public class UiHider : MonoBehaviour
 			{
 				Restore();
 			}
-			// 只有右键（或热键）恢复：F12 截图等其它按键不能把界面叫回来
-			else if (Time.frameCount > _hiddenFrame && TogglePressed())
+			// 和 galgame 一样，再按热键、点左键、按别的键都恢复；截图（F12、PrintScreen）、功能键、Alt+Tab 这类修饰键不算
+			else if (Time.frameCount > _hiddenFrame && (TogglePressed() || RestorePressed()))
 			{
 				Restore();
 				_swallowUntilRelease = true;
@@ -98,6 +99,45 @@ public class UiHider : MonoBehaviour
 	private static bool TogglePressed()
 	{
 		return InputGuard.HotkeyDown(ConfigManager.HideUIKey.Value);
+	}
+
+	private static bool RestorePressed()
+	{
+		Mouse m = Mouse.current;
+		if (m != null && (m.leftButton.wasPressedThisFrame || m.rightButton.wasPressedThisFrame || m.middleButton.wasPressedThisFrame))
+		{
+			return true;
+		}
+		if (Keyboard.current != null)
+		{
+			foreach (KeyControl k in Keyboard.current.allKeys)
+			{
+				if (k != null && k.wasPressedThisFrame && !KeepsHidden(k.keyCode))
+				{
+					return true;
+				}
+			}
+		}
+		Gamepad pad = Gamepad.current;
+		if (pad != null)
+		{
+			foreach (var b in new[] { pad.buttonSouth, pad.buttonEast, pad.buttonWest, pad.buttonNorth, pad.startButton, pad.selectButton, pad.leftShoulder, pad.rightShoulder })
+			{
+				if (b.wasPressedThisFrame)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
+	/// <summary>截图、功能键（F1～F12 常被录屏、显卡软件占用）、修饰键（Alt+Tab、Win 键）按了不恢复界面。</summary>
+	private static bool KeepsHidden(Key key)
+	{
+		return (key >= Key.F1 && key <= Key.F12) || key == Key.PrintScreen
+			|| key == Key.LeftAlt || key == Key.RightAlt || key == Key.LeftCtrl || key == Key.RightCtrl
+			|| key == Key.LeftShift || key == Key.RightShift || key == Key.LeftMeta || key == Key.RightMeta || key == Key.Tab;
 	}
 
 	private static bool TextInputFocused()

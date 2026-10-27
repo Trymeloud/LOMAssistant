@@ -100,7 +100,7 @@ Connect a large language model with your own API key to ask about the story and 
 
 - **Flag change notices** (off by default, spoilers): a notice when the story changes a flag; how long it stays can be set.
 - **Checks in the backlog**: story checks, their conditions and your values are recorded in the backlog.
-- **Hide UI for CGs**: right-click in a story scene to leave only the background, CG and portraits; right-click again to restore.
+- **Hide UI for CGs**: right-click in a story scene to leave only the background, CG and portraits; right-click, left-click or press any other key to restore.
 
 ### Saves
 

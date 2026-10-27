@@ -391,7 +391,7 @@ public static class ConfigManager
 		// 2.8.3 起默认关（开着时切到别的窗口，背景音乐不停，鼠标经过地图建筑还会响，玩家以为是 bug）。
 		// 老的配置名 EnableBackgroundRun 在玩家配置里存着 true，换个名字让所有人都从「关」开始
 		EnableBackgroundRun = new ConfigElement<bool>("KeepRunningInBackground", "后台继续运行：切到别的窗口时游戏不暂停，背景音乐也不停。true=开，false=关（默认，游戏原本的做法：切走就停）", defaultValue: false);
-		EnableRightClickHideUI = new ConfigElement<bool>("EnableRightClickHideUI", "隐藏界面看 CG：剧情里按热键（HideUIKey，默认鼠标右键）隐藏对话框等界面和本 Mod 的窗口，只看背景、CG 和立绘，方便截图；再按一次恢复。已不用：不想要就把 HideUIKey 设成 None", defaultValue: true);
+		EnableRightClickHideUI = new ConfigElement<bool>("EnableRightClickHideUI", "隐藏界面看 CG：剧情里按热键（HideUIKey，默认鼠标右键）隐藏对话框等界面和本 Mod 的窗口，只看背景、CG 和立绘，方便截图；再按一次、点左键或按其他键恢复。已不用：不想要就把 HideUIKey 设成 None", defaultValue: true);
 		PresetChooserShown = new ConfigElement<bool>("PresetChooserShown", "第一次打开咖啡伴侣窗口时的选预设弹窗已经出过（自动记录，不用改）", defaultValue: false);
 		PresetCustom = new ConfigElement<string>("PresetCustom", "设置页「预设」里「自定义」记下的开关（从自定义换到别的预设时自动记录，点「自定义」换回来）：配置名=值，分号隔开", "");
 		LockedStats = new ConfigElement<string>("LockedStats", "数值页锁住的数值（在数值页点锁，自动记录）：数值名，逗号隔开。清空就全部解锁", "");
