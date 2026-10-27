@@ -9,11 +9,20 @@ if ($assembly -notmatch 'AssemblyInformationalVersion\("([0-9]+\.[0-9]+\.[0-9]+-
     throw 'Missing Korean release version.'
 }
 $version = $Matches[1]
-$status = & git -C $root status --porcelain
+$upstreamVersion = $version.Split('-')[0]
+$status = & git -C $root status --porcelain --untracked-files=no
 if ($LASTEXITCODE -ne 0) { throw 'Cannot read Git status.' }
 if ($status) { throw 'Commit the release sources before packaging so the manifest identifies the exact source.' }
+# Local review reports are not build inputs. All other untracked files still block packaging.
+$untracked = & git -C $root ls-files --others --exclude-standard
+if ($LASTEXITCODE -ne 0) { throw 'Cannot read untracked files.' }
+if ($untracked | Where-Object { $_ -notmatch '^reports/' }) { throw 'Untracked files outside reports must be committed or moved before packaging.' }
 $commit = & git -C $root rev-parse HEAD
 if ($LASTEXITCODE -ne 0) { throw 'Cannot read source commit.' }
+$upstreamCommit = & git -C $root rev-parse "v$upstreamVersion^{commit}"
+if ($LASTEXITCODE -ne 0) { throw "Missing upstream tag v$upstreamVersion." }
+& git -C $root merge-base --is-ancestor $upstreamCommit HEAD
+if ($LASTEXITCODE -ne 0) { throw "The current source does not include upstream v$upstreamVersion." }
 
 $table = Join-Path $root 'localization/event-names-ko.tsv'
 $ids = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
@@ -43,8 +52,9 @@ $manifest = [ordered]@{
     version = $version
     sourceRepository = 'https://github.com/Trymeloud/LOMAssistant'
     sourceCommit = $commit.Trim()
-    upstreamVersion = '2.9.3'
-    packageType = 'patch; requires original LOMAssistant 2.9.3 with BepInEx 6'
+    upstreamVersion = $upstreamVersion
+    upstreamCommit = $upstreamCommit.Trim()
+    packageType = "patch; requires original LOMAssistant $upstreamVersion with BepInEx 6"
     builtUtc = [DateTime]::UtcNow.ToString('o')
     eventTranslations = $ids.Count
     sha256 = $hashes

@@ -35,6 +35,23 @@ internal static class Program
         Expect("第三年一月上旬", "3년차 1월 상순");
         Expect("<b>설정</b> · F9 · -10 <= 40", "<b>설정</b> · F9 · -10 <= 40");
         Expect("未知文本", "未知文本");
+        Expect("技能_轻微骨裂 需>=1", "기술 「미세 골절」 필요 >=1");
+        Expect("旗标收留小梅或小竹 = 1", "우소매 또는 욱죽을 받아들임 = 1");
+        Expect("条件_晚安且收留小梅 需=1", "「잘 자」 및 우소매를 받아들임 필요 =1");
+        Expect("条件_心上人_小梅或小竹 需=1", "마음에 둔 사람이 우소매 또는 욱죽 필요 =1");
+        Expect("〈虎战车判断〉", "〈호전차 판정〉");
+        Expect("另有 3 个主线、支线现在还不能触发", "지금은 발생할 수 없는 주요·곁가지 임무가 3개 더 있습니다.");
+        Expect("AI陪玩", "AI 동행");
+        Expect("查看「龙湘」的人物志", "「용상」의 인물지 보기");
+        Expect("查物品「모태주」", "물품 「모태주」 검색");
+        Expect("查看商店", "상점 확인");
+        Expect("查看门派经营", "문파 운영 현황 확인");
+        Expect("查场所事件「연무장」", "장소 이벤트 「연무장」 검색");
+        Expect("查看设置项「EnableStoryReview」", "설정 항목 「EnableStoryReview」 확인");
+        Expect("反查「M30001」", "「M30001」의 사용·변경 지점 검색");
+        Expect("算任务 Main_001 每条路线", "임무 Main_001의 경로별 결과 계산");
+        Expect("　· 查物品「모태주」", "　· 물품 「모태주」 검색");
+        Expect("门派贡献门槛（10～50）", "문파 공헌 기준치(10~50)");
         Expect("设置", "設定", UiText.Japanese);
         Expect("设置", "Settings", UiText.English);
         Expect("설정", "설정");
@@ -79,6 +96,7 @@ internal static class Program
                     }
             File.WriteAllLines(Path.Combine(AppContext.BaseDirectory, "untranslated-conditions.tsv"), missing);
             Console.WriteLine("Built-in condition strings with remaining Chinese: " + missing.Count);
+            Check(missing.Count == 0, "Untranslated built-in conditions; see untranslated-conditions.tsv");
         }
         Console.WriteLine("PASS: " + count + " translation checks");
         if (args.Length > 1) Audit.Run(args[1]);

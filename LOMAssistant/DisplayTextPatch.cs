@@ -59,7 +59,8 @@ public static class DisplayTextPatch
 			return null;
 		}
 		string original = content.text;
-		string converted = PanelTheme.MapColors(TextConverter.ForDisplay(original));
+		// 开头带 Verbatim 记号的（AI 的回答这类本来就是界面语言写的）不查表转换，只换颜色
+		string converted = original[0] == TextConverter.Verbatim ? PanelTheme.MapColors(original) : PanelTheme.MapColors(TextConverter.ForDisplay(original));
 		if (converted == original)
 		{
 			return null;

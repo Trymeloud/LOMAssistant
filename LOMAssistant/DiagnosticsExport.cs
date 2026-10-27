@@ -36,8 +36,10 @@ public static class DiagnosticsExport
 					AddFile(zip, log, "Mod日志/" + Path.GetFileName(log));
 				}
 			}
+			// AI 调试记录：玩家在 AI 设置里打开过才有（里面是发给 AI 的内容，没有 API Key）
+			AddFile(zip, Path.Combine(logs, "ai_debug.txt"), "Mod日志/ai_debug.txt");
 			AddFile(zip, Path.Combine(Paths.BepInExRootPath, "LogOutput.log"), "BepInEx/LogOutput.log");
-			AddFile(zip, Path.Combine(Paths.ConfigPath, "LOMAssistant.cfg"), "BepInEx/LOMAssistant.cfg");
+			AddConfig(zip, Path.Combine(Paths.ConfigPath, "LOMAssistant.cfg"), "BepInEx/LOMAssistant.cfg");
 			AddFile(zip, Path.Combine(Application.persistentDataPath, "Player.log"), "游戏日志/Player.log");
 			AddFile(zip, Path.Combine(Application.persistentDataPath, "Player-prev.log"), "游戏日志/Player-prev.log");
 		}
@@ -89,6 +91,29 @@ public static class DiagnosticsExport
 		using (var writer = new StreamWriter(zip.CreateEntry(name).Open(), new UTF8Encoding(true)))
 		{
 			writer.Write(text);
+		}
+	}
+
+	// 配置文件里的 AI API Key 不进诊断包（玩家会把诊断包发到 GitHub、群里）
+	private static void AddConfig(ZipArchive zip, string path, string name)
+	{
+		try
+		{
+			if (!File.Exists(path))
+			{
+				return;
+			}
+			string text;
+			using (var input = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)))
+			{
+				text = input.ReadToEnd();
+			}
+			text = System.Text.RegularExpressions.Regex.Replace(text, @"(?m)^(\s*AiApiKey\s*=)[^\r\n]*", "$1 （已隐藏）");
+			AddText(zip, name, text);
+		}
+		catch (Exception e)
+		{
+			AddText(zip, name + ".读取失败.txt", e.Message);
 		}
 	}
 

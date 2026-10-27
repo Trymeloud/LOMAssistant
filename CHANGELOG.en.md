@@ -2,6 +2,62 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.6 (2026-10-27)
+
+- **Updated for game version 1.0.6001**: check records go into the new backlog, only during story scenes and in small text; identical checks are recorded once per period, and quests only when they actually trigger.
+- **Save anywhere**: after going back to a point, the backlog no longer repeats what came after it.
+- **Branch saves**: recorded normally on the new game version.
+- **Condition data**: story checks and duel round conditions updated to the new game version.
+
+## 3.0.5 (2026-10-27)
+
+- **The AI guide can look up items and development projects**: what an item does when used, which stories give it, check for it or take it, and which month's shop sells it; for forge, alchemy and poison projects, which project has to reach which level before it appears, and what it can evolve into.
+- **The AI guide covers more game systems**: what Fourth Brother's shop has now and what the food does; sect size, sect funds, and each facility's income and effects per period; for martial arts manuals, the points each level needs, the training requirements and what each level changes; what talents do and where they come from; gallery rewards for a new game plus.
+- **Fuller AI lookups**: stats and skills such as mood, temperament, change of heart and sect size can be looked up for where they are checked and changed; branch checks now show what happens on that branch. Deaths that no story or duel leads to are reported as unreachable in the current version.
+- **AI reply layout**: text wraps by character width, "·" and "1." no longer sit alone on a line, and no half characters show at the end of a line.
+- **Fewer branch saves**: they now follow the game's autosaves and are recorded only at story save points and at the start of each period, not at every key option.
+
+## 3.0.4 (2026-10-26)
+
+- **Easier to bring the UI back**: after hiding the UI with right-click in a story, right-click, left-click, any other key or a gamepad button restores it. F1-F12, the screenshot key, Alt, Ctrl, Shift, Win and Tab don't count.
+- **The AI guide sees your progress in this playthrough**: flag lookups and quest lookups include each flag's current value, so whether you can still reach a scene is answered from your quest progress and sect.
+- **AI companion input box**: the text cursor shows reliably after you click into it.
+- **Windows can't be dragged off-screen**: part of the Coffee Companion title bar always stays on screen, and the random event picker stays fully on screen.
+
+## 3.0.3 (2026-10-26)
+
+- **Fixed time jumping twice after loading a save made mid-story**: if the story had already moved time forward, the save now records the time from the start of that scene, so replaying it after loading doesn't skip again and main quests that only trigger in one period aren't missed.
+- **Steadier AI companion connections**: the last chunk of a streamed reply from OpenAI and similar providers no longer causes an error, so long chats no longer end with "Unable to write data"; replies have no total time limit and only count as stuck after 120 seconds without data; busy providers are retried twice automatically.
+- **More accurate AI guide**: when there are several ways to do something, all of them are listed; random events on the study-abroad maps can be found by place name; duels spell out how the wake-up count from talk attacks builds up; with Claude, running out of lookup rounds no longer resets the cache.
+- **New settings**: "Map hints: triggerable only", "Develop gear without story requirements" and "Show item uses" (item descriptions in the bag and shops end with what using the item does and which stories check for it or take it).
+- **Save page**: with "Newest first", an empty slot comes first.
+- **Stats tab**: "Sect contribution" is renamed "Sect contribution threshold (10-50)"; it is a threshold the sect uses, not your contribution.
+
+## 3.0.2 (2026-10-26)
+
+- **Fixed Claude showing "（AI 没有说话）" (no reply) after looking things up**: within one question, Claude's thinking is now passed back unchanged, so the cache no longer resets every round; if a reply still comes back empty, the AI is asked to write the answer directly from what it found.
+- **Steadier lookups with DeepSeek, Kimi and others**: within one question, the model's thinking is passed back unchanged, and Gemini 3's thought signatures are kept too.
+- **The guide looks things up right away** instead of first asking whether it should.
+
+## 3.0.1 (2026-10-26)
+
+- **Tang Buyi, the Eldest Brother, joins the AI companion**: like the heroines, he speaks in his own voice, his portrait changes expression with what he says, and he only knows the story you have read.
+- **Export chat**: a new Export chat button at the top of the AI companion saves the current chat to the desktop as Markdown.
+- **Steadier long chats**: when the chat history gets too long, the older part is condensed into a summary and the recent part is kept as is; answers go by what was looked up this time instead of repeating earlier replies.
+- **Fixed side quests that write no story records always showing "not taken this run" on the route map**: it now checks how far that quest line has progressed in the save.
+
+## 3.0.0 (2026-10-25)
+
+- **AI companion** (F3, a new tab in the Coffee Companion window): connect a large language model with your own API key. Supports DeepSeek, Kimi, Qwen, Zhipu GLM, SiliconFlow, OpenRouter, OpenAI, Claude, Gemini, local Ollama and any OpenAI-compatible endpoint.
+  - **Guide**: looks up the game's own story data before answering: quests and their triggers, script branches and dialogue, affection and stat totals along each route, endings and deaths, romance routes, character bios, location events, duel conditions, plus your current progress and the options on screen.
+  - **Nine heroines**: they speak in their own voice, their portraits change expression with what they say, how they address you follows the story, and they only know the story you have read. When you ask for help, a separate guide tip follows the reply; you can also set them to chat only.
+  - Three **spoiler** levels; **deep mode** switches to a stronger model that checks the facts before answering.
+  - When the AI wants to change stats, affection, your sweetheart, story flags or this mod's settings, it shows a card first; nothing changes until you confirm.
+  - Chats are stored locally; start new ones, switch between them, delete them. Replies appear as they are written, and the header shows tokens used and cache hits.
+  - Your key and chats go only to the provider you choose, and the key is hidden in diagnostics exports. A debug log can be turned on in the settings and is included in diagnostics exports. On the Steam Deck, tapping the input box opens the on-screen keyboard.
+- **Window text size**: new in the 「咖啡伴侣」 (Coffee Companion) group of the settings page. It enlarges the text and buttons in this mod's windows, small panels and tooltips, for small screens such as the Steam Deck.
+- **Fixed the route map counting another save's progress as side quests "taken this run"**.
+
 ## 2.9.3 (2026-10-25)
 
 - **Game text size**: new in the 「其他」 (Other) group of the settings page. It enlarges all text in the game (menus, buttons, numbers, dialogue) for small screens such as the Steam Deck; dialogue text size stacks on top of it.

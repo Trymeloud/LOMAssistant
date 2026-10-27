@@ -4,6 +4,7 @@ internal static partial class UiTextKorean
 {
     public static readonly string[][] Notes =
     {
+        new[] { "虎战车判断", "호전차 판정" },
         new[] { "8-1 你的对策 1. 福韫 2. 反论 3. 没什麽好说", "8-1 조활의 대책: 1. 복온 2. 반론 3. 할 말 없음" },
         new[] { "三师兄的决策 1. 退隐江湖 2. 战他娘亲 3. 响应武林盟", "삼사형의 결정: 1. 강호 은퇴 2. 결사 항전 3. 무림맹에 호응" },
         new[] { "不速之客", "불청객" },

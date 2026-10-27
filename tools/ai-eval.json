@@ -1,0 +1,22 @@
+[
+  {"persona": "", "spoiler": 0, "question": "结局4怎么达成？", "expect": [["唐门叛徒"], ["破庙"]], "forbid": ["re:ch\\d+_\\d"], "note": "结局 4 = Library/Title/20003"},
+  {"persona": "", "spoiler": 0, "question": "生死簿第三条叫什么？怎么触发？", "expect": [["我憎恶着人间"]], "forbid": ["re:ch\\d+_\\d"], "note": "生死簿 3 = Library/Title/10002"},
+  {"persona": "", "spoiler": 0, "question": "小竹告白这个旗标在哪段剧情里设？", "expect": [["尾声"]], "forbid": ["re:ch\\d+_\\d"], "note": "G00006，在 4-9 尾声第三节设"},
+  {"persona": "", "spoiler": 0, "question": "魏菊的本名叫什么？", "expect": [["招弟"]], "note": "魏招弟"},
+  {"persona": "", "spoiler": 0, "question": "虞小梅的真实身份是什么？", "expect": [["千灯楼"]]},
+  {"persona": "", "spoiler": 2, "question": "虞小梅的真实身份是什么？", "forbid": ["千灯楼"], "note": "剧透只给方向时不该说出身份"},
+  {"persona": "", "spoiler": 0, "question": "郁竹是崆峒哪一门的？", "expect": [["铁拳门"]], "forbid": ["魏掌门"], "note": "铁拳门掌门是雷谦，不是魏菊"},
+  {"persona": "girl4", "spoiler": 1, "question": "你最爱吃什么？", "expect": [["鸡腿"]]},
+  {"persona": "girl5", "spoiler": 1, "question": "你喜欢飞天门吗？", "expect": [["不喜欢", "讨厌", "看不上", "瞧不上"]], "forbid": ["喜欢呀", "喜欢啊", "当然喜欢"]},
+  {"persona": "girl5", "spoiler": 1, "question": "帮我把心相改成999", "forbid": ["已经改好", "改好了"], "note": "只能提议，不能说已经改好"},
+  {"persona": "", "spoiler": 0, "question": "崆峒留学抽签分门派，骰子要掷到多少才进飞天门？", "expect": [["75"]], "note": "梅竹攻略：<25 铁拳、<50 玄功、<75 夺魄、≥75 飞天"},
+  {"persona": "", "spoiler": 0, "question": "怎么把心上人换成小梅？", "expect": [["变心"]], "note": "梅竹攻略：变心≥10 触发梦境，选到「有点疯疯癫癫的样子」"},
+  {"persona": "", "spoiler": 0, "question": "上官萤怎样才会上山留在唐门？", "expect": [["门派资产", "资产"]], "note": "梅竹攻略：门派资产涨到 -9000 以上，人在唐门"},
+  {"persona": "", "spoiler": 0, "question": "小竹回家那段要提前准备什么东西？", "expect": [["木剑"]], "note": "梅竹攻略：郁城要剑，找叶云舟削木剑"},
+  {"persona": "", "spoiler": 0, "question": "刚到崆峒那场崆峒战队的决斗要注意什么？", "expect": [["8"], ["瑞笙"]], "note": "梅竹攻略：撑到第 8 回合瑞笙助战，输了 Game Over"},
+  {"persona": "", "spoiler": 0, "question": "飞天殿的求仙问道有什么风险？", "expect": [["赤脚大仙"]], "note": "梅竹攻略：抽到必死"},
+  {"persona": "", "spoiler": 0, "question": "怎么救活大师兄？", "expect": [["传功", "疗伤", "运功"], ["内力"]], "note": "梅竹攻略：炼丹房传功（内力 ≥50），或卧云岗、或天命 30 梦见瑞杏"},
+  {"persona": "", "spoiler": 0, "question": "「我们也来成立武林盟」这个选项怎么开出来？", "expect": [["战术"]], "note": "梅竹攻略：金乌死且战术≥8，或战术≥5 且学问≥60；小菊献策；丐帮来使"},
+  {"persona": "", "spoiler": 0, "question": "魔小梅那一战怎么打才能救回小梅？", "expect": [["嘴攻", "嘴力", "嘴"]], "note": "梅竹攻略：不攻击，只用嘴攻，唤醒 ≥4 次"},
+  {"persona": "girl7", "spoiler": 1, "question": "你怎样才肯跟我回唐门？", "expect": [["小竹回家"]], "note": "梅竹攻略：攻略提示里该提小竹回家"}
+]

@@ -4,11 +4,11 @@
 
 [简体中文](README.md) · **繁體中文** · [English](README.en.md) · [日本語](README.ja.md) · [한국어](README.ko.md)
 
-《活俠傳》（Legend of Mortal）的 BepInEx 6 插件。名字取自玩家給瑞杏起的外號「咖啡」（瑞杏與瑞幸咖啡同音）。適配最新版遊戲，並加入劇情回顧、分支自選、修改面板、存檔優化、隨時存檔等功能。
+《活俠傳》（Legend of Mortal）的 BepInEx 6 插件。名字取自玩家給瑞杏起的外號「咖啡」（瑞杏與瑞幸咖啡同音）。適配最新版遊戲，並加入 AI 陪玩、劇情回顧、分支自選、修改面板、存檔優化等功能。
 
 [![下載最新版](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fapi.github.com%2Frepos%2Fkevinnie2003%2FLOMAssistant%2Freleases%2Flatest&query=%24.tag_name&suffix=%20%E4%B8%8B%E8%BC%89&style=for-the-badge&label=GitHub&labelColor=24292F&color=A3302A&logo=github&logoColor=white)](https://github.com/kevinnie2003/LOMAssistant/releases/latest/download/LOMAssistant.zip) [![Nexus Mods](https://img.shields.io/badge/Nexus%20Mods-%E4%B8%8B%E8%BC%89-D98F40?style=for-the-badge&labelColor=8A5A28&logo=data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAACAAAAAgCAYAAABzenr0AAAEXElEQVR4AazW7XkTOxAF4E0auaYSQiVAJQmVECrBVEJuJeG8Y42stR3yBz%2BalTQfZ45GWq3vt3%2F8e319PUQeI7%2BH%2FEz%2F8FaamwQSAOQh%2FVUgXUSC7%2BmBt5g%2FJtHvyFPkMARG%2B9BFfW47AgGU%2BGfMQPQCrUQvwWts9BJ8yRh4izl91LO9zNG28YNz2JbfJCB59BJzzHA2AXQSTOU7g6e70%2B9D%2FL5GmggsJOBFvW2TQGbfI90EHDN5jujTVWu9lX6KZhU69k%2FJ%2FS22ahnD4KenQ2LmKgJZPUWzKhCeCcaeCJYAEEKqYStWYf%2BaGHbhU6KDiRQceltd%2Be6T3AAgAwEi4GXYJBHMZosksgrzVcRdJQ%2BGZBYIZ42rsQp8XlBWEEkFqkAnXlx3w2NW2aubhiS3OIm32J2HH9M4BghwqmmcJkjGqmBeAOXw9gPZnXVJXrYx%2F7g4VbUQaJ2EPa4%2BJAQrec1vPBBcq1YuI1kTdzdYuWrOrQ525UOgBom0V9Mh82pxRMI21DwPSdNVO8S%2BzkuZh6Tpqtlr2wynFHnU6tPXa7ga3HAC2KaMJPYQkdX%2Fynesfm7rALlc2Iy7Dzg2vQqGLt2IPXXxe4k8R1Rs%2Bo%2BEJ6c8Y4fndc1s1%2F7LjC3dptpyVQUofnkMOQbU9Xu5imGuzp7WII86WIkBqoJ9Xce0a6pwVT1ngFeBGESAY%2BfuJ8ZRn9tYZa%2FmS5Kr2nuv6iVO5WwCZ%2FRtU%2BItPwFYu7v1UW1bktVKa3J68FurJR65v709IsXNLaBoKUNP0tc8iZXXKgnwy6R0vgMfUqFbZyBQu4boJFCTxWwFy3TzDktQZIZhF5Ok3yIzLmP77c2ZusSt8f9nPgnUhOIdkXT91Da4bVkrUjAh4c1RDeTFehPK1o8%2BA4yte8yggTOcTWLltbJWOrA9dtn0eNeHiBhE5lmKw%2FkQxkHCJqFMK3B8qz3lHLDVZDzEjeFWFYjPmmTrX3LAR6JV9ZevK9BKvSSqoGzmLb54QHruC2feJGyDOK%2FuzXtkkHCbwpDn80qAgqHF5dTgEnVg272SVts%2B9E0aFiII0a%2By%2Bj8UgYuyuWbtmZPfSX3xkJhAI4ZPJ522MUDCtu1IjCo01qEIJGA9nb%2BGEyJuOO%2F2yjru1XbApdk%2FJLGA2us2DeLIUT03AZOWj3GS%2BCFEnPqr5LFL3iAdt%2FZiHDhvhgOtUrZMTI2H849bBHzjrRrA8Dt3Se602%2Fuz8nR9W7HtEIeARdg6lWTjvyZ3qI9NAEsORMlWR7qSkRywMyKRErvt9BJZITsiYh4To1pW7wpHnr4vqNNNmFJjCISR%2BMJ5lWqlAelXDDg7gsZ6wMaSlj%2BHCDLm9BKbR11t5uoKeKetwGrKIw8BXiUJCKCo320WA%2BstR9tri8o%2BCZiNSiCxAiDC3IKIFRBjvnrAgbhzcNng9DaZOw93%2Bc3kAHcEKOJgfyogc%2BDpNquSBLivnr9mxBiwfgc8cI7p%2BZVsN35%2FAAAA%2F%2F8CpstnAAAABklEQVQDAC6567qqPgZJAAAAAElFTkSuQmCC)](https://www.nexusmods.com/legendofmortal/mods/10) [![夸克網盤](https://img.shields.io/badge/%E5%A4%B8%E5%85%8B%E7%B6%B2%E7%9B%A4-%E4%B8%8B%E8%BC%89-4C6EF5?style=for-the-badge&labelColor=3249B8&logo=data%3Aimage%2Fpng%3Bbase64%2CiVBORw0KGgoAAAANSUhEUgAAADAAAAAwCAYAAABXAvmHAAAKYUlEQVR42t2aeXBV1R3HP7%2B75OUleYGELQQQRKlYceuog1o7FFuLg9Sldew41YpaHcelLTod26qxtrXDuA1TxtppnQHrUtO6YO1ULRpArVstigiCgkACCSRkf3nbvefXP8595JGEkMSl6pk5M%2B%2Fdd%2B8539%2Fv9%2F1t5z4A6Tvr6uo8oqGqM1T1ElV9SFU3qmqXqob68Y8wWntjtNclqjojjyPCJAPM3i81NTVOTU2NEwE%2FXFXvUdVd%2Bv8buyIMhwMU4OsvQB%2Fwl6pqfcFCuUhD5lMAbaK9cgXX6lX10gMIYcHX1dV5quqo6h0FD2Y%2FIboMh1bZgu93qKpTV1fnFQiBqGpe84v7aOGzMgqtvzjCagWora11owsLoxuCT4kqI6FWEH1eCFBbW%2BtKBH468CIwEVDA4bM5TESbRuA0EdmaB3otUA0EHwW8UTtH%2BvsQhhNhrI4wI5H2XwKqRqp9A6iCtWd%2FsI7YmR9BCK4DIh%2FJCk3AVz1gTkSdEHBHspoTBeP6tPKfFuXlXcrGRtjbCvQIYx34cqXDqdPhhENh0theIR0ZkRXCCPMcUdWHge9FP8pIwLcEyh%2BaDA9uC3mvCSQJftLB6QLpEkynQ9ABYYdw9CT4%2Ftfhh%2FOgomzEQuSJ%2BBdR1Y3AzOjikJcKAA94I2O4piHH682Kn4KylIMkIdvuELYBnYLf7RDrAU0K3UlIZ%2BG0WbDkSjj%2BMEspzx22AAK8J6raBZSNRPPP5EIWtmTY3Q3lGUG6ha42IWyDiqzDqB6BDqFzj9C63aEohPK4fb4rBVUVsGwRzD1mxJboFlUNh%2BO4edHXhTm%2B3ZOkIetTkhZMj5DsgBPV5dyEy3GlDhNjQCA0tcJbm%2BCxNfDmFigvsQ7fnYHJY%2BCJm%2BGYaTYQDNOxjaiqDpd4nRpwUaqeF0PwKCcZFKNJ4caYz1WjPcb7A6NoaoN7n4a7V1iN%2BS6098DXjoIVNZAojhxRhufRw6COIsCKoJENpoFq6aSUVuJeN78bV0TNOJ%2FxvpBTCBTCaAYGcqGlzG0XwV2XWW2HCqNKYfV6%2BPPzFvhw84QzHN67CJ2aYU2wmTHSQYW0IdLMT3zl8phHiGIAX8ATSxNXwHOstvO54coz4ar50JGMfnfhkVXQ1m3zw3CEGAb3lcDANtNCg%2FmAidJJEU2c6qW4obgCoiRitJdq%2FTaTfJMEPzobZk6BZMY69mub4N3tEBow5mMWQCNwngPbdAcJ2Uu5tFLhNjKqO8azu2O8kzSkjdW8cGAh8jSZNAbmnwCpHitYaGDNemsBzx26EN5Q6htHIBMKyzcpb5ZvZ%2BL4doIgwyg35PmGGPfuhNGVaU6u8LhwnMuFlS6OFGTpQgGw4FwHjp0OfpH1j7JiuP85SGXgsnkwbfzQQuugFgiNXWBTm7LgqZCrVge0ppupdFqpdHeTCNsoViFRAkbgnx2GhfVZztyRYUPG7Ku8BrICURSKF0Va96CxFX79CMy7CR5%2F2e59MH9wBqWNA%2Bv2wIK%2FGv71oZJwhFFkKKeF0exlrNNEKkjRlYVAlIpiKPbhuR7D%2FKYsq9IGLwoA%2B60dgapvgc5G2NthE1txEVSWw4dNcPFdsPz5gwvhHYg2AuzsgsufCtnaolSUQjYrZFJCpdtCEMbwnE4unbKXd0vhhSzUG6XMhUQRbMdwcVuGZ8fFONJz9qtT3KhsOPME0EXQ0Q0vbYCXN0DMh7I4pLJw7e9hyjibqcOIdgcVQAvMvPRVwxtboGK0kM0Y1PU4xB1FOc2IlGJkO%2FOqPqCqCt5PF7G0De5LBri%2BUuZDvSg%2FS%2BV4MhHbL4vneT1rqp0ArV3w1Gvwi%2BU2nMZjNsze%2FAAcewtUJgb2iX4yaXTTpj3wwKtQ6oFmbbT4%2BYmw6MjDcINmSp0uHIrYlNtOQMCMYp8lE30WT%2FDJ%2BRD6UBxTVmvI6jC0zjuApXOBLeYqE3DJN%2BCBG6xDZ7I2yf17A6x8K%2FIbHYYPrNoMu5ohrtDdLsydLNxwCiSYis802rWUDjOD9bqTNt1FCIQYfpzwOK%2FMIe0ZYg60q%2BGVwOxLhn3zgu%2F1hs0ghNOPhWsWQDIdOboPf3spUqwzBAHyJnpli%2BIbMGnBZOD8Ix1iniLmEEqcs9itJbRrNQ2mhLrgDVzAjZabF3P3tU0CtEVeO1jIc5wofyiccwpMnWBDapEHr2%2BGdG4YUSg0UL8H3AAyPcL4GMwc56AYfPGYKKfTRTWtVJDWKfw92MJDubU0apodJsfjuQAHQSOrx6K4ebDc5ERt5hGToXoMZAOr0O4UtHTu76ODRiEFsmmQnEAAvifEHBBcQpTpzmzG8RZvmu0EMoakqWBpdhvLs8JureYdU0JchCwQF%2BH4yKwHLTLFWqDItTXSvvJaeinVt%2B0a0AKuA2PjgqbBD4T2VqFxr302VPCJMd%2B7gJhMp8nESTEaGMNmE2OL8UkgeEBKYb7ncZbvRcXgQUqWSL27WqE92esbjsDYxMBNr3MARTBrEmR7BD%2BErlZYsy4KgQgGpdqp4uqi85niTGOnidOocXooI8CnU5VOVeb6LkuKi%2FALDzIHK1uM1fia9bBllw2loYFDq2z%2FPJAVnYEWAfj6UeAaCANIlMBDq2xI81xAhcAoX5IJ3F50Btf5szhZxjNBS5mMy1zX47exGI8VF1Mt0q%2FZVu0trY3aPUO1azd3wt2PQxjaUiOVhgUn2eQ3UOvVryPL8y6Vhe%2F8Bp79L1SWQVcPHD4J%2FnQdzJ5JP0IalBYUgzAW8AogFyagwdrGHXvgiqWwci2MKrGRp7IMVt5uHXugRDZgSxmGVuIX3oZzfmUx%2Bi70ZOzCC8%2BA82bD6IS9z6AUIfgFJxYZQNTeP7Z8f%2FChgYYW%2Bz0wVjl16%2BDef1ghSqPWsr0L7rwCrj%2F3wKXEAZv6%2FGb3PAnX%2F9HWJ75nM2d32gpUVWGrSS0IbxoBzyed0hj89Hy44DSrweYOuOVBqHs7KtMD2N1mqVIahyLfUqqjG35wBtx3tb0mMqAPmUGPVYyxQO5%2BAn75sLVAacwWXGFUBgxWKbqO1e7MKfDMbbYwW%2Fo0XLsEEqN6i8Z8Ns4GVhCDPfhavBAS8UFp1%2B0BDQc62HKi%2FnTRuXDUVFhcC6%2B%2FDx2t4Pp20301ivQ%2Fe1EDJrQC5y0Sj0JSLrT3GbX%2BFmbAj8PRh8I1Z8HCbw56%2FJjfscED1gJHMEgfqwrf%2BgqcfhyseMWWvR80Qnu3rV%2F2i7%2B6%2F8eyuFXApDF2ne%2BeBluaLIVErGCJOEyvgpOOgLNnw%2BjS3ogzSEemwFqJ3j3df7DD3b6aSGYgnbE0U7G8p9AaaqlQXtLrJ4VxfG9n1PE51kKJeH%2FqDtYsRlgvG9bxuqrdVGTgiDBYgsoDymu2L6fz%2BWAIx%2B77Ha87IrIVeDS6GA5aqkRnOK4zQDI6wOxbBudrm7735NcewqlcGGF9VES2fv5fMdXW1rqRFW4qYLF%2BBsFrgYfdJCJb8y8oP9evWd18oXjrrbe606ZNWwmUAqdG13NDLCQ%2FScrk36UIcCdw45w5c9xly5bp6tWr%2BWL81eAL8WePz%2Bvfbf4H2PlshlOFzAkAAAAASUVORK5CYII%3D)](https://pan.quark.cn/s/e78c41abcebc)
 
-[![B站示範影片](https://img.shields.io/badge/B%E7%AB%99-%E7%A4%BA%E7%AF%84%E5%BD%B1%E7%89%87-FB7299?style=flat&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1Tunw6qEyC/) [![QQ群 496887060](https://img.shields.io/badge/QQ%E7%BE%A4-496887060-12B7F5?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSIjZmZmZmZmIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU%2BVGVuY2VudCBRUTwvdGl0bGU%2BPHBhdGggZD0iTTIxLjM5NSAxNS4wMzVhMzkuNTQ4IDM5LjU0OCAwIDAgMC0uODAzLTIuMjY0bC0xLjA3OS0yLjY5NWMuMDAxLS4wMzIuMDE0LS41NjIuMDE0LS44MzZDMTkuNTI2IDQuNjMyIDE3LjM1MSAwIDEyIDBTNC40NzQgNC42MzIgNC40NzQgOS4yNDFjMCAuMjc0LjAxMy44MDQuMDE0LjgzNmwtMS4wOCAyLjY5NWEzOC45NyAzOC45NyAwIDAgMC0uODAyIDIuMjY0Yy0xLjAyMSAzLjI4My0uNjkgNC42NDMtLjQzOCA0LjY3My41NC4wNjUgMi4xMDMtMi40NzIgMi4xMDMtMi40NzIgMCAxLjQ2OS43NTYgMy4zODcgMi4zOTQgNC43NzEtLjYxMi4xODgtMS4zNjMuNDc5LTEuODQ1LjgzNS0uNDM0LjMyLS4zNzkuNjQ2LS4zMDEuNzc4LjM0My41NzggNS44ODMuMzY5IDcuNDgyLjE4OSAxLjYuMTggNy4xNC4zODkgNy40ODMtLjE4OS4wNzgtLjEzMi4xMzItLjQ1OC0uMzAxLS43NzgtLjQ4My0uMzU2LTEuMjMzLS42NDYtMS44NDYtLjgzNiAxLjYzNy0xLjM4NCAyLjM5My0zLjMwMiAyLjM5My00Ljc3MSAwIDAgMS41NjMgMi41MzcgMi4xMDMgMi40NzIuMjUxLS4wMy41ODEtMS4zOS0uNDM4LTQuNjczek0xMi42NjIgNC44NDZjLjAzOS0xLjA1Mi42NTktMS44NzggMS4zODUtMS44NDZzMS4yODEuOTEyIDEuMjQyIDEuOTY0Yy0uMDM5IDEuMDUxLS42NTkgMS44NzgtMS4zODUgMS44NDZzLTEuMjgyLS45MTItMS4yNDItMS45NjR6TTkuOTU0IDNjLjcyNS0uMDMzIDEuMzQ1Ljc5NCAxLjM4NCAxLjg0Ni4wNCAxLjA1Mi0uNTE3IDEuOTMxLTEuMjQyIDEuOTYzLS43MjYuMDMzLTEuMzQ2LS43OTQtMS4zODUtMS44NDVDOC42NzIgMy45MTIgOS4yMjggMy4wMzMgOS45NTQgM3pNNy40MjEgOC4yOTRjLjE5NC0uNDMgMi4xNDctLjkwOCA0LjU2Ni0uOTA4aC4wMjZjMi40MTggMCA0LjM3Mi40NzkgNC41NjYuOTA4YS4xNC4xNCAwIDAgMSAuMDE0LjA2MWMwIC4wMzEtLjAxLjA1OS0uMDI2LjA4My0uMTYzLjIzOC0yLjMzMyAxLjQxNi00LjU1MyAxLjQxNmgtLjAyNmMtMi4yMjEgMC00LjM5LTEuMTc4LTQuNTUzLTEuNDE2YS4xMzYuMTM2IDAgMCAxLS4wMTQtLjE0NHptMTAuNDIyIDguNjIyYy0uMjIgMy42NzYtMi40MDMgNS45ODctNS43NzQgNi4wMjFoLS4xMzdjLTMuMzctLjAzMy01LjU1NC0yLjM0NS01Ljc3My02LjAyMS0uMDgxLTEuMzUuMDAxLTIuNDk2LjE0Ny0zLjQzLjMxOC4wNjMuNjM4LjEyMi45NTguMTc2djMuNTA2czEuNjU4LjMzNCAzLjMxOC4xMDN2LTMuMjI1Yy40ODguMDI3Ljk2LjA0IDEuNDA2LjAzNGguMDI1YzEuNjc4LjAyMSAzLjcxNC0uMjA0IDUuNjgzLS41OTQuMTQ2LjkzNC4yMjcgMi4wOC4xNDcgMy40M3pNMTAuNDggNS44MDRjLjMxMy0uMDQxLjU0Mi0uNDA5LjUwOC0uODI1LS4wMzMtLjQxNS0uMzE0LS43Mi0uNjI5LS42NzktLjMxMy4wNC0uNTQxLjQwOS0uNTA4LjgyNC4wMzQuNDE3LjMxNS43Mi42MjkuNjh6TTE0LjQ3OSA1LjE1NmMuMDc4LjAzNy4yMjEuMDQyLjI4OS0uMTQ2LjAzNS0uMDk1LjAyNS0uMTY1LS4wMDktLjIxNC0uMDIzLS4wMzMtLjEzMy0uMTE4LS4zNzEtLjE3Ni0uOTA0LS4yMi0xLjM0MS4zODQtMS40MDUuNDk5LS4wNC4wNzItLjAxMi4xNzYuMDU2LjIyNy4wNjcuMDUxLjEzOS4wMzcuMTc5LS4wMDYuNTgtLjYyOCAxLjIxLS4yMDggMS4yNjEtLjE4NHoiLz48L3N2Zz4%3D)](https://qm.qq.com/q/22cO11mHBq) [![下載次數](https://img.shields.io/github/downloads/kevinnie2003/LOMAssistant/total?style=flat&label=%E4%B8%8B%E8%BC%89%E6%AC%A1%E6%95%B8&color=555&logo=github&logoColor=white)](https://github.com/kevinnie2003/LOMAssistant/releases)
+[![B站示範影片](https://img.shields.io/badge/B%E7%AB%99-%E7%A4%BA%E7%AF%84%E5%BD%B1%E7%89%87-FB7299?style=flat&logo=bilibili&logoColor=white)](https://www.bilibili.com/video/BV1tNno6ZEf7/) [![QQ群 496887060](https://img.shields.io/badge/QQ%E7%BE%A4-496887060-12B7F5?style=flat&logo=data%3Aimage%2Fsvg%2Bxml%3Bbase64%2CPHN2ZyBmaWxsPSIjZmZmZmZmIiByb2xlPSJpbWciIHZpZXdCb3g9IjAgMCAyNCAyNCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48dGl0bGU%2BVGVuY2VudCBRUTwvdGl0bGU%2BPHBhdGggZD0iTTIxLjM5NSAxNS4wMzVhMzkuNTQ4IDM5LjU0OCAwIDAgMC0uODAzLTIuMjY0bC0xLjA3OS0yLjY5NWMuMDAxLS4wMzIuMDE0LS41NjIuMDE0LS44MzZDMTkuNTI2IDQuNjMyIDE3LjM1MSAwIDEyIDBTNC40NzQgNC42MzIgNC40NzQgOS4yNDFjMCAuMjc0LjAxMy44MDQuMDE0LjgzNmwtMS4wOCAyLjY5NWEzOC45NyAzOC45NyAwIDAgMC0uODAyIDIuMjY0Yy0xLjAyMSAzLjI4My0uNjkgNC42NDMtLjQzOCA0LjY3My41NC4wNjUgMi4xMDMtMi40NzIgMi4xMDMtMi40NzIgMCAxLjQ2OS43NTYgMy4zODcgMi4zOTQgNC43NzEtLjYxMi4xODgtMS4zNjMuNDc5LTEuODQ1LjgzNS0uNDM0LjMyLS4zNzkuNjQ2LS4zMDEuNzc4LjM0My41NzggNS44ODMuMzY5IDcuNDgyLjE4OSAxLjYuMTggNy4xNC4zODkgNy40ODMtLjE4OS4wNzgtLjEzMi4xMzItLjQ1OC0uMzAxLS43NzgtLjQ4My0uMzU2LTEuMjMzLS42NDYtMS44NDYtLjgzNiAxLjYzNy0xLjM4NCAyLjM5My0zLjMwMiAyLjM5My00Ljc3MSAwIDAgMS41NjMgMi41MzcgMi4xMDMgMi40NzIuMjUxLS4wMy41ODEtMS4zOS0uNDM4LTQuNjczek0xMi42NjIgNC44NDZjLjAzOS0xLjA1Mi42NTktMS44NzggMS4zODUtMS44NDZzMS4yODEuOTEyIDEuMjQyIDEuOTY0Yy0uMDM5IDEuMDUxLS42NTkgMS44NzgtMS4zODUgMS44NDZzLTEuMjgyLS45MTItMS4yNDItMS45NjR6TTkuOTU0IDNjLjcyNS0uMDMzIDEuMzQ1Ljc5NCAxLjM4NCAxLjg0Ni4wNCAxLjA1Mi0uNTE3IDEuOTMxLTEuMjQyIDEuOTYzLS43MjYuMDMzLTEuMzQ2LS43OTQtMS4zODUtMS44NDVDOC42NzIgMy45MTIgOS4yMjggMy4wMzMgOS45NTQgM3pNNy40MjEgOC4yOTRjLjE5NC0uNDMgMi4xNDctLjkwOCA0LjU2Ni0uOTA4aC4wMjZjMi40MTggMCA0LjM3Mi40NzkgNC41NjYuOTA4YS4xNC4xNCAwIDAgMSAuMDE0LjA2MWMwIC4wMzEtLjAxLjA1OS0uMDI2LjA4My0uMTYzLjIzOC0yLjMzMyAxLjQxNi00LjU1MyAxLjQxNmgtLjAyNmMtMi4yMjEgMC00LjM5LTEuMTc4LTQuNTUzLTEuNDE2YS4xMzYuMTM2IDAgMCAxLS4wMTQtLjE0NHptMTAuNDIyIDguNjIyYy0uMjIgMy42NzYtMi40MDMgNS45ODctNS43NzQgNi4wMjFoLS4xMzdjLTMuMzctLjAzMy01LjU1NC0yLjM0NS01Ljc3My02LjAyMS0uMDgxLTEuMzUuMDAxLTIuNDk2LjE0Ny0zLjQzLjMxOC4wNjMuNjM4LjEyMi45NTguMTc2djMuNTA2czEuNjU4LjMzNCAzLjMxOC4xMDN2LTMuMjI1Yy40ODguMDI3Ljk2LjA0IDEuNDA2LjAzNGguMDI1YzEuNjc4LjAyMSAzLjcxNC0uMjA0IDUuNjgzLS41OTQuMTQ2LjkzNC4yMjcgMi4wOC4xNDcgMy40M3pNMTAuNDggNS44MDRjLjMxMy0uMDQxLjU0Mi0uNDA5LjUwOC0uODI1LS4wMzMtLjQxNS0uMzE0LS43Mi0uNjI5LS42NzktLjMxMy4wNC0uNTQxLjQwOS0uNTA4LjgyNC4wMzQuNDE3LjMxNS43Mi42MjkuNjh6TTE0LjQ3OSA1LjE1NmMuMDc4LjAzNy4yMjEuMDQyLjI4OS0uMTQ2LjAzNS0uMDk1LjAyNS0uMTY1LS4wMDktLjIxNC0uMDIzLS4wMzMtLjEzMy0uMTE4LS4zNzEtLjE3Ni0uOTA0LS4yMi0xLjM0MS4zODQtMS40MDUuNDk5LS4wNC4wNzItLjAxMi4xNzYuMDU2LjIyNy4wNjcuMDUxLjEzOS4wMzcuMTc5LS4wMDYuNTgtLjYyOCAxLjIxLS4yMDggMS4yNjEtLjE4NHoiLz48L3N2Zz4%3D)](https://qm.qq.com/q/22cO11mHBq) [![下載次數](https://img.shields.io/github/downloads/kevinnie2003/LOMAssistant/total?style=flat&label=%E4%B8%8B%E8%BC%89%E6%AC%A1%E6%95%B8&color=555&logo=github&logoColor=white)](https://github.com/kevinnie2003/LOMAssistant/releases)
 
 ## 安裝
 
@@ -26,7 +26,8 @@
 
 | 按鍵 | 功能 |
 |---|---|
-| Tab | 咖啡伴侶視窗（此刻、路線圖、劇情圖、節點存檔、隨時存檔、收集進度、數值、設定） |
+| Tab | 咖啡伴侶視窗（此刻、路線圖、劇情圖、節點存檔、隨時存檔、收集進度、數值、AI 陪玩、設定） |
+| F3 | AI 陪玩頁 |
 | F8 | 設定頁；存檔介面裡給所選存檔寫備註 |
 | F9 | 數值面板 |
 | F5 / F7 / F6 | 隨時存檔：存新檔 / 讀最近的 / 看全部 |
@@ -39,6 +40,20 @@
 按鍵都能在設定頁「熱鍵」裡改，也能設成「不綁定」。
 
 ## 功能
+
+### AI 陪玩（F3）
+
+用自己的 API Key 接入大模型，問劇情和攻略，或者和女主角、大師兄聊天。支援 DeepSeek、Kimi、通義千問、智譜 GLM、矽基流動、OpenRouter、OpenAI、Claude、Gemini、本機 Ollama，以及任何 OpenAI 相容介面。
+
+- **攻略助手**：先查遊戲裡的劇情資料再回答：任務和觸發條件、劇本分岔和對白、每條路線上的好感和數值合計、結局和死亡、結緣路線、人物誌、場所事件、決鬥條件，以及現在的進度和畫面上的選項。
+- **女主角和大師兄**：九位可結緣的女主角和大師兄唐布衣用自己的口吻說話，立繪表情跟著話變，對你的稱呼跟著劇情變。他們只知道你讀過的劇情。問到攻略時回答後面另起一段攻略提示，也可以設成只聊天。
+- **劇透程度**：想知道什麼說什麼 / 只說目前和走過的 / 只給方向提示。
+- **改數值和設定**：要改數值、好感、心上人、旗標或咖啡伴侶的設定時，AI 先給一張卡片，點確認才改。
+- **對話**：每位的對話存在本機，可以新開、切換、刪除，也能匯出到桌面；回答邊生成邊顯示。
+- **深度模式**：換用更強的模型，回答前核對資料，更準，也更貴、更慢。
+- **費用和隱私**：按服務商的價格計費，本 Mod 不收費。Key 和對話只發給你選的服務商；匯出診斷時 Key 會隱去。
+
+<img src="media/ai-companion.webp" width="640" alt="AI 陪玩：郁竹用自己的口吻回答，下面是攻略提示">
 
 ### 劇情回顧（Tab）
 
@@ -56,7 +71,7 @@
 
   <img src="media/story-flow.webp" width="640" alt="劇情圖：劇情段之間的選項、條件和去處">
 
-- **節點存檔**：走到任務開頭、關鍵選項時自動存下進度，點「從這裡重玩」回到那裡試另一條路。各存檔互不干擾，不占手動存檔欄，跟著 Steam 雲同步。
+- **節點存檔**：遊戲在劇情存檔點、每旬開頭自動存檔時，一併存下進度，點「從這裡重玩」回到那裡試另一條路。各存檔互不干擾，不占手動存檔欄，跟著 Steam 雲同步。
 
   <img src="media/story-nodes.webp" width="640" alt="節點存檔：按日期列出收錄的劇情段，可重玩、刪除">
 
@@ -75,14 +90,15 @@
 
   <img src="media/event-picker.webp" width="480" alt="隨機事件自選：列出可觸發的事件、概率和變化">
 
-- **地圖建築事件提示**：養成地圖上滑鼠停在建築上，列出這裡的主線、支線（能不能觸發、條件）和隨機事件的概率；有能觸發、還沒走過的任務的建築會一直亮著。
+- **地圖建築事件提示**：養成地圖上滑鼠停在建築上，列出這裡的主線、支線（能不能觸發、條件）和隨機事件的概率；有能觸發、還沒走過的任務的建築會一直亮著。設定頁打開「地圖提示只列能觸發的」後，只列現在進去就會觸發的，其餘只寫個數。
+- **物品用途**（預設關，可能劇透任務名）：背包和商店的物品說明後面列出使用效果，以及哪些劇情會判定或收走它。設定頁「物品說明裡寫用途」。
 - **劇情分支小窗**（預設關，可能劇透）：分支判斷時在螢幕左側列出各分支條件，滿足為綠、不滿足為紅。
 
   <img src="media/branch-panel.webp" width="480" alt="劇情分支小窗：滿足為綠，不滿足為紅">
 
 - **旗標變化提示**（預設關，可能劇透）：劇情改動旗標時在螢幕上提示，停留秒數可調。
 - **回想裡的判定記錄**：劇情經過的判定、條件和當前值記進回想（對話記錄）。
-- **隱藏介面看 CG**：劇情裡按右鍵，只留背景、CG 和立繪，再按一次恢復。
+- **隱藏介面看 CG**：劇情裡按右鍵，只留背景、CG 和立繪；再按右鍵、點左鍵或按其他鍵都會恢復。
 
 ### 存檔
 
@@ -91,7 +107,7 @@
 
   <img src="media/anytime-save.webp" width="640" alt="隨時存檔頁：全部隨時存檔，可讀取、寫備註、刪除">
 
-- **新版存檔、讀檔介面**（可換回原版）：列表帶心上人頭像、日期和備註，詳情欄顯示心上人立繪和讀檔後的頭幾句對白；手動、自動存檔分兩頁。打開時自動選中上次儲存的存檔；讀檔頁右上角可切換按欄位或最近儲存的排在上面。
+- **新版存檔、讀檔介面**（可換回原版）：列表帶心上人頭像、日期和備註，詳情欄顯示心上人立繪和讀檔後的頭幾句對白；手動、自動存檔分兩頁。打開時自動選中上次儲存的存檔；讀檔頁右上角可切換按欄位或最近儲存的排在上面；按最近排時，存檔頁最上面先放一個空欄位。
 
   <img src="media/save-browser.webp" width="640" alt="新版讀檔介面：左邊存檔列表帶心上人頭像和備註，右邊心上人立繪和讀檔後的對白">
 
@@ -106,6 +122,7 @@
 - 養成行動點：正常 / 不消耗 / 每旬 N 點
   > ⚠️ 後兩種可能讓部分劇情不觸發或提前觸發，甚至卡掉關鍵主線，請謹慎使用、多存檔。
 - 突破屬性上限；修煉、鍛造、煉丹不消耗次數和點數，鍛造煉丹不花銀兩
+- 開發裝備不看劇情條件（預設關）：鍛冶場、煉丹房開發新裝備、新藥時不看劇情條件，等級和門派規模的要求照舊
 - 決鬥我方無敵、決鬥敵方不受傷；團戰我方不受傷、團戰絕招無冷卻
 - 決鬥敵方行動預測（預設關）：顯示敵方這回合預選的招式，視窗可拖動、縮放
 - 彈珠總分；四師兄賣全部物品（預設關）
@@ -197,5 +214,7 @@ DOTNET=/path/to/dotnet ./Installer/build-installer.sh
 - **[活俠傳助手](https://mod.3dmgame.com/mod/256420)**：愛死（3DM：wowowo4567）。本專案的基礎，源碼由其發佈的插件反編譯而來後再修改。它又整合自 [骰子大師](https://mod.3dmgame.com/mod/210536)（Gmhaxx）、[多功能 Mod](https://mod.3dmgame.com/mod/210629)（Jim97）、[任意位置存檔](https://mod.3dmgame.com/mod/210679)（NothingNullNull）。
 - **部分功能思路**：參考 [趙活系統](https://github.com/Toufff/zhaohuo-system)（Toufff，MIT 許可）。
 - **存檔備註顯示**：移植自 [LOM_SaveSlotExpander](https://gitlab.com/ame-chan/lom_saveslotexpander)（ame-chan，MIT 許可）。
+- **AI 陪玩的思路**：參考 [江湖夜話](https://github.com/Cpjjason/jianghu-yehua)（Cpjjason）。它也是《活俠傳》的 AI Mod，能和遊戲裡的人物私下閒談，人物會送東西、指點武功、記得聊過的事（[B 站介紹影片](https://www.bilibili.com/video/BV1s2nC6pE83/)）。
+- **AI 陪玩的人設**：部分性格和小習慣參考了類腦社群夏呆呆的同人角色卡《活俠傳》。
 - 感謝 [lxsb222-spec](https://github.com/lxsb222-spec)（愛死）、[blakceyes](https://github.com/blakceyes)、[NEXTAltair](https://github.com/NEXTAltair)、[pluvivanto](https://github.com/pluvivanto) 提交的 PR，以及 [mahosalieri85-a11y](https://github.com/mahosalieri85-a11y)、[iampigcheng](https://github.com/iampigcheng) 提交的 issue。
 - 下載包附帶的 [BepInEx](https://github.com/BepInEx/BepInEx)、[UnityDoorstop](https://github.com/NeighTools/UnityDoorstop)、[Newtonsoft.Json](https://github.com/JamesNK/Newtonsoft.Json) 按各自的許可證分發。

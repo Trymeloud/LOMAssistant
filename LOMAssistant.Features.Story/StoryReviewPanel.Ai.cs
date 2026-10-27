@@ -1,0 +1,1534 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Text.RegularExpressions;
+using LOMAssistant.Config;
+using LOMAssistant.Features.Ai;
+using Mortal.Core;
+using UnityEngine;
+
+namespace LOMAssistant.Features.Story;
+
+/// <summary>
+/// 「AI」页：AI 攻略问答。没配好服务商时先显示设置（服务商、地址、模型、Key、剧透程度、测试连接），配好后显示对话。
+/// AI 的回答本来就是界面语言写的，画的时候加 Verbatim 记号，不再查表翻译。
+/// </summary>
+public partial class StoryReviewPanel
+{
+	private const int AiTab = 7;
+
+	private string _aiInput = "";
+	private Vector2 _aiScroll, _aiSetupScroll;
+	private bool _aiSetup;
+	private string _aiTestStatus = "";
+	private bool _aiTesting;
+	private int _aiShownCount;
+
+
+
+	/// <summary>AI 页热键（默认 F3）：打开 AI 页、光标放进输入框；已经在 AI 页就关掉窗口。</summary>
+	public static void ToggleAi()
+	{
+		StoryReviewPanel panel = Instance;
+		if (panel == null)
+		{
+			return;
+		}
+		if (panel._visible && panel._tab == AiTab && !panel._showChangelog)
+		{
+			panel._visible = false;
+			return;
+		}
+		panel._visible = true;
+		panel._tab = AiTab;
+		panel._showChangelog = false;
+		panel._aiHistory = false;
+		panel._aiFocusInput = true;
+		panel._aiTyping = true;
+	}
+
+	private void DrawAi(Rect r)
+	{
+		_aiSeenFrame = Time.frameCount;
+		// AI 查资料要用整理好的剧情数据：打开这一页就开始整理（和路线图一样）
+		if (!StoryAtlas.Ready && !StoryAtlas.Building && UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Title")
+		{
+			StoryAtlas.Start();
+		}
+		if (_aiSetup || !AiChat.Configured)
+		{
+			DrawAiSetup(r);
+		}
+		else
+		{
+			DrawAiChat(r);
+		}
+	}
+
+	private void DrawAiSetup(Rect r)
+	{
+		GUILayout.BeginArea(r);
+		_aiSetupScroll = GUILayout.BeginScrollView(_aiSetupScroll);
+		GUILayout.Label("AI 攻略设置", _heading);
+		GUILayout.Label("需要自己的 API Key。Key 只存在这台电脑的配置文件里，只发给下面选的服务商；导出诊断时会隐藏。每次提问，问题和 AI 查到的游戏剧情会发给服务商，按服务商的价格计费。", _muted);
+		GUILayout.Space(S(8));
+
+		GUILayout.Label("服务商", _label);
+		int current = ConfigManager.AiProvider.Value;
+		string[] names = LlmProvider.All.Select(p => p.Name).ToArray();
+		int picked = Pick(names, current, 3, r.width - S(30));
+		if (picked != current)
+		{
+			LlmProvider p = LlmProvider.At(picked);
+			ConfigManager.AiProvider.Value = picked;
+			ConfigManager.AiBaseUrl.Value = p.BaseUrl;
+			ConfigManager.AiModel.Value = p.Model;
+			ConfigManager.AiDeepModel.Value = p.DeepModel;
+			_aiTestStatus = "";
+		}
+		LlmProvider provider = AiChat.Provider;
+		GUILayout.Space(S(8));
+
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("API 地址", _label, GUILayout.Width(S(120)), Ctl());
+		Assign(ConfigManager.AiBaseUrl, GUILayout.TextField(ConfigManager.AiBaseUrl.Value, 200, _field, Ctl()));
+		GUILayout.EndHorizontal();
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("模型", _label, GUILayout.Width(S(120)), Ctl());
+		Assign(ConfigManager.AiModel, GUILayout.TextField(ConfigManager.AiModel.Value, 100, _field, Ctl()));
+		GUILayout.EndHorizontal();
+		if (!provider.NoKey)
+		{
+			GUILayout.BeginHorizontal();
+			GUILayout.Label("API Key", _label, GUILayout.Width(S(120)), Ctl());
+			Assign(ConfigManager.AiApiKey, GUILayout.PasswordField(ConfigManager.AiApiKey.Value, '•', 300, _field, Ctl()));
+			if (provider.KeysPage.Length > 0 && GUILayout.Button("去申请 Key", _button, GUILayout.Width(TextWidth("去申请 Key", _button, S(120))), Ctl()))
+			{
+				Application.OpenURL(provider.KeysPage);
+			}
+			GUILayout.EndHorizontal();
+		}
+		GUILayout.BeginHorizontal();
+		GUILayout.Label("深度模式模型", _label, GUILayout.Width(S(160)), Ctl());
+		Assign(ConfigManager.AiDeepModel, GUILayout.TextField(ConfigManager.AiDeepModel.Value, 100, _field, Ctl()));
+		GUILayout.EndHorizontal();
+		GUILayout.Label("模型名是建议值，服务商出了新模型可以自己改。要选支持工具调用（function calling）的模型。", _muted);
+		GUILayout.Space(S(8));
+
+		GUILayout.Label("剧透程度", _label);
+		int spoiler = Pick(new[] { "想知道什么说什么", "只说当前和走过的", "只给方向提示" }, Mathf.Clamp(ConfigManager.AiSpoiler.Value, 0, 2), 3, r.width - S(30));
+		if (spoiler != ConfigManager.AiSpoiler.Value)
+		{
+			ConfigManager.AiSpoiler.Value = spoiler;
+		}
+		GUILayout.Space(S(8));
+		GUILayout.Label("女主角的攻略提示", _label);
+		int hints = Pick(new[] { "问到攻略时给", "只聊天，不给" }, ConfigManager.AiHints.Value ? 0 : 1, 2, r.width - S(30));
+		ConfigManager.AiHints.Value = hints == 0;
+		GUILayout.Space(S(8));
+		GUILayout.Label("调试记录", _label);
+		int debug = Pick(new[] { "不记", "记下发给 AI 的内容" }, ConfigManager.AiDebugLog.Value ? 1 : 0, 2, r.width - S(30));
+		ConfigManager.AiDebugLog.Value = debug == 1;
+		if (ConfigManager.AiDebugLog.Value)
+		{
+			GUILayout.Label("写在 Mod 文件夹的 logs/ai_debug.txt，不含 API Key。", _muted);
+		}
+		// 测试题：开发用，发布包里没有题目文件，玩家看不到；手动放了 config\LOMAssistant_AI\eval.json 才显示。很费 token，点两下才跑
+		int evalCount = Time.frameCount % 60 == 0 || _aiEvalCount < 0 ? (_aiEvalCount = AiEval.Count) : _aiEvalCount;
+		if (evalCount > 0)
+		{
+			GUILayout.Space(S(8));
+			GUILayout.BeginHorizontal();
+			GUI.enabled = AiChat.Configured && !AiChat.Busy && !AiEval.Running;
+			bool asked = Time.realtimeSinceStartup - _aiEvalAsked < 3f;
+			if (GUILayout.Button(asked ? "确定要跑吗？" : string.Format("跑测试题（{0} 题）", evalCount), asked ? _primary : _button, GUILayout.Width(S(220)), Ctl()))
+			{
+				if (asked)
+				{
+					_aiEvalAsked = -100f;
+					AiEval.Start();
+				}
+				else
+				{
+					_aiEvalAsked = Time.realtimeSinceStartup;
+				}
+			}
+			GUI.enabled = true;
+			if (AiEval.HasReport && !AiEval.Running && GUILayout.Button("打开结果", _button, GUILayout.Width(S(140)), Ctl()))
+			{
+				Application.OpenURL("file:///" + AiEval.ReportPath.Replace('\\', '/'));
+			}
+			GUILayout.Label(asked ? "每题都要查资料，一次会用掉几十万 token" : AiEval.Status, Middle(_muted), Ctl());
+			GUILayout.EndHorizontal();
+		}
+		GUILayout.Space(S(12));
+
+		GUILayout.BeginHorizontal();
+		GUI.enabled = !_aiTesting && AiChat.Configured;
+		if (GUILayout.Button(_aiTesting ? "正在测试…" : "测试连接", _button, GUILayout.Width(S(160)), Ctl()))
+		{
+			_aiTesting = true;
+			_aiTestStatus = "";
+			StartCoroutine(AiChat.Test(error =>
+			{
+				_aiTesting = false;
+				_aiTestStatus = error.Length == 0 ? "<color=#2F6B3A>连上了</color>" : "<color=#A3302A>" + error + "</color>";
+			}));
+		}
+		if (GUILayout.Button("开始提问", _primary, GUILayout.Width(S(160)), Ctl()))
+		{
+			_aiSetup = false;
+		}
+		GUI.enabled = true;
+		GUILayout.Label(_aiTestStatus, MiddleRich(), Ctl());
+		GUILayout.EndHorizontal();
+		GUILayout.EndScrollView();
+		GUILayout.EndArea();
+	}
+
+	// 一组互斥的按钮，选中的用朱砂底（GUILayout 的 SelectionGrid、Toolbar 用普通按钮样式时看不出选的是哪个）
+	private int Pick(string[] labels, int current, int columns, float width)
+	{
+		int picked = current;
+		for (int i = 0; i < labels.Length; i++)
+		{
+			if (i % columns == 0)
+			{
+				GUILayout.BeginHorizontal();
+			}
+			// 每格一样宽（GUILayout 默认按字数撑开，长短不一）
+			if (GUILayout.Button(labels[i], i == current ? _primary : _button, Ctl(), GUILayout.Width((width - S(6) * (columns - 1)) / columns)))
+			{
+				picked = i;
+			}
+			if (i % columns == columns - 1 || i == labels.Length - 1)
+			{
+				GUILayout.EndHorizontal();
+			}
+		}
+		return picked;
+	}
+
+	private GUIStyle _middleRich;
+	private float _middleRichScale;
+
+	// 竖直居中、能显示颜色的单行字（Middle 出来的样式关了富文本）
+	private GUIStyle MiddleRich()
+	{
+		if (_middleRich == null || _middleRichScale != _scale)
+		{
+			_middleRich = new GUIStyle(Middle(_rich)) { richText = true };
+			_middleRichScale = _scale;
+		}
+		return _middleRich;
+	}
+
+	private static void Assign(ConfigElement<string> element, string value)
+	{
+		if (value != element.Value)
+		{
+			element.Value = value;
+		}
+	}
+
+	// 能选的人设：攻略助手 + 玩家见过的女主角（读过她的对白）；每 5 秒重算一次
+	private List<AiPersona> _aiPersonas = new List<AiPersona>();
+	private float _aiPersonasAt = -100f;
+
+	private List<AiPersona> MetPersonas()
+	{
+		if (Time.realtimeSinceStartup - _aiPersonasAt > 5f && StoryAtlas.Ready)
+		{
+			_aiPersonasAt = Time.realtimeSinceStartup;
+			_aiPersonas = AiPersona.All.Where(p => p.Met()).ToList();
+		}
+		return _aiPersonas;
+	}
+
+	// 立绘：Addressables 里 Images/Characters/文件夹/表情.png；没有这个表情就用默认的
+	private static readonly Dictionary<string, UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<Sprite>> AiPortraits =
+		new Dictionary<string, UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationHandle<Sprite>>();
+
+	private static Sprite AiPortrait(AiPersona p, string mood)
+	{
+		foreach (string m in new[] { mood, p.Moods[0] })
+		{
+			if (string.IsNullOrEmpty(m))
+			{
+				continue;
+			}
+			string path = "Assets/__Project/Images/Characters/" + p.Folder + "/" + m + ".png";
+			try
+			{
+				if (!AiPortraits.TryGetValue(path, out var handle))
+				{
+					handle = UnityEngine.AddressableAssets.Addressables.LoadAssetAsync<Sprite>(path);
+					AiPortraits[path] = handle;
+				}
+				if (!handle.IsDone)
+				{
+					return null;
+				}
+				if (handle.Status == UnityEngine.ResourceManagement.AsyncOperations.AsyncOperationStatus.Succeeded && handle.Result != null)
+				{
+					return handle.Result;
+				}
+			}
+			catch (System.Exception ex)
+			{
+				FileLogger.Log("[AI] 读立绘失败 " + path + ": " + ex.Message);
+			}
+		}
+		return null;
+	}
+
+	// 立绘的头在哪（0～1，左上为原点）：头顶 = 第一行不透明像素，头的中线 = 头顶往下约 70 像素那一行不透明部分的中点。
+	// 在游戏实际载入的图上量（同一个人在解包资源里可能有好几套画布），量一次记住
+	private static readonly Dictionary<Sprite, Vector2> HeadAnchors = new Dictionary<Sprite, Vector2>();
+
+	private static Vector2 HeadAnchor(Sprite sprite, string name)
+	{
+		if (HeadAnchors.TryGetValue(sprite, out Vector2 cached))
+		{
+			return cached;
+		}
+		var anchor = new Vector2(0.5f, 0f);
+		RenderTexture previous = RenderTexture.active;
+		RenderTexture rt = null;
+		Texture2D read = null;
+		try
+		{
+			// 立绘贴图不可读：缩小画到临时渲染纹理上再读回来
+			Texture2D tex = sprite.texture;
+			Rect tr = sprite.textureRect;
+			int w = 200, h = Mathf.Max(1, Mathf.RoundToInt(w * tr.height / tr.width));
+			rt = RenderTexture.GetTemporary(w, h, 0, RenderTextureFormat.ARGB32);
+			Graphics.Blit(tex, rt, new Vector2(tr.width / tex.width, tr.height / tex.height), new Vector2(tr.x / tex.width, tr.y / tex.height));
+			RenderTexture.active = rt;
+			read = new Texture2D(w, h, TextureFormat.RGBA32, false);
+			read.ReadPixels(new Rect(0, 0, w, h), 0, 0);
+			Color32[] px = read.GetPixels32();
+			// 读回来的 y 从下往上；从最上一行往下找第一行有不透明像素的
+			int top = -1;
+			for (int y = h - 1; y >= 0 && top < 0; y--)
+			{
+				for (int x = 0; x < w; x++)
+				{
+					if (px[y * w + x].a > 40)
+					{
+						top = y;
+						break;
+					}
+				}
+			}
+			if (top >= 0)
+			{
+				int row = Mathf.Max(0, top - Mathf.RoundToInt(70f * w / tr.width));
+				int minX = w, maxX = -1;
+				for (int x = 0; x < w; x++)
+				{
+					if (px[row * w + x].a > 40)
+					{
+						minX = Mathf.Min(minX, x);
+						maxX = Mathf.Max(maxX, x);
+					}
+				}
+				anchor = new Vector2(maxX >= 0 ? (minX + maxX + 1) / 2f / w : 0.5f, 1f - (top + 1f) / h);
+			}
+			FileLogger.Log($"[AI] 立绘 {name}：{tr.width}x{tr.height}，头顶 {anchor.y:0.000}，头中线 {anchor.x:0.000}");
+		}
+		catch (System.Exception ex)
+		{
+			FileLogger.Log("[AI] 量立绘失败: " + ex.Message);
+		}
+		finally
+		{
+			RenderTexture.active = previous;
+			if (rt != null)
+			{
+				RenderTexture.ReleaseTemporary(rt);
+			}
+			if (read != null)
+			{
+				Object.Destroy(read);
+			}
+		}
+		return HeadAnchors[sprite] = anchor;
+	}
+
+	// 立绘：所有人按同一个像素比例画（游戏里的立绘都是同一个比例，只是画布留白不同），头顶对齐这一栏顶端、头居中。头约 280 像素宽，画成栏宽的一半
+	private void DrawAiPortrait(Rect r, AiPersona p)
+	{
+		Sprite sprite = AiPortrait(p, AiChat.Mood);
+		if (sprite == null || Event.current.type != EventType.Repaint)
+		{
+			return;
+		}
+		Rect tex = sprite.textureRect;
+		Vector2 head = HeadAnchor(sprite, p.Folder + "/" + (AiChat.Mood.Length > 0 ? AiChat.Mood : p.Moods[0]));
+		float drawW = tex.width * (r.width * 0.5f / 280f), drawH = drawW * tex.height / tex.width;
+		float x = r.width * 0.5f - head.x * drawW, y = S(10) - head.y * drawH;
+		var uv = new Rect(tex.x / sprite.texture.width, tex.y / sprite.texture.height, tex.width / sprite.texture.width, tex.height / sprite.texture.height);
+		GUI.BeginGroup(r);
+		GUI.DrawTextureWithTexCoords(new Rect(x, y, drawW, drawH), sprite.texture, uv);
+		GUI.EndGroup();
+	}
+
+	private bool _aiHistory;
+	private bool _aiFocusInput;
+	// 玩家点了输入框、还没点别处：这期间输入框一直拿着键盘焦点
+	private bool _aiTyping;
+	// 流式回答显示到多长了（变长就滚到底）
+	private int _aiPartialShown;
+	// 测试题有几题（隔一阵重读一次题目文件）；-1 = 还没读
+	private int _aiEvalCount = -1;
+	private float _aiEvalAsked = -100f;
+	// 输入框的控件编号（画完输入框时记下），回车判断在画它之前，要靠它认
+	private int _aiInputId;
+	private float _aiRefocusLogged = -100f;
+	// 自己画的光标：闪烁从光标最后一次移动算起，打字、移动时一直亮着
+	private int _aiCaretIndex = -1;
+	private float _aiCaretMoved;
+
+	// Unity 自带的竖线光标时有时无，输入框真有键盘焦点时自己画一条（自带的在画输入框时设成透明）
+	private void DrawAiCaret(Rect box)
+	{
+		if (_aiInputId == 0 || GUIUtility.keyboardControl != _aiInputId || !string.IsNullOrEmpty(Input.compositionString))
+		{
+			return;
+		}
+		var editor = GUIUtility.GetStateObject(typeof(TextEditor), _aiInputId) as TextEditor;
+		if (editor == null || editor.cursorIndex != editor.selectIndex)
+		{
+			return;
+		}
+		int index = Mathf.Clamp(editor.cursorIndex, 0, _aiInput.Length);
+		if (index != _aiCaretIndex)
+		{
+			_aiCaretIndex = index;
+			_aiCaretMoved = Time.realtimeSinceStartup;
+		}
+		if (Mathf.Repeat(Time.realtimeSinceStartup - _aiCaretMoved, 1f) >= 0.5f)
+		{
+			return;
+		}
+		Vector2 at = _aiField.GetCursorPixelPosition(box, new GUIContent(_aiInput), index) - editor.scrollOffset;
+		float height = _aiField.lineHeight;
+		if (at.y < box.y || at.y + height > box.yMax)
+		{
+			return;
+		}
+		Fill(new Rect(at.x, at.y, Mathf.Max(1f, Mathf.Round(S(1))), height), Ink);
+	}
+	private int _aiSeenFrame;
+
+	/// <summary>窗口关了、换到别的页、点了窗口外面：不再算正在输入（每次 OnGUI 开头调用）。</summary>
+	private void AiTypingGuard()
+	{
+		Event e = Event.current;
+		if (!_visible || Time.frameCount - _aiSeenFrame > 2 || (e.rawType == EventType.MouseDown && !_windowRect.Contains(e.mousePosition)))
+		{
+			_aiTyping = false;
+		}
+	}
+	private float _aiDeleteAsked = -100f;
+	// 刚导出的对话文件名，顶上那行提示几秒
+	private float _aiExportedAt = -100f;
+	private string _aiExportedName = "";
+
+	private static Steamworks.Callback<Steamworks.GamepadTextInputDismissed_t> _keyboardDone;
+
+	// 在 Steam Deck 上或 Steam 大屏幕模式里时，打开 Steam 的全屏键盘；打开了返回 true
+	private bool SteamKeyboard(string existing)
+	{
+		try
+		{
+			if (!Steamworks.SteamAPI.IsSteamRunning() || !(Steamworks.SteamUtils.IsSteamRunningOnSteamDeck() || Steamworks.SteamUtils.IsSteamInBigPictureMode()))
+			{
+				return false;
+			}
+			_keyboardDone ??= Steamworks.Callback<Steamworks.GamepadTextInputDismissed_t>.Create(done =>
+			{
+				if (!done.m_bSubmitted)
+				{
+					return;
+				}
+				uint length = Steamworks.SteamUtils.GetEnteredGamepadTextLength();
+				if (Steamworks.SteamUtils.GetEnteredGamepadTextInput(out string text, length + 1) && Instance != null)
+				{
+					Instance._aiInput = "";
+					AiChat.Ask(text);
+				}
+			});
+			return Steamworks.SteamUtils.ShowGamepadTextInput(Steamworks.EGamepadTextInputMode.k_EGamepadTextInputModeNormal,
+				Steamworks.EGamepadTextInputLineMode.k_EGamepadTextInputLineModeMultipleLines, TextConverter.ForDisplay("问 AI"), 500, existing ?? "");
+		}
+		catch (System.Exception ex)
+		{
+			FileLogger.Log("[AI] 打不开 Steam 屏幕键盘: " + ex.Message);
+			return false;
+		}
+	}
+	private Vector2 _aiHistoryScroll;
+
+	// 这位的全部对话：点一段切过去接着聊
+	private void DrawAiHistory(Rect r)
+	{
+		List<AiSession> sessions = AiSessions.Of(AiChat.PersonaId);
+		AiSession current = AiChat.Session;
+		GUILayout.BeginArea(r);
+		_aiHistoryScroll = GUILayout.BeginScrollView(_aiHistoryScroll);
+		if (sessions.Count == 0)
+		{
+			GUILayout.Label("还没有保存的对话。", _muted);
+		}
+		foreach (AiSession s in sessions)
+		{
+			int asked = s.Shown.Count(e => e.Kind == AiChat.Kind.User);
+			string label = s.Updated.ToString("MM-dd HH:mm") + "　" + TextConverter.Verbatim + Escape(s.Title) + "　" + string.Format("（{0} 问）", asked);
+			if (GUILayout.Button(label, s == current ? _primary : _button, Ctl()) && !AiChat.Busy)
+			{
+				AiSessions.Select(s);
+				_aiHistory = false;
+			}
+		}
+		GUILayout.EndScrollView();
+		GUILayout.EndArea();
+	}
+
+	// AI 页自己的样式：气泡、名牌、折叠的查资料行。跟着窗口缩放、深浅色重建
+	private GUIStyle _aiUser, _aiBot, _aiCard, _aiName, _aiFold, _aiSmallButton, _aiPlate, _aiTabText, _aiTabTextOn, _aiField, _aiHint, _aiHintBox, _aiHintTitle, _aiHintText;
+	private float _aiStyleScale = -1f;
+	private bool _aiStyleDark;
+	private float _aiStyleOpacity = -1f;
+
+	private void AiStyles()
+	{
+		if (_aiUser != null && _aiStyleScale == _scale && _aiStyleDark == _dark && _aiStyleOpacity == _opacity)
+		{
+			return;
+		}
+		_aiStyleScale = _scale;
+		_aiStyleDark = _dark;
+		_aiStyleOpacity = _opacity;
+		Color Faded(Color c) => new Color(c.r, c.g, c.b, c.a * _opacity);
+		GUIStyle Bubble(Color fill, Color edge)
+		{
+			var s = new GUIStyle(_rich) { wordWrap = true };
+			s.normal.background = Framed(Faded(fill), edge);
+			s.border = new RectOffset(2, 2, 2, 2);
+			s.padding = new RectOffset((int)S(14), (int)S(14), (int)S(10), (int)S(10));
+			s.margin = new RectOffset(0, 0, (int)S(6), (int)S(6));
+			return s;
+		}
+		_aiUser = Bubble(PaperDeep, new Color(Edge.r, Edge.g, Edge.b, 0.6f));
+		_aiBot = Bubble(PaperLight, new Color(Edge.r, Edge.g, Edge.b, 0.4f));
+		_aiCard = Bubble(PaperLight, Cinnabar);
+		// 攻略提示：比气泡淡一层的底、细边，字用淡墨色
+		_aiHintBox = Bubble(Paper, new Color(Edge.r, Edge.g, Edge.b, 0.35f));
+		_aiHintBox.margin = new RectOffset((int)S(18), 0, (int)S(2), (int)S(8));
+		_aiHintTitle = new GUIStyle(_rich) { wordWrap = false, fontSize = Mathf.RoundToInt(_rich.fontSize * 0.9f) };
+		_aiHintTitle.normal.textColor = InkMuted;
+		_aiHintText = new GUIStyle(_rich) { wordWrap = true };
+		_aiHintText.normal.textColor = InkMuted;
+		_aiName = new GUIStyle(_rich) { fontStyle = FontStyle.Bold, wordWrap = false };
+		_aiName.normal.textColor = Cinnabar;
+		_aiName.margin = new RectOffset((int)S(4), 0, (int)S(8), 0);
+		_aiFold = new GUIStyle(_muted) { wordWrap = false };
+		_aiFold.hover.textColor = Ink;
+		_aiFold.margin = new RectOffset((int)S(6), 0, (int)S(2), (int)S(2));
+		_aiSmallButton = new GUIStyle(_button) { fontSize = Mathf.RoundToInt(15 * _scale) };
+		// 人设按钮上的名字：只有字，不带按钮底（底由按钮自己画，名字压在头像右边）
+		_aiTabText = new GUIStyle(_rich) { wordWrap = false, alignment = TextAnchor.MiddleLeft, fontSize = _button.fontSize };
+		_aiTabText.normal.textColor = Ink;
+		// 输入框：多行，从左上角开始写（设置页的单行输入框是竖直居中的，打的字会跑到框中间）；提示文字用同一个字号、同一个位置
+		_aiField = new GUIStyle(_field) { alignment = TextAnchor.UpperLeft, wordWrap = true };
+		_aiField.padding = new RectOffset((int)S(12), (int)S(12), (int)S(10), (int)S(10));
+		_aiHint = new GUIStyle(_aiField);
+		_aiHint.normal.background = null;
+		_aiHint.normal.textColor = InkMuted;
+		_aiTabTextOn = new GUIStyle(_aiTabText);
+		_aiTabTextOn.normal.textColor = OnCinnabar;
+		_aiPlate = new GUIStyle(_seal) { fontSize = Mathf.RoundToInt(20 * _scale) };
+		_aiPlate.normal.background = Framed(Cinnabar, new Color(Cinnabar.r * 0.7f, Cinnabar.g * 0.7f, Cinnabar.b * 0.7f, 1f));
+		_aiPlate.border = new RectOffset(2, 2, 2, 2);
+	}
+
+	// 气泡宽度跟着字走：最长一行有多宽就多宽，超过上限才折行
+	private static float BubbleWidth(string text, GUIStyle style, float max)
+	{
+		var single = new GUIStyle(style) { wordWrap = false };
+		return Mathf.Min(max, single.CalcSize(new GUIContent(text)).x + 2f);
+	}
+
+	// Unity 自带的折行只在空格处断：一整段中文算一个词，放不下就整段挪到下一行（「·」「1.」单独留一行），
+	// 硬断时行尾的字还会露出半截。这里按字宽自己折行：中文每个字前后都能断，英文按单词断，「，。」」等不放行首
+	private static readonly Dictionary<string, string> _wrapCache = new Dictionary<string, string>();
+	private static readonly Dictionary<(int, int, bool, char), float> _charWidth = new Dictionary<(int, int, bool, char), float>();
+	private static readonly GUIStyle _measure = new GUIStyle { wordWrap = false, richText = true };
+
+	private static string Wrap(string rich, GUIStyle style, float width)
+	{
+		if (width <= 0f || string.IsNullOrEmpty(rich))
+		{
+			return rich;
+		}
+		string key = style.fontSize + "|" + (int)width + "|" + rich;
+		if (_wrapCache.TryGetValue(key, out string done))
+		{
+			return done;
+		}
+		if (_wrapCache.Count > 300)
+		{
+			_wrapCache.Clear();
+		}
+		_measure.font = style.font;
+		_measure.fontSize = style.fontSize;
+		_measure.fontStyle = style.fontStyle;
+		var sb = new StringBuilder(rich.Length + 32);
+		var open = new List<string>();
+		string[] lines = rich.Split('\n');
+		for (int li = 0; li < lines.Length; li++)
+		{
+			if (li > 0)
+			{
+				sb.Append('\n');
+			}
+			string line = lines[li];
+			float x = 0f;
+			int i = 0;
+			while (i < line.Length)
+			{
+				// 一个单位：前面挂着的富文本标签 + 一个汉字，或一个英文单词，或一个空格；后面跟着的不能放行首的标点也算进来
+				var unit = new StringBuilder();
+				var tagsAfter = new List<string>(open);
+				float w = 0f;
+				int start = i;
+				void TakeTags()
+				{
+					while (i < line.Length && line[i] == '<')
+					{
+						int end = line.IndexOf('>', i);
+						if (end < 0)
+						{
+							break;
+						}
+						string tag = line.Substring(i, end - i + 1);
+						unit.Append(tag);
+						if (tag.StartsWith("</"))
+						{
+							if (tagsAfter.Count > 0)
+							{
+								tagsAfter.RemoveAt(tagsAfter.Count - 1);
+							}
+						}
+						else
+						{
+							tagsAfter.Add(tag);
+						}
+						i = end + 1;
+					}
+				}
+				float Take()
+				{
+					char c = line[i++];
+					unit.Append(c);
+					return CharWidth(c, tagsAfter.Exists(t => t == "<b>"));
+				}
+				TakeTags();
+				if (i >= line.Length)
+				{
+					sb.Append(unit);
+					open = tagsAfter;
+					break;
+				}
+				char first = line[i];
+				bool space = first == ' ';
+				if (space || first > 0x2E7F)
+				{
+					w += Take();
+				}
+				else
+				{
+					while (i < line.Length && line[i] != ' ' && line[i] <= 0x2E7F && line[i] != '<')
+					{
+						w += Take();
+					}
+				}
+				while (true)
+				{
+					int save = i;
+					var saveTags = new List<string>(tagsAfter);
+					int saveLen = unit.Length;
+					TakeTags();
+					if (i < line.Length && NoLineStart.IndexOf(line[i]) >= 0)
+					{
+						w += Take();
+						continue;
+					}
+					i = save;
+					tagsAfter = saveTags;
+					unit.Length = saveLen;
+					break;
+				}
+				if (x > 0f && x + w > width)
+				{
+					for (int k = open.Count - 1; k >= 0; k--)
+					{
+						sb.Append("</").Append(TagName(open[k])).Append('>');
+					}
+					sb.Append('\n');
+					foreach (string t in open)
+					{
+						sb.Append(t);
+					}
+					x = 0f;
+					if (space)
+					{
+						open = tagsAfter;
+						continue;
+					}
+				}
+				sb.Append(unit);
+				x += w;
+				open = tagsAfter;
+				if (i == start)
+				{
+					sb.Append(line[i++]);
+				}
+			}
+		}
+		string result = sb.ToString();
+		_wrapCache[key] = result;
+		return result;
+	}
+
+	private static string TagName(string tag)
+	{
+		string name = tag.Substring(1, tag.Length - 2);
+		int cut = name.IndexOfAny(new[] { '=', ' ' });
+		return cut >= 0 ? name.Substring(0, cut) : name;
+	}
+
+	private static float CharWidth(char c, bool bold)
+	{
+		var key = (_measure.font != null ? _measure.font.GetInstanceID() : 0, _measure.fontSize, bold, c);
+		if (_charWidth.TryGetValue(key, out float w))
+		{
+			return w;
+		}
+		string open = bold ? "<b>" : "", close = bold ? "</b>" : "";
+		// 单个字量出来的宽度含首尾空白，夹在两个字中间量更准；空格单独量会是 0
+		w = _measure.CalcSize(new GUIContent(open + "国" + c + "国" + close)).x - _measure.CalcSize(new GUIContent(open + "国国" + close)).x;
+		_charWidth[key] = w = Mathf.Max(0f, w);
+		return w;
+	}
+
+	private static void DrawSprite(Rect r, Sprite sprite)
+	{
+		if (sprite == null || Event.current.type != EventType.Repaint)
+		{
+			return;
+		}
+		Rect t = sprite.textureRect;
+		GUI.DrawTextureWithTexCoords(r, sprite.texture, new Rect(t.x / sprite.texture.width, t.y / sprite.texture.height, t.width / sprite.texture.width, t.height / sprite.texture.height));
+	}
+
+	private static void DrawFace(Rect r, AiPersona p)
+	{
+		Sprite sprite = AiPortrait(p, p.Moods[0]);
+		if (sprite == null || Event.current.type != EventType.Repaint)
+		{
+			return;
+		}
+		Rect t = sprite.textureRect;
+		float w = sprite.texture.width, h = sprite.texture.height, side = p.IconCrop[2] * t.width;
+		// IconCrop 从左上量，贴图坐标从左下量
+		var uv = new Rect((t.x + p.IconCrop[0] * t.width) / w, (t.yMax - p.IconCrop[1] * t.height - side) / h, side / w, side / h);
+		GUI.DrawTextureWithTexCoords(r, sprite.texture, uv);
+	}
+
+	// 展开了的「查了 N 处资料」（按那一组的第一条记）
+	private readonly HashSet<AiChat.Entry> _aiOpenLookups = new HashSet<AiChat.Entry>();
+
+	private void DrawAiChat(Rect r)
+	{
+		AiStyles();
+		float h = S(44);
+		// 第一排：人设。攻略助手是朱砂印「攻」，女主角用游戏里的心上人头像
+		var personas = MetPersonas();
+		{
+			int current = AiChat.PersonaId.Length == 0 ? 0 : personas.FindIndex(p => p.Id == AiChat.PersonaId) + 1;
+			float x = r.x;
+			for (int i = 0; i <= personas.Count; i++)
+			{
+				string label = i == 0 ? "攻略助手" : personas[i - 1].Name;
+				float bw = TextWidth(label, _button, S(60)) + h - S(6);
+				var cell = new Rect(x, r.y, bw, h);
+				if (GUI.Button(cell, "", i == current ? _primary : _button) && !AiChat.Busy)
+				{
+					AiChat.PersonaId = i == 0 ? AiPersona.AssistantId : personas[i - 1].Id;
+					_aiHistory = false;
+				}
+				var icon = new Rect(cell.x + S(5), cell.y + S(5), h - S(10), h - S(10));
+				if (i == 0)
+				{
+					if (Event.current.type == EventType.Repaint)
+					{
+						Fill(icon, i == current ? new Color(1f, 1f, 1f, 0.25f) : Cinnabar);
+					}
+					GUI.Label(icon, "攻", _seal);
+				}
+				else if (personas[i - 1].IconCrop != null)
+				{
+					// 大师兄没有游戏里的心上人头像：从立绘上裁出脸
+					DrawFace(icon, personas[i - 1]);
+				}
+				else
+				{
+					DrawSprite(icon, LOMAssistant.Features.Extras.SaveBrowser.LoverIcon(personas[i - 1].Lover));
+				}
+				GUI.Label(new Rect(icon.xMax + S(6), cell.y, cell.xMax - icon.xMax - S(10), h), label, i == current ? _aiTabTextOn : _aiTabText);
+				x += bw + S(6);
+			}
+			r = new Rect(r.x, r.y + h + S(10), r.width, r.height - h - S(10));
+		}
+
+		// 左栏：女主角立绘和名牌；攻略助手时是一张用法说明
+		AiPersona persona = AiPersona.Find(AiChat.PersonaId);
+		float pw = S(320);
+		var left = new Rect(r.x, r.y, pw, r.height);
+		if (persona != null)
+		{
+			DrawAiPortrait(new Rect(left.x, left.y, left.width, left.height - S(56)), persona);
+			var plate = new Rect(left.x + S(30), left.yMax - S(50), left.width - S(60), S(44));
+			GUI.Label(plate, TextConverter.ForDisplay(persona.Name), _aiPlate);
+		}
+		else
+		{
+			GUILayout.BeginArea(left, _aiBot);
+			GUILayout.Label("<b>攻略助手</b>", _rich);
+			GUILayout.Space(S(6));
+			GUILayout.Label("会自己查游戏里的剧情资料再回答：任务怎么触发、选项通向哪里、结局怎么达成、现在该做什么。", _muted);
+			GUILayout.Space(S(6));
+			GUILayout.Label("选上面的女主角或大师兄，就换成那个人用自己的口吻和你说话。", _muted);
+			GUILayout.Space(S(6));
+			GUILayout.Label("要改数值、好感时会先给你一张卡片，你确认了才改。", _muted);
+			GUILayout.EndArea();
+		}
+		r = new Rect(r.x + pw + S(16), r.y, r.width - pw - S(16), r.height);
+
+		// 右上：模型名和小按钮
+		float bh = S(32), bwid = S(110);
+		LlmProvider provider = AiChat.Provider;
+		var deep = new Rect(r.xMax - bwid * 6 - S(30), r.y, bwid, bh);
+		if (GUI.Button(deep, "深度模式", AiChat.Deep ? _primary : _aiSmallButton) && !AiChat.Busy)
+		{
+			ConfigManager.AiDeepMode.Value = !ConfigManager.AiDeepMode.Value;
+		}
+		Hover(deep, "换用更强的模型，回答前核对资料：更准，也更贵、更慢");
+		bool exported = Time.realtimeSinceStartup - _aiExportedAt < 5f;
+		GUI.Label(new Rect(r.x, r.y, r.width - bwid * 6 - S(42), bh), exported ? string.Format("已导出到桌面：{0}", _aiExportedName) : provider.Name + " · " + AiChat.Model + (AiChat.TokensUsed > 0 ? "　" + string.Format("这次开游戏用了 {0} token", AiChat.TokensUsed) + (AiChat.CachedUsed > 0 ? "　" + string.Format("缓存命中 {0}", AiChat.CachedUsed) : "") : ""), Middle(_muted));
+		float bx = r.xMax - bwid * 5 - S(24);
+		GUI.enabled = !AiChat.Busy;
+		if (GUI.Button(new Rect(bx, r.y, bwid, bh), "新对话", _aiSmallButton))
+		{
+			AiChat.NewSession();
+			_aiHistory = false;
+		}
+		if (GUI.Button(new Rect(bx + bwid + S(6), r.y, bwid, bh), "历史对话", _aiHistory ? _primary : _aiSmallButton))
+		{
+			_aiHistory = !_aiHistory;
+		}
+		GUI.enabled = !AiChat.Busy && AiChat.Shown.Count > 0;
+		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 2, r.y, bwid, bh), "导出对话", _aiSmallButton))
+		{
+			try
+			{
+				AiPersona who = AiPersona.Find(AiChat.PersonaId);
+				string path = AiSessions.Export(AiChat.Session, who != null ? TextConverter.ForDisplay(who.Name) : TextConverter.ForDisplay("攻略助手"));
+				_aiExportedName = System.IO.Path.GetFileName(path);
+				_aiExportedAt = Time.realtimeSinceStartup;
+				GUIUtility.systemCopyBuffer = path;
+			}
+			catch (System.Exception ex)
+			{
+				FileLogger.LogWarning("[AI] 导出对话失败: " + ex.Message);
+			}
+		}
+		bool confirming = Time.realtimeSinceStartup - _aiDeleteAsked < 3f;
+		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 3, r.y, bwid, bh), confirming ? "确定删除？" : "删除这段", confirming ? _primary : _aiSmallButton))
+		{
+			if (confirming)
+			{
+				AiChat.DeleteSession();
+				_aiDeleteAsked = -100f;
+			}
+			else
+			{
+				_aiDeleteAsked = Time.realtimeSinceStartup;
+			}
+		}
+		GUI.enabled = true;
+		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 4, r.y, bwid, bh), "AI 设置", _aiSmallButton))
+		{
+			_aiSetup = true;
+		}
+		r = new Rect(r.x, r.y + bh + S(8), r.width, r.height - bh - S(8));
+		if (_aiHistory)
+		{
+			DrawAiHistory(r);
+			return;
+		}
+
+		float inputHeight = S(76);
+		var area = new Rect(r.x, r.y, r.width, r.height - inputHeight - S(10));
+		// 新消息来了滚到最下面
+		if (AiChat.Shown.Count != _aiShownCount)
+		{
+			_aiShownCount = AiChat.Shown.Count;
+			_aiScroll.y = float.MaxValue;
+		}
+		DragScroll("ai", area, ref _aiScroll);
+		GUILayout.BeginArea(area);
+		_aiScroll = GUILayout.BeginScrollView(_aiScroll);
+		float bubbleMax = area.width * 0.78f;
+		if (!StoryAtlas.Ready)
+		{
+			GUILayout.Label(StoryAtlas.Status, _muted);
+		}
+		var shown = AiChat.Shown;
+		for (int i = 0; i < shown.Count; i++)
+		{
+			AiChat.Entry entry = shown[i];
+			switch (entry.Kind)
+			{
+				case AiChat.Kind.User:
+					// 玩家的话靠右
+					GUILayout.BeginHorizontal();
+					GUILayout.FlexibleSpace();
+					string said = Wrap(TextConverter.Verbatim + Escape(entry.Text), _aiUser, bubbleMax - _aiUser.padding.horizontal);
+					GUILayout.Label(said, _aiUser, GUILayout.Width(BubbleWidth(said, _aiUser, bubbleMax)));
+					GUILayout.EndHorizontal();
+					break;
+				case AiChat.Kind.Assistant:
+					GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : "攻略助手", _aiName);
+				{
+					// 女主角说的话放气泡；「【攻略提示】」往后是旁白写给玩家的，单独一个淡色框
+					int cut = persona != null ? entry.Text.IndexOf("【攻略提示】", System.StringComparison.Ordinal) : -1;
+					string words = cut >= 0 ? entry.Text.Substring(0, cut).Trim() : entry.Text;
+					string hint = cut >= 0 ? entry.Text.Substring(cut + "【攻略提示】".Length).Trim() : "";
+					if (words.Length > 0)
+					{
+						GUILayout.BeginHorizontal();
+						string reply = Wrap(TextConverter.Verbatim + RichFromMarkdown(words), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
+						GUILayout.Label(reply, _aiBot, GUILayout.Width(BubbleWidth(reply, _aiBot, area.width - S(30))));
+						GUILayout.FlexibleSpace();
+						GUILayout.EndHorizontal();
+					}
+					if (hint.Length > 0)
+					{
+						GUILayout.BeginVertical(_aiHintBox, GUILayout.MaxWidth(area.width - S(30)));
+						GUILayout.Label("<b>攻略提示</b>", _aiHintTitle);
+						float hintWidth = area.width - S(30) - _aiHintBox.margin.left - _aiHintBox.padding.horizontal;
+						GUILayout.Label(Wrap(TextConverter.Verbatim + RichFromMarkdown(hint), _aiHintText, hintWidth - _aiHintText.padding.horizontal), _aiHintText, GUILayout.Width(hintWidth));
+						GUILayout.EndVertical();
+					}
+					break;
+				}
+				case AiChat.Kind.Activity:
+				{
+					// 连着的查资料并成一行「查了 N 处资料」，点开看明细
+					int end = i;
+					while (end + 1 < shown.Count && shown[end + 1].Kind == AiChat.Kind.Activity)
+					{
+						end++;
+					}
+					bool open = _aiOpenLookups.Contains(entry);
+					bool last = end == shown.Count - 1 && AiChat.Busy;
+					if (!last && GUILayout.Button(string.Format(open ? "▾ 查了 {0} 处资料" : "▸ 查了 {0} 处资料", end - i + 1), _aiFold))
+					{
+						if (open)
+						{
+							_aiOpenLookups.Remove(entry);
+						}
+						else
+						{
+							_aiOpenLookups.Add(entry);
+						}
+					}
+					if (open || last)
+					{
+						for (int k = i; k <= end; k++)
+						{
+							GUILayout.Label("　· " + shown[k].Text, _muted);
+						}
+					}
+					i = end;
+					break;
+				}
+				case AiChat.Kind.Proposal:
+					GUILayout.BeginVertical(_aiCard, GUILayout.MaxWidth(bubbleMax));
+					GUILayout.Label("<b>修改提议</b>", _aiName);
+					if (entry.Text.Length > 0)
+					{
+						GUILayout.Label(TextConverter.Verbatim + Escape(entry.Text), _muted);
+					}
+					foreach (AiChat.Change c in entry.Changes)
+					{
+						GUILayout.Label("　" + c.Name + "：" + c.From + " → <b>" + c.To + "</b>", _rich);
+					}
+					if (entry.State == AiChat.ProposalState.Pending)
+					{
+						GUILayout.Space(S(4));
+						GUILayout.BeginHorizontal();
+						if (GUILayout.Button("确认修改", _primary, GUILayout.Width(S(140)), Ctl()))
+						{
+							AiChat.Resolve(AiChat.Session, entry, true);
+						}
+						if (GUILayout.Button("不改", _button, GUILayout.Width(S(100)), Ctl()))
+						{
+							AiChat.Resolve(AiChat.Session, entry, false);
+						}
+						GUILayout.FlexibleSpace();
+						GUILayout.EndHorizontal();
+					}
+					else
+					{
+						GUILayout.Label(entry.State == AiChat.ProposalState.Applied ? "<color=#2F6B3A>已修改</color>" : entry.State == AiChat.ProposalState.Expired ? "已失效（重启游戏前的提议，没有修改）" : "没有修改", _rich);
+					}
+					GUILayout.EndVertical();
+					break;
+				default:
+					GUILayout.Label("<color=#A3302A>" + Escape(entry.Text) + "</color>", _rich);
+					break;
+			}
+		}
+		if (AiChat.Busy && AiChat.Partial.Length > 0)
+		{
+			// 一边收一边显示
+			GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : "攻略助手", _aiName);
+			GUILayout.BeginHorizontal();
+			string partial = Wrap(TextConverter.Verbatim + RichFromMarkdown(AiChat.Partial.Replace("【攻略提示】", "\n" + TextConverter.ForDisplay("攻略提示") + "\n")), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
+			GUILayout.Label(partial, _aiBot, GUILayout.Width(BubbleWidth(partial, _aiBot, area.width - S(30))));
+			GUILayout.FlexibleSpace();
+			GUILayout.EndHorizontal();
+			if (Event.current.type == EventType.Repaint && AiChat.Partial.Length != _aiPartialShown)
+			{
+				_aiPartialShown = AiChat.Partial.Length;
+				_aiScroll.y = float.MaxValue;
+			}
+		}
+		else if (AiChat.Busy)
+		{
+			// 等回答时点点点轮着动
+			string dots = new string('·', 1 + (int)(Time.realtimeSinceStartup * 2.5f) % 3);
+			GUILayout.Label(string.Format("{0} 正在想{1}", persona != null ? TextConverter.ForDisplay(persona.Name) : "AI", dots), _aiName);
+		}
+		GUILayout.EndScrollView();
+		GUILayout.EndArea();
+
+		// 输入框：回车发送，Shift+回车换行；输入法还在选字时回车交给输入法
+		var box = new Rect(r.x, r.yMax - inputHeight, r.width - S(150), inputHeight);
+		Event e = Event.current;
+		bool send = false;
+		// Steam Deck、大屏幕模式：点输入框弹 Steam 的屏幕键盘（IMGUI 的输入框不会自己弹），提交了就直接发问
+		if (e.type == EventType.MouseDown && box.Contains(e.mousePosition) && !AiChat.Busy && SteamKeyboard(_aiInput))
+		{
+			e.Use();
+		}
+		else if (e.type == EventType.MouseDown && e.button == 0)
+		{
+			// 自己记「正在输入」：点了输入框就开，点窗口里别处就关（点窗口外、发送、换页、关窗口在别处关）
+			_aiTyping = box.Contains(e.mousePosition);
+			if (_aiTyping)
+			{
+				GUI.FocusWindow(WindowId);
+			}
+		}
+		GUI.SetNextControlName("AiInput");
+		// 回车发送：Unity 把回车分成两个事件（按键、换行字符），两个都吞掉，不然清空后的输入框里会多一个空行
+		if (e.type == EventType.KeyDown && !e.shift && _aiInputId != 0 && GUIUtility.keyboardControl == _aiInputId && string.IsNullOrEmpty(Input.compositionString)
+			&& (e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter || e.character == '\n' || e.character == '\r'))
+		{
+			send = e.keyCode == KeyCode.Return || e.keyCode == KeyCode.KeypadEnter;
+			e.Use();
+		}
+		// 自带的光标藏起来（透明），只留 DrawAiCaret 画的那条，不然两条闪烁节奏不同，忽粗忽细
+		Color caret = GUI.skin.settings.cursorColor;
+		GUI.skin.settings.cursorColor = Color.clear;
+		_aiInput = GUI.TextArea(box, _aiInput, 500, _aiField);
+		GUI.skin.settings.cursorColor = caret;
+		if (GUI.GetNameOfFocusedControl() == "AiInput")
+		{
+			_aiInputId = GUIUtility.keyboardControl;
+		}
+		// 焦点名要在画完输入框之后才查得到（之前查总是空的，会每帧重抢焦点、把光标放回开头）。
+		// 正在输入时焦点被别的东西拿走（第一下点击被窗口激活吃掉、别处清了键盘焦点……），每帧抢回来
+		if (_aiTyping && e.type == EventType.Layout && GUI.GetNameOfFocusedControl() != "AiInput")
+		{
+			if (Time.realtimeSinceStartup - _aiRefocusLogged > 5f)
+			{
+				_aiRefocusLogged = Time.realtimeSinceStartup;
+				FileLogger.Log("[AI] 输入框焦点被拿走，抢回来（原焦点：" + GUI.GetNameOfFocusedControl() + "，keyboardControl=" + GUIUtility.keyboardControl + "，hotControl=" + GUIUtility.hotControl + "）");
+			}
+			GUI.FocusWindow(WindowId);
+			GUI.FocusControl("AiInput");
+		}
+		bool focused = _aiTyping || (GUI.GetNameOfFocusedControl() == "AiInput" && GUIUtility.keyboardControl != 0);
+		if (e.type == EventType.Repaint)
+		{
+			if (focused)
+			{
+				Frame(box, Cinnabar, 2);
+			}
+			if (!focused && _aiInput.Length == 0)
+			{
+				GUI.Label(box, "点这里输入问题，回车发送，Shift+回车换行", _aiHint);
+			}
+			DrawAiCaret(box);
+		}
+		var button = new Rect(r.xMax - S(140), r.yMax - inputHeight, S(140), inputHeight);
+		if (AiChat.Busy)
+		{
+			if (GUI.Button(button, "停止", _button))
+			{
+				AiChat.Stop();
+			}
+		}
+		else if (GUI.Button(button, "发送", _primary) || send)
+		{
+			string question = _aiInput.Trim();
+			if (question.Length > 0)
+			{
+				_aiInput = "";
+				AiChat.Ask(question);
+			}
+		}
+	}
+
+	private static string Escape(string text) => (text ?? "").Replace("<", "‹").Replace(">", "›");
+
+	private static readonly Regex Bold = new Regex(@"\*\*(.+?)\*\*");
+	private static readonly Regex Heading = new Regex(@"^#{1,6}\s*(.+)$", RegexOptions.Multiline);
+
+	// 模型常用 Markdown：粗体、标题换成富文本粗体，列表符号照留，其余尖括号换掉免得被当成标签
+	private static string RichFromMarkdown(string text)
+	{
+		string t = Escape(text).Replace("\r", "");
+		t = Heading.Replace(t, "<b>$1</b>");
+		t = Bold.Replace(t, "<b>$1</b>");
+		t = Regex.Replace(t, @"^\s*[-*]\s+", "· ", RegexOptions.Multiline);
+		return t.Replace("`", "");
+	}
+
+	// 一个界面物体下面所有显示着的字（普通文字和 TextMeshPro），去掉富文本、转简体，连成一句
+	private static string TextsUnder(Component root)
+	{
+		var parts = root.GetComponentsInChildren<UnityEngine.UI.Text>().Select(t => t.text)
+			.Concat(root.GetComponentsInChildren<TMPro.TMP_Text>().Select(t => t.text))
+			.Select(t => TextConverter.ToSimplified(RichText.Strip(t ?? "")).Replace("\n", " ").Trim())
+			.Where(t => t.Length > 0).Distinct().ToArray();
+		return string.Join(" ", parts);
+	}
+
+	/// <summary>屏幕上正显示的对白、选项、掷骰：直接读游戏界面上的字。</summary>
+	internal static string OnScreen()
+	{
+		var sb = new StringBuilder();
+		try
+		{
+			foreach (Fungus.SayDialog say in Object.FindObjectsOfType<Fungus.SayDialog>())
+			{
+				if (!say.isActiveAndEnabled)
+				{
+					continue;
+				}
+				string line = string.Join("：", say.GetComponentsInChildren<UnityEngine.UI.Text>()
+					.Where(t => t.name == "NameText" || t.name == "StoryText").OrderBy(t => t.name == "StoryText")
+					.Select(t => TextConverter.ToSimplified(RichText.Strip(t.text ?? "")).Replace("\n", " ").Trim()).Where(t => t.Length > 0).ToArray());
+				if (line.Length > 0)
+				{
+					sb.Append("对白：").Append(line).Append('\n');
+				}
+			}
+			foreach (Fungus.MenuDialog menu in Object.FindObjectsOfType<Fungus.MenuDialog>())
+			{
+				if (!menu.isActiveAndEnabled)
+				{
+					continue;
+				}
+				var options = menu.GetComponentsInChildren<UnityEngine.UI.Button>().Select(TextsUnder).Where(t => t.Length > 0).ToList();
+				if (options.Count > 0)
+				{
+					sb.Append("正在选的选项：").Append(string.Join(" / ", options.Select(o => "「" + o + "」").ToArray())).Append('\n');
+				}
+			}
+			foreach (Mortal.Story.DiceMenuDialog dice in Object.FindObjectsOfType<Mortal.Story.DiceMenuDialog>())
+			{
+				if (!dice.isActiveAndEnabled)
+				{
+					continue;
+				}
+				string header = TextConverter.ToSimplified(RichText.Strip(HarmonyLib.Traverse.Create(dice).Field("_header").GetValue<string>() ?? "")).Trim();
+				var lines = dice.GetComponentsInChildren<Mortal.Story.DiceOption>().Select(TextsUnder).Where(t => t.Length > 0).ToList();
+				sb.Append("正在掷骰").Append(header.Length > 0 ? "「" + header + "」" : "").Append("，各档：").Append(string.Join(" / ", lines.Select(o => "「" + o + "」").ToArray())).Append('\n');
+			}
+		}
+		catch (System.Exception ex)
+		{
+			FileLogger.LogWarning("[AI] 读取屏幕内容失败: " + ex.Message);
+		}
+		if (sb.Length > 0 && (OptionInfoPatch.LastScriptKey ?? "").Length > 0)
+		{
+			sb.Append("这段剧情的剧本：").Append(OptionInfoPatch.LastScriptKey).Append("（用 script 查它，按选项文字对上分岔）\n");
+		}
+		return sb.ToString();
+	}
+
+	/// <summary>
+	/// AI 提议的修改：按数值页的行找（名字、编号），找到的变成一项「当前 → 新值」，确认后用数值页同一个 Set 改。
+	/// 「好感·某人」「某人的好感」找好感那一组；心上人（愛人）可以直接给女主角的名字。找不到的写进 missing 交还给 AI。
+	/// </summary>
+	internal static List<AiChat.Change> AiResolveChanges(Newtonsoft.Json.Linq.JArray items, List<string> missing)
+	{
+		var result = new List<AiChat.Change>();
+		PlayerStatManagerData player = PlayerStatManagerData.Instance;
+		if (player == null || items == null)
+		{
+			missing.Add("玩家还没读档进游戏");
+			return result;
+		}
+		var sections = BuildStatSections(player);
+		var rows = sections.SelectMany(s => s.Item2.Select(row => (Section: s.Item1, Row: row))).Where(x => x.Row.Set != null && x.Row.Get != null).ToList();
+		foreach (Newtonsoft.Json.Linq.JToken item in items)
+		{
+			string name = TextConverter.ToSimplified(item?["name"]?.ToString() ?? "").Trim();
+			string raw = item?["value"]?.ToString().Trim() ?? "";
+			if (name.Length == 0)
+			{
+				continue;
+			}
+			string Clean(string t) => AiKnowledge.Clean(t).Replace(" ", "");
+			string key = Regex.Replace(name.Replace(" ", ""), @"^(?:旗标|设置)[·:：]", "");
+			// 好感：「好感·小梅」「小梅好感」「小梅的好感」
+			string favorOf = Regex.Match(key, @"^(?:好感[·:：]?(.+)|(.+?)的?好感(?:度)?)$") is Match fm && fm.Success ? (fm.Groups[1].Success && fm.Groups[1].Value.Length > 0 ? fm.Groups[1].Value : fm.Groups[2].Value) : null;
+			(string Section, StatRow Row) hit = default;
+			if (favorOf != null)
+			{
+				string who = AiKnowledge.FindHeroine(favorOf) is StoryRomance.Heroine h ? StoryRomance.Name(h) : favorOf;
+				hit = rows.FirstOrDefault(x => x.Section == "好感" && (Clean(x.Row.Name) == who || Clean(x.Row.Name).Contains(who) || who.Contains(Clean(x.Row.Name))));
+			}
+			bool lover = key == "心上人" || key == "爱人" || key == "结缘对象";
+			if (hit.Row == null && lover)
+			{
+				hit = rows.FirstOrDefault(x => x.Row.Id == "stat:" + (int)GameStatType.愛人);
+			}
+			if (hit.Row == null)
+			{
+				hit = rows.FirstOrDefault(x => x.Row.Id == name || Clean(x.Row.Name) == key);
+			}
+			if (hit.Row == null)
+			{
+				// 旗标：数值页里旗标行的名字是编号（G00006），说明里才是「小竹告白」这样的名字
+				hit = rows.FirstOrDefault(x => x.Section == "旗标" && (x.Row.Id == "flag:" + key || Clean(x.Row.Note ?? "") == key));
+			}
+			if (hit.Row == null)
+			{
+				var near = rows.Where(x => Clean(x.Row.Name).Contains(key)).Take(2).ToList();
+				if (near.Count != 1)
+				{
+					near = rows.Where(x => x.Section == "旗标" && Clean(x.Row.Note ?? "").Contains(key)).Take(2).ToList();
+				}
+				hit = near.Count == 1 ? near[0] : default;
+			}
+			if (hit.Row == null)
+			{
+				// 不是数值，就看是不是咖啡伴侣的设置项
+				AiChat.Change setting = AiSettingChange(key, raw, out string problem);
+				if (setting != null)
+				{
+					result.Add(setting);
+				}
+				else
+				{
+					missing.Add(name + (problem ?? "（数值页和设置页里都没有这一项）"));
+				}
+				continue;
+			}
+			int value;
+			if (!int.TryParse(raw, out value))
+			{
+				// 心上人可以给名字
+				if (hit.Row.Id == "stat:" + (int)GameStatType.愛人 && AiKnowledge.FindHeroine(raw) is StoryRomance.Heroine target)
+				{
+					value = target.Lover;
+				}
+				else
+				{
+					missing.Add(name + "（新值「" + raw + "」不是数字）");
+					continue;
+				}
+			}
+			StatRow row = hit.Row;
+			string label = AiKnowledge.Clean(row.Name) + (hit.Section == "旗标" && !string.IsNullOrEmpty(row.Note) ? "「" + AiKnowledge.Clean(row.Note) + "」" : "");
+			System.Func<int, string> show = row.Id == "stat:" + (int)GameStatType.愛人
+				? v => v + (StoryRomance.All.FirstOrDefault(h => h.Lover == v) is StoryRomance.Heroine hh ? "（" + StoryRomance.Name(hh) + "）" : "")
+				: v => v.ToString();
+			result.Add(new AiChat.Change
+			{
+				Name = (hit.Section == "好感" ? "好感·" : "") + label,
+				From = show(row.Get()),
+				To = show(value),
+				Apply = () => row.Set(value),
+			});
+		}
+		return result;
+	}
+
+	// AI 不能碰的设置：接入 AI 本身的（Key、地址、模型），免得把自己改坏
+	private static bool AiCanTouch(SettingRow row) => !row.Element.Name.StartsWith("Ai", System.StringComparison.Ordinal)
+		&& (row.Element.ElementType == typeof(bool) || row.Element.ElementType == typeof(int) || row.Element.ElementType == typeof(float));
+
+	private static IEnumerable<(string Section, SettingRow Row)> AiSettings() =>
+		BuildSettingSections().SelectMany(s => s.Item2.Where(AiCanTouch).Select(r => (s.Item1, r)));
+
+	private static string SettingValueText(SettingRow row, object value)
+	{
+		if (value is bool b)
+		{
+			return b ? "开" : "关";
+		}
+		if (row.Choices != null && value is int i && i >= 0 && i < row.Choices.Length)
+		{
+			return row.Choices[i];
+		}
+		return System.Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
+	}
+
+	/// <summary>给 AI 的 settings 工具：咖啡伴侣设置页的设置项（名字、当前值、可选值或范围、说明）。</summary>
+	internal static string AiSettingsText(string query)
+	{
+		string q = TextConverter.ToSimplified(query ?? "").Trim();
+		var sb = new StringBuilder();
+		string section = null;
+		foreach (var (title, row) in AiSettings())
+		{
+			string desc = Describe(row.Element.Description);
+			if (q.Length > 0 && !(row.Name + title + desc).Contains(q))
+			{
+				continue;
+			}
+			if (title != section)
+			{
+				section = title;
+				sb.Append("【").Append(title).Append("】\n");
+			}
+			sb.Append("- ").Append(row.Name).Append("：现在 ").Append(SettingValueText(row, row.Element.BoxedValue));
+			if (row.Element.ElementType == typeof(bool))
+			{
+				sb.Append("（开 / 关）");
+			}
+			else if (row.Choices != null)
+			{
+				sb.Append("（可选：").Append(string.Join(" / ", row.Choices)).Append("）");
+			}
+			else if (row.Speeds != null)
+			{
+				sb.Append("（可选：").Append(string.Join(" / ", row.Speeds.Select(v => v.ToString(System.Globalization.CultureInfo.InvariantCulture)).ToArray())).Append("）");
+			}
+			else if (row.Max > row.Min)
+			{
+				sb.Append("（").Append(row.Min).Append(" 到 ").Append(row.Max).Append("）");
+			}
+			sb.Append(row.Restart ? "，改后重启游戏生效" : "").Append("。").Append(desc).Append('\n');
+		}
+		return sb.Length > 0 ? sb.ToString() : "没有「" + query + "」相关的设置项。";
+	}
+
+	// 设置项的修改提议：按设置页上的名字找，新值按类型读（开关、几选一、数字）
+	private static AiChat.Change AiSettingChange(string key, string raw, out string problem)
+	{
+		problem = null;
+		string Clean(string t) => TextConverter.ToSimplified(t ?? "").Replace(" ", "");
+		var all = AiSettings().ToList();
+		var hit = all.FirstOrDefault(x => Clean(x.Row.Name) == key || x.Row.Element.Name == key);
+		if (hit.Row == null)
+		{
+			var near = all.Where(x => Clean(x.Row.Name).Contains(key)).Take(2).ToList();
+			hit = near.Count == 1 ? near[0] : default;
+		}
+		if (hit.Row == null)
+		{
+			return null;
+		}
+		SettingRow row = hit.Row;
+		IConfigElement element = row.Element;
+		string v = Clean(raw).ToLowerInvariant();
+		object value = null;
+		int choice = -1;
+		if (element.ElementType == typeof(bool))
+		{
+			if (v == "开" || v == "打开" || v == "开启" || v == "true" || v == "1" || v == "是" || v == "on")
+			{
+				value = true;
+			}
+			else if (v == "关" || v == "关闭" || v == "关掉" || v == "false" || v == "0" || v == "否" || v == "off")
+			{
+				value = false;
+			}
+		}
+		else if (row.Choices != null)
+		{
+			choice = System.Array.FindIndex(row.Choices, c => Clean(c) == Clean(raw));
+			if (choice < 0 && int.TryParse(v, out int n) && n >= 0 && n < row.Choices.Length)
+			{
+				choice = n;
+			}
+			if (choice >= 0)
+			{
+				value = choice;
+			}
+		}
+		else if (float.TryParse(v.TrimEnd('x', '倍', '%'), System.Globalization.NumberStyles.Float, System.Globalization.CultureInfo.InvariantCulture, out float f))
+		{
+			if (row.Max > row.Min)
+			{
+				f = Mathf.Clamp(f, row.Min, row.Max);
+			}
+			value = element.ElementType == typeof(int) ? (object)Mathf.RoundToInt(f) : f;
+		}
+		if (value == null)
+		{
+			problem = "（设置项「" + row.Name + "」的新值「" + raw + "」看不懂）";
+			return null;
+		}
+		object newValue = value;
+		return new AiChat.Change
+		{
+			Name = "设置·" + row.Name + (row.Restart ? "（重启游戏后生效）" : ""),
+			From = SettingValueText(row, element.BoxedValue),
+			To = SettingValueText(row, newValue),
+			Apply = () =>
+			{
+				if (row.Choose != null && choice >= 0)
+				{
+					row.Choose(choice);
+				}
+				else
+				{
+					element.BoxedValue = newValue;
+				}
+			},
+		};
+	}
+
+	// 养成地图在哪：地图标题（游戏左上角那行）和地图上能去的场所。唐门、崆峒等地图的场所不一样，AI 靠这个分清人在哪
+	internal static string MapLocation()
+	{
+		var sb = new StringBuilder();
+		try
+		{
+			Mortal.Free.FreeManager free = Mortal.Free.FreeManager.Instance;
+			string title = free != null ? HarmonyLib.Traverse.Create(free).Field("_titleText").GetValue<UnityEngine.UI.Text>()?.text ?? "" : "";
+			title = TextConverter.ToSimplified(RichText.Strip(title)).Replace("\n", " ").Trim();
+			if (title.Length > 0)
+			{
+				sb.Append("地图标题：").Append(title).Append('\n');
+			}
+			var places = Object.FindObjectsOfType<Mortal.Free.PositionController>()
+				.Select(p => TextConverter.ToSimplified(HarmonyLib.Traverse.Create(p).Field("_position").GetValue<PositionType>().ToString()))
+				.Where(n => n.Length > 0 && n != "无").Distinct().ToList();
+			if (places.Count > 0)
+			{
+				sb.Append("这张地图上的场所：").Append(string.Join("、", places.ToArray())).Append("（从场所判断玩家在唐门还是崆峒等地，不要只凭身份猜；任务触发的场所不在这里面，就是不在这张地图上，要先回到那里）\n");
+			}
+		}
+		catch (System.Exception ex)
+		{
+			FileLogger.Log("[AI] 读地图失败: " + ex.Message);
+		}
+		return sb.ToString();
+	}
+
+	/// <summary>给 AI 的 player_state 工具：玩家现在的进度、数值、好感（旗标、书籍、物品太多，不放）。</summary>
+	internal static string AiPlayerState()
+	{
+		PlayerStatManagerData player = PlayerStatManagerData.Instance;
+		string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+		if (player == null || scene == "Title")
+		{
+			return "玩家在标题画面，还没读档进游戏。";
+		}
+		var sb = new StringBuilder();
+		sb.Append("游戏日期：").Append(ReferenceEquals(player.GameTime, null) ? "不明" : StoryAtlas.DateText(player.GameTime)).Append('\n');
+		sb.Append("现在在：").Append(scene == "Story" ? "剧情里" : scene == "Free" ? "养成地图上" : scene == "Combat" || scene == "Battle" ? "战斗中" : scene).Append('\n');
+		if (scene == "Free")
+		{
+			sb.Append(MapLocation());
+		}
+		string story = player.CurrentStoryScript ?? "";
+		if (story.Length > 0)
+		{
+			sb.Append("最近的剧本：").Append(story);
+			if (StoryAtlas.Owner.TryGetValue(story, out StoryMission owner))
+			{
+				sb.Append("（任务 ").Append(owner.Key).Append("「").Append(AiKnowledge.Clean(owner.Title)).Append("」）");
+			}
+			sb.Append('\n');
+		}
+		if (DataHelper.GetMainMission(out MissionCheckData main, out string mainTitle, out string mainDesc))
+		{
+			MissionManagerData missions = MissionManagerData.Instance;
+			bool ready = missions != null && missions.MainMissionStart && missions.MainCheckData == main && !string.IsNullOrEmpty(main.StartScript);
+			sb.Append("主线：").Append(AiKnowledge.Clean(mainTitle).Replace("\n", " ")).Append(ready ? "（条件已满足，去 " + TextConverter.ToSimplified(main.Position.ToString()) + " 就会触发）" : "").Append("：").Append(AiKnowledge.Clean(mainDesc).Replace("\n", " ")).Append('\n');
+		}
+		var active = MissionManagerData.Instance?.ActiveSubMissions;
+		var subs = DataHelper.GetMissions();
+		if (subs.Count > 0)
+		{
+			sb.Append("进行中的支线：\n");
+			foreach (var pair in subs)
+			{
+				bool ready = active != null && active.Values.Contains(pair.Key) && !string.IsNullOrEmpty(pair.Key.StartScript);
+				string where = TextConverter.ToSimplified(pair.Key.Position.ToString());
+				sb.Append("- ").Append(AiKnowledge.Clean(pair.Value.Item1).Replace("\n", " ")).Append(ready ? "（可以触发）" : "")
+					.Append(where.Length > 0 && where != "无" ? "（在「" + where + "」触发）" : "").Append("：").Append(AiKnowledge.Clean(pair.Value.Item2).Replace("\n", " ")).Append('\n');
+			}
+		}
+		string onScreen = OnScreen();
+		if (onScreen.Length > 0)
+		{
+			sb.Append("【眼前】（屏幕上正显示的，玩家问「这里」「这个选项」「这次掷骰」指的就是它）\n").Append(onScreen);
+		}
+		sb.Append("感情：").Append(AiPersona.RelationText(null)).Append('\n');
+		var skip = new HashSet<string> { "旗标", "书籍", "物品", "称号", "功法修炼" };
+		foreach (var (title, rows) in BuildStatSections(player))
+		{
+			if (skip.Contains(title))
+			{
+				continue;
+			}
+			var parts = new List<string>();
+			foreach (StatRow row in rows)
+			{
+				if (row.NoValue || row.Get == null)
+				{
+					continue;
+				}
+				int value = row.Get();
+				// 好感、天赋只列有数的
+				if ((title == "好感" || title == "天赋") && value == 0)
+				{
+					continue;
+				}
+				parts.Add(AiKnowledge.Clean(row.Name) + " " + value + (row.Of > 0 ? "/" + row.Of : ""));
+			}
+			if (parts.Count > 0)
+			{
+				sb.Append(title).Append("：").Append(string.Join("，", parts.ToArray())).Append('\n');
+			}
+		}
+		return sb.ToString();
+	}
+}

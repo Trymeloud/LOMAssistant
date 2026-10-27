@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace LOMAssistant;
 
-[BepInPlugin("LOMAssistant", "咖啡伴侣", "2.9.3")]
+[BepInPlugin("LOMAssistant", "咖啡伴侣", "3.0.6")]
 public class LOMAssistantPlugin : BaseUnityPlugin
 {
 	private Harmony _harmony;
@@ -101,8 +101,6 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 	{
 		try
 		{
-			// 回想里旧的判定记录说话人是「LOMAssistant」，选项提示关着也去掉
-			TryPatchAll(typeof(NarrativeLogNamePatch));
 			if (ConfigManager.EnableOptionInfo.Value)
 			{
 				TryPatchAll(typeof(OptionInfoPatch));
@@ -139,6 +137,7 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 			TryPatchAll(typeof(PinballScorePatch));
 			LogInfo("弹珠分数补丁已应用。");
 			TryPatchAll(typeof(TrainingCheatPatch));
+			TryPatchAll(typeof(ItemUsePatch));
 			if (base.gameObject.GetComponent<ModPanel>() == null)
 			{
 				base.gameObject.AddComponent<ModPanel>();
@@ -155,7 +154,6 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 			TryPatchAll(typeof(LOMAssistant.Features.Story.LegendExportButton));
 			TryPatchAll(typeof(FlowSpeedup.UniverseJsonPatch));
 			TryPatchAll(typeof(FlowSpeedup.FlagIndexPatch));
-			TryPatchAll(typeof(FlowSpeedup.LogPatch));
 			TryPatchAll(typeof(FlowSpeedup.StatPausePatch));
 			TryPatchAll(typeof(FlowSpeedup.SkipPatch));
 			LogInfo("决斗修改补丁已应用。");
@@ -167,6 +165,8 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 			TryPatchAll(typeof(AutoSaveHistoryPatch));
 			TryPatchAll(typeof(SaveDataCache));
 			TryPatchAll(typeof(SaveDataCache.GetSaveDataPatch));
+			TryPatchAll(typeof(StorySaveTimePatch));
+			StorySaveTimePatch.Install();
 			if (ConfigManager.EnableSaveBrowser.Value)
 			{
 				TryPatchAll(typeof(SaveBrowser));

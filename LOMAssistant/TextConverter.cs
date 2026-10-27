@@ -170,6 +170,9 @@ public static class TextConverter
 		}
 	}
 
+	/// <summary>文字开头加上这个（不显示的「词连接符」），画的时候就原样显示，不转繁体、不查表翻译。给 AI 的回答这类已经是界面语言的文字用。</summary>
+	public const char Verbatim = '⁠';
+
 	/// <summary>要显示给玩家的文字：界面语言是繁体时转成繁体，韩语、日语时查表（查不到原样），否则原样。</summary>
 	public static string ForDisplay(string text)
 	{

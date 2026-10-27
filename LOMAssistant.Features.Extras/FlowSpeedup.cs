@@ -17,7 +17,6 @@ namespace LOMAssistant.Features.Extras;
 /// 流程提速：去掉游戏里玩家看不到的空耗。
 /// - 全局存档（universe）每次切场景都会多写一份没人读的 JSON 副本（约 1 MB，随已读对白增长），不再写；
 /// - 按名字找旗标原本每次遍历上千个旗标，读档时每个旗标都找一遍，改成查表；
-/// - 回想（对话记录）每说一句话就把最近 250 条整份重排两次，关着的时候也一样；改成关着时只记一笔，打开时排一次；
 /// - 快进时每条剧本指令至少耗一两帧，能马上做完的指令改成当帧做完；
 /// - 数值变化后剧本固定等 0.5 秒，没显示变化时（隐藏属性、变化为 0、不显示的）不再等；显示时等多久见配置。
 /// 自由行动的过场（行动后的等待、转场）加快 3 倍；数值变化显示后的停顿缩到 0.2 秒。都在配置文件里可调。各项分在不同的补丁类里，单独应用。思路参考赵活系统（Toufff，MIT）的流程提速。
@@ -96,59 +95,6 @@ public static class FlowSpeedup
 			}
 			__result = found;
 			return false;
-		}
-	}
-
-	// ---------- 回想关着时不重排 ----------
-	public static class LogPatch
-	{
-
-		private static readonly FieldInfo LogView = AccessTools.Field(typeof(NarrativeLogMenu), "narrativeLogView");
-		private static readonly MethodInfo LogRebuild = AccessTools.Method(typeof(NarrativeLogMenu), "UpdateNarrativeLogText");
-		private static bool _logStale = true;
-		private static bool _logForce;
-
-		[HarmonyPrefix]
-		[HarmonyPatch(typeof(NarrativeLogMenu), "UpdateNarrativeLogText")]
-		public static bool UpdateLog_Prefix(NarrativeLogMenu __instance)
-		{
-			if (!FlowSpeedup.On || _logForce || LogView == null)
-			{
-				return true;
-			}
-			var view = LogView.GetValue(__instance) as ScrollRect;
-			if (view == null || StoryManager.Instance == null || StoryManager.Instance.GetFieldValue<bool>("_logOpen"))
-			{
-				_logStale = false;
-				return true;
-			}
-			_logStale = true;
-			return false;
-		}
-
-		[HarmonyPostfix]
-		[HarmonyPatch(typeof(StoryManager), nameof(StoryManager.Log))]
-		public static void Log_Postfix(StoryManager __instance, bool enabled)
-		{
-			if (!enabled || !_logStale || LogRebuild == null)
-			{
-				return;
-			}
-			var menu = __instance.GetFieldValue<NarrativeLogMenu>("_narrativeLogMenu");
-			if (menu == null)
-			{
-				return;
-			}
-			_logForce = true;
-			try
-			{
-				LogRebuild.Invoke(menu, null);
-				_logStale = false;
-			}
-			finally
-			{
-				_logForce = false;
-			}
 		}
 	}
 

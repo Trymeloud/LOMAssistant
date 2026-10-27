@@ -41,6 +41,8 @@ public sealed class StoryScript
 	public List<StoryExit> Exits = new List<StoryExit>();
 	/// <summary>对白 key（GetStoryText），已读标记按它算。</summary>
 	public List<string> Lines = new List<string>();
+	/// <summary>说出来的对白（say），按剧本顺序：在哪条分岔路上、谁说的（角色编号，旁白为空）、对白 key。给 AI 按分岔读剧情用。</summary>
+	public List<(List<StoryStep> Path, string Speaker, string Key)> Talk = new List<(List<StoryStep>, string, string)>();
 	/// <summary>剧情记录 key（AddStory），这一局走没走过按它算。</summary>
 	public List<string> Records = new List<string>();
 	/// <summary>菜单里的选项（每个 choose 一组），收录节点时列出来。</summary>
@@ -90,6 +92,7 @@ public static class StoryScripts
 	private static readonly Regex Achievement = new Regex(@"statmodifymanager\.AddAchievementLib\(""(\w+)""\)");
 	private static readonly Regex MainSet = new Regex(@"statmodifymanager\.Mission\(""Main"", *""([^""]+)""");
 	private static readonly Regex StoryText = new Regex(@"GetStoryText\(""([^""]+)""\)");
+	private static readonly Regex SetCharacter = new Regex(@"^setcharacter\(characters\.Get\(""(\w+)""\)");
 	private static readonly Regex AddStory = new Regex(@"AddStory\(""([^""]+)""\)");
 	private static readonly Regex Modify = new Regex(@"statmodifymanager\.(?!GetDisplayTime|AddStory|Mission|IsTrigger|ResetTalkFlag)\w+\(.*?\)");
 	private static readonly Regex Tracked = new Regex(@"^statmodifymanager\.(SetFlag|AddFlag|AddBook|RemoveBook|AddMisc|RemoveMisc|AddSpecial|RemoveSpecial|Character)\(""(\w+)""(?:, *(-?\d+))?");
@@ -168,6 +171,8 @@ public static class StoryScripts
 		var choices = new Dictionary<string, (string Kind, Dictionary<int, StoryStep> Rows)>(StringComparer.Ordinal);
 		var blocks = new List<Block>();
 		string lastRoll = null;
+		// 下一句 say 的说话人：前面最近一次 setcharacter，说完就清掉（没设的是旁白）
+		string speaker = "";
 
 		foreach (string raw in text.Split('\n'))
 		{
@@ -200,7 +205,8 @@ public static class StoryScripts
 				var options = tables.TryGetValue(m.Groups[2].Value, out var t) ? t : new Dictionary<int, StoryStep>();
 				choices[m.Groups[1].Value] = (StoryStep.Option, options);
 				script.Menu = true;
-				script.Menus.Add(options.OrderBy(p => p.Key).Select(p => p.Value).Where(s => s.Key.Length > 0).ToList());
+				script.Menus.Add(options.OrderBy(p => p.Key).Select(p => p.Value).Where(s => s.Key.Length > 0)
+					.Select(s => new StoryStep { Kind = StoryStep.Option, Key = s.Key, Requirement = s.Requirement, Range = s.Range }).ToList());
 				continue;
 			}
 			if ((m = Roll.Match(line)).Success)
@@ -253,9 +259,18 @@ public static class StoryScripts
 				continue;
 			}
 
+			if ((m = SetCharacter.Match(line)).Success)
+			{
+				speaker = m.Groups[1].Value;
+			}
 			foreach (Match t in StoryText.Matches(line))
 			{
 				script.Lines.Add(t.Groups[1].Value);
+				if (line.StartsWith("say(", StringComparison.Ordinal))
+				{
+					script.Talk.Add((CurrentPath(blocks, choices, switches), speaker, t.Groups[1].Value));
+					speaker = "";
+				}
 			}
 			foreach (Match t in AddStory.Matches(line))
 			{

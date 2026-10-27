@@ -50,6 +50,17 @@ public static class TrainingCheatPatch
 		}
 	}
 
+	// 开发新装备、新药不看剧情条件：开发项上「其他条件」（多是剧情旗标）一律算满足，界面上的条件也显示成满足
+	[HarmonyPostfix]
+	[HarmonyPatch(typeof(UpgradeDevelopItem), nameof(UpgradeDevelopItem.CheckConditions))]
+	public static void Develop_Postfix(ref bool __result)
+	{
+		if (ConfigManager.CheatDevelopIgnoreStory.Value)
+		{
+			__result = true;
+		}
+	}
+
 	/// <summary>原协程第一步扣点数和次数：记下扣之前的值，第一步走完换回去，后面的动画照常。</summary>
 	private static IEnumerator NoCost(IEnumerator inner, object panel, string pointField)
 	{

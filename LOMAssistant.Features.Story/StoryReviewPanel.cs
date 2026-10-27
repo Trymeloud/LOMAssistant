@@ -16,7 +16,7 @@ namespace LOMAssistant.Features.Story;
 public partial class StoryReviewPanel : MonoBehaviour
 {
 	private const int WindowId = 584135;
-	private static readonly string[] Tabs = { "此刻", "路线图", "剧情图", "节点存档", "随时存档", "收集进度", "数值", "设置" };
+	private static readonly string[] Tabs = { "此刻", "路线图", "剧情图", "节点存档", "随时存档", "收集进度", "数值", "AI陪玩", "设置" };
 
 	private bool _visible;
 	private int _tab;
@@ -261,6 +261,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 
 	private void OnGUI()
 	{
+		AiTypingGuard();
 		if (!_visible || UiHider.Active)
 		{
 			return;
@@ -290,6 +291,10 @@ public partial class StoryReviewPanel : MonoBehaviour
 			return;
 		}
 		_windowRect = GUI.Window(WindowId, _windowRect, DrawWindow, "", _window);
+		// 拖动时标题栏至少留 160 像素在屏幕里，拖不丢；位置不存，重启回到默认位置
+		float keep = S(160);
+		_windowRect.x = Mathf.Clamp(_windowRect.x, keep - _windowRect.width, Screen.width - keep);
+		_windowRect.y = Mathf.Clamp(_windowRect.y, 0f, Mathf.Max(0f, Screen.height - S(56)));
 		InputGuard.Report("StoryReview", _windowRect);
 	}
 
@@ -400,6 +405,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 			case AnytimeTab: DrawAnytime(body); break;
 			case 5: DrawEndings(body); break;
 			case StatsTab: DrawStats(body); break;
+			case AiTab: DrawAi(body); break;
 			default: DrawSettings(body); break;
 		}
 		if (_confirming != null && !input)

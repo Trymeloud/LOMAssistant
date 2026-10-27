@@ -35,6 +35,7 @@ public static class ConfigManager
 	public static ConfigElement<bool> CheatUnlimitedUpgrade;
 
 	public static ConfigElement<bool> CheatFreeUpgradeMoney;
+	public static ConfigElement<bool> CheatDevelopIgnoreStory;
 
 	public static ConfigElement<bool> CheatDuelInvincible;
 
@@ -56,6 +57,8 @@ public static class ConfigManager
 
 	public static ConfigElement<bool> EnableEventPicker;
 	public static ConfigElement<bool> EnableMapHints;
+	public static ConfigElement<bool> ShowItemUses;
+	public static ConfigElement<bool> MapHintsNowOnly;
 
 	public static ConfigElement<bool> EnableOneClickUnlock;
 
@@ -73,6 +76,16 @@ public static class ConfigManager
 
 	public static ConfigElement<int> FontScale;
 	public static ConfigElement<int> GameFontScale;
+	public static ConfigElement<int> AiProvider;
+	public static ConfigElement<KeyCode> AiPanelKey;
+	public static ConfigElement<string> AiBaseUrl;
+	public static ConfigElement<string> AiModel;
+	public static ConfigElement<string> AiApiKey;
+	public static ConfigElement<int> AiSpoiler;
+	public static ConfigElement<bool> AiHints;
+	public static ConfigElement<bool> AiDebugLog;
+	public static ConfigElement<bool> AiDeepMode;
+	public static ConfigElement<string> AiDeepModel;
 
 	public static ConfigElement<int> PanelFont;
 	public static ConfigElement<int> PanelScale;
@@ -337,6 +350,7 @@ public static class ConfigManager
 		SaveNoteKey = new ConfigElement<KeyCode>("SaveNoteKey", "存档备注：在存档/读档界面选中手动存档后按这个键写备注（和设置页热键相同时，在存档界面优先写备注）", KeyCode.F8);
 		CheatUnlimitedTraining = new ConfigElement<bool>("CheatUnlimitedTraining", "无限修炼：修炼时不消耗可用次数和武学点（武学点是 0 时修炼不了，数值页能改）。true=开，false=关", defaultValue: true);
 		CheatUnlimitedUpgrade = new ConfigElement<bool>("CheatUnlimitedUpgrade", "无限锻造、炼丹：锻造、炼丹时不消耗可用次数和锻造点、炼丹点（点数是 0 时做不了，数值页能改）。true=开，false=关", defaultValue: true);
+		CheatDevelopIgnoreStory = new ConfigElement<bool>("CheatDevelopIgnoreStory", "锻冶场、炼丹房开发新装备、新药时不看剧情条件（还没走到解锁它的剧情也能开发）；等级和门派规模的要求照旧。true=开，false=关", defaultValue: false);
 		CheatFreeUpgradeMoney = new ConfigElement<bool>("CheatFreeUpgradeMoney", "锻造、炼丹不消耗银两，银两不够也能升级。true=开，false=关", defaultValue: true);
 		CheatDuelInvincible = new ConfigElement<bool>("CheatDuelInvincible", "决斗中无敌：我方不受伤害。true=开，false=关", defaultValue: false);
 		CheatDuelNoDamage = new ConfigElement<bool>("CheatDuelNoDamage", "决斗中造成伤害为 0：敌方不受伤害。true=开，false=关", defaultValue: false);
@@ -347,6 +361,8 @@ public static class ConfigManager
 		ActionsPerRound = new ConfigElement<int>("ActionsPerRound", "行动点选「每旬N点」时，每旬固定几点（1～5，原版每旬 3 点）。有的选项要「剩余行动点大于 2」才出现，设成 3 点以上就能在旬初触发", 1);
 		ShowFlagChanges = new ConfigElement<bool>("ShowFlagChanges", "剧情改动旗标时在屏幕上提示（可能剧透）。true=开，false=关", defaultValue: false);
 		EnableMapHints = new ConfigElement<bool>("EnableMapHints", "养成地图事件提示：鼠标停在建筑上列出这里的主线、支线、随机事件和触发条件；有现在就能触发、这一局还没走过的主线或支线的建筑一直亮着。true=开，false=关", defaultValue: true);
+		ShowItemUses = new ConfigElement<bool>("ShowItemUses", "物品用途：背包里选中贵重品、杂物、书，或在商店里看商品时，说明后面列出哪些剧情会判定要不要有它、会把它收走（可能剧透任务名）。true=开，false=关", defaultValue: false);
+		MapHintsNowOnly = new ConfigElement<bool>("MapHintsNowOnly", "地图建筑事件提示只列现在点进去就会触发的主线、支线，时间不对、条件不满足的只写个数；随机事件本来就只列现在能抽到的。true=开，false=关", defaultValue: false);
 		EnableEventPicker = new ConfigElement<bool>("EnableEventPicker", "随机事件自选：剧情走到随机事件（工作、闲逛等）时先停下，列出满足条件的事件选一个，也可以选随机。true=开，false=关", defaultValue: false);
 		EnableDuelActionForecast = new ConfigElement<bool>("EnableDuelActionForecast", "决斗中显示敌方本回合预选的行动；敌方意图较高时可能根据你的出招临场应变。默认关。true=开，false=关", defaultValue: false);
 		DuelForecastX = new ConfigElement<float>("DuelForecastX", "决斗敌方行动预测窗口的横向位置（占屏幕宽度的比例，-1=默认靠右）。拖动窗口会自动保存", -1f);
@@ -358,6 +374,16 @@ public static class ConfigManager
 		FlagNoticeSeconds = new ConfigElement<float>("FlagNoticeSeconds", "剧情旗标变化提示在屏幕上停留几秒（按真实时间，开倍速也一样；原版 1 秒）。0=按游戏原样", 4f);
 		FontScale = new ConfigElement<int>("FontScale", "剧情对白的文字大小（百分比，只放大对白框里的字，乘在「游戏文字大小」上）。100=原样，120=大两成", 100);
 		GameFontScale = new ConfigElement<int>("GameFontScale", "游戏里全部文字的大小（百分比，菜单、按钮、数值、对白都放大，适合 Steam Deck 等小屏幕；放得太大有的字会挤出框）。100=原样，120=大两成", 100);
+		AiPanelKey = new ConfigElement<KeyCode>("AiPanelKey", "打开咖啡伴侣窗口的 AI 页并把光标放进输入框的热键（已经在 AI 页时再按一次关上）", KeyCode.F3);
+		AiProvider = new ConfigElement<int>("AiProvider", "AI 攻略用哪家服务商（序号，在咖啡伴侣窗口「AI」页里选）", 0);
+		AiBaseUrl = new ConfigElement<string>("AiBaseUrl", "AI 服务商的 API 地址（选服务商时自动填）", "https://api.deepseek.com/v1");
+		AiModel = new ConfigElement<string>("AiModel", "AI 用的模型名（选服务商时自动填建议的，可以改）", "deepseek-flash");
+		AiApiKey = new ConfigElement<string>("AiApiKey", "AI 服务商的 API Key：只存在这台电脑的配置文件里，只发给选的服务商", "");
+		AiDeepMode = new ConfigElement<bool>("AiDeepMode", "AI 深度模式：换用更强的模型（AiDeepModel），回答更长，答前把结论对照查到的资料核对一遍。更准，也更贵、更慢", defaultValue: false);
+		AiDeepModel = new ConfigElement<string>("AiDeepModel", "深度模式用的模型名；空着就和平时用同一个模型", "deepseek-v4-pro");
+		AiDebugLog = new ConfigElement<bool>("AiDebugLog", "把每次发给 AI 的人设、现状、查资料的结果和用量写进 Mod 文件夹的 logs/ai_debug.txt，方便核对", defaultValue: false);
+		AiHints = new ConfigElement<bool>("AiHints", "女主角人设问到攻略时，在回答后面单独给一段攻略提示；关掉就只用她的口吻聊天", defaultValue: true);
+		AiSpoiler = new ConfigElement<int>("AiSpoiler", "AI 剧透程度：0=想知道什么说什么，1=只说当前和走过的剧情，2=只给方向提示", 0);
 		UiLanguage = new ConfigElement<int>("UiLanguage", "咖啡伴侣窗口等 Mod 界面的语言：0=跟随游戏（装了日语补丁时显示日语，装了英文补丁时显示英语），1=简体中文，2=繁体中文，3=韩语，4=日语，5=英语", 0);
 		PanelTheme = new ConfigElement<int>("PanelTheme", "咖啡伴侣窗口的配色：0=浅色（宣纸底），1=深色（墨色底，默认），2=跟随系统（Windows 的应用模式）", 1);
 		PanelFont = new ConfigElement<int>("PanelFont", "咖啡伴侣窗口等 Mod 界面的字体：0=思源宋体（游戏对话用的字体，默认），1=微软雅黑（系统字体）", 0);
@@ -365,7 +391,7 @@ public static class ConfigManager
 		// 2.8.3 起默认关（开着时切到别的窗口，背景音乐不停，鼠标经过地图建筑还会响，玩家以为是 bug）。
 		// 老的配置名 EnableBackgroundRun 在玩家配置里存着 true，换个名字让所有人都从「关」开始
 		EnableBackgroundRun = new ConfigElement<bool>("KeepRunningInBackground", "后台继续运行：切到别的窗口时游戏不暂停，背景音乐也不停。true=开，false=关（默认，游戏原本的做法：切走就停）", defaultValue: false);
-		EnableRightClickHideUI = new ConfigElement<bool>("EnableRightClickHideUI", "隐藏界面看 CG：剧情里按热键（HideUIKey，默认鼠标右键）隐藏对话框等界面和本 Mod 的窗口，只看背景、CG 和立绘，方便截图；再按一次恢复。已不用：不想要就把 HideUIKey 设成 None", defaultValue: true);
+		EnableRightClickHideUI = new ConfigElement<bool>("EnableRightClickHideUI", "隐藏界面看 CG：剧情里按热键（HideUIKey，默认鼠标右键）隐藏对话框等界面和本 Mod 的窗口，只看背景、CG 和立绘，方便截图；再按一次、点左键或按其他键恢复。已不用：不想要就把 HideUIKey 设成 None", defaultValue: true);
 		PresetChooserShown = new ConfigElement<bool>("PresetChooserShown", "第一次打开咖啡伴侣窗口时的选预设弹窗已经出过（自动记录，不用改）", defaultValue: false);
 		PresetCustom = new ConfigElement<string>("PresetCustom", "设置页「预设」里「自定义」记下的开关（从自定义换到别的预设时自动记录，点「自定义」换回来）：配置名=值，分号隔开", "");
 		LockedStats = new ConfigElement<string>("LockedStats", "数值页锁住的数值（在数值页点锁，自动记录）：数值名，逗号隔开。清空就全部解锁", "");
@@ -376,7 +402,7 @@ public static class ConfigManager
 		EnableSkipRead = new ConfigElement<bool>("EnableSkipRead", "一键快进已读对话：剧情里按一下热键（默认 F2）一直跳过读过的对话，再按一下停，碰到没读过的对话自己停。已不用：不想要就把 SkipReadKey 设成 None", defaultValue: true);
 		SkipReadKey = new ConfigElement<KeyCode>("SkipReadKey", "一键快进的热键：剧情里按一下一直跳过读过的对话（像一直按着 Ctrl），再按一下停；碰到没读过的对话会自己停", KeyCode.F2);
 		HideUIKey = new ConfigElement<KeyCode>("HideUIKey", "隐藏界面看 CG 的按键，默认鼠标右键（Mouse1）；习惯右键做别的事可以改成键盘上的键，如 H", KeyCode.Mouse1);
-		EnableStoryReview = new ConfigElement<bool>("EnableStoryReview", "剧情回顾：走到大节点（任务、事件的开头，以及会改变剧情走向的选项）时，在存档文件夹里收录这一段开头的进度（LOMStory_ 开头，跟着 Steam 云同步），以后可以从这里重玩。true=开，false=关", defaultValue: true);
+		EnableStoryReview = new ConfigElement<bool>("EnableStoryReview", "剧情回顾：游戏在剧情存档点、每旬开头自动存档时，在存档文件夹里收录这一刻的进度（LOMStory_ 开头，跟着 Steam 云同步），以后可以从这里重玩。true=开，false=关", defaultValue: true);
 		GamepadPanelButton = new ConfigElement<int>("GamepadPanelButton", "手柄开关咖啡伴侣窗口的按键：0=按下左摇杆（L3），1=按下右摇杆（R3），2=LB 和 RB 一起按", 0);
 		StoryReviewKey = new ConfigElement<KeyCode>("StoryReviewKey", "咖啡伴侣窗口（此刻、路线图、剧情图、节点存档、随时存档、收集进度、数值、设置）的热键", KeyCode.Tab);
 		ShowBranchChecks = new ConfigElement<bool>("ShowBranchChecks", "剧情走到分支判断时在屏幕上列出各分支条件（满足为绿、不满足为红，可能剧透）。true=开，false=关", defaultValue: false);
@@ -387,7 +413,7 @@ public static class ConfigManager
 		PopupOpacity = new ConfigElement<float>("PopupOpacity", "提示框的底色不透明度（0.3～1，1=不透明）：地图建筑提示、剧情分支小窗、决斗敌方预选、快进、读档进度这些浮在游戏画面上的提示。调低能透过提示框看到游戏画面，文字不变", 0.8f);
 		DialogOpacity = new ConfigElement<float>("DialogOpacity", "小窗的底色不透明度（0.3～1，1=不透明）：随机事件选择、存档备注。调低能透过小窗看到游戏画面，文字和按钮不变", 1f);
 		EnableFastStartup = new ConfigElement<bool>("EnableFastStartup", "开游戏更快：标题画面按钮浮现的开场动画加快 6 倍。true=开（默认），false=关，改后重启生效", defaultValue: true);
-		EnableFlowSpeedup = new ConfigElement<bool>("EnableFlowSpeedup", "流程提速：切场景不再写多余的全局存档副本、读档时旗标查表、回想关着时不重排、快进时指令不空等、数值变化后的停顿缩到 0.2 秒（没显示的不停顿）、养成地图上行动后的等待和转场加快 3 倍、决斗回合之间不干等。默认开；只有怀疑它导致问题时才关。true=开，false=关", defaultValue: true);
+		EnableFlowSpeedup = new ConfigElement<bool>("EnableFlowSpeedup", "流程提速：切场景不再写多余的全局存档副本、读档时旗标查表、快进时指令不空等、数值变化后的停顿缩到 0.2 秒（没显示的不停顿）、养成地图上行动后的等待和转场加快 3 倍、决斗回合之间不干等。默认开；只有怀疑它导致问题时才关。true=开，false=关", defaultValue: true);
 		TitlePartnerChoice = new ConfigElement<int>("TitlePartnerChoice", "标题画面显示的人物：0=跟随结局（默认），1=不显示，2=小师妹，3=龙湘，4=叶云裳，5=小兰，6=小梅，7=小竹，8=大师兄。回到标题画面时生效", 0);
 		SaveListOrder = new ConfigElement<int>("SaveListOrder", "新版存档、读档界面里手动存档的排列：0=按栏位号（默认），1=最近保存的在上面。打开界面时都会选中并滚到上次保存的那个存档", 0);
 		SaveSlotCount = new ConfigElement<int>("SaveSlotCount", "手动存档栏位数量（原版 20，小于 20 时按 20）", 100);

@@ -37,7 +37,7 @@ internal static class Diagnostics
 					}
 				}
 				AddFile(zip, Path.Combine(game, @"BepInEx\LogOutput.log"), "BepInEx/LogOutput.log");
-				AddFile(zip, Path.Combine(game, @"BepInEx\config\LOMAssistant.cfg"), "BepInEx/LOMAssistant.cfg");
+				AddConfig(zip, Path.Combine(game, @"BepInEx\config\LOMAssistant.cfg"), "BepInEx/LOMAssistant.cfg");
 				AddFile(zip, Path.Combine(game, "doorstop_config.ini"), "游戏目录/doorstop_config.ini");
 				// BepInEx 预加载失败时会在游戏目录写 preloader_*.log
 				foreach (string log in Directory.GetFiles(game, "preloader_*.log").OrderByDescending(File.GetLastWriteTimeUtc).Take(2))
@@ -179,6 +179,29 @@ internal static class Diagnostics
 		using (var writer = new StreamWriter(zip.CreateEntry(name).Open(), new UTF8Encoding(true)))
 		{
 			writer.Write(text);
+		}
+	}
+
+	// 配置文件里的 AI API Key 不进诊断包（玩家会把诊断包发到 GitHub、群里）
+	private static void AddConfig(ZipArchive zip, string path, string name)
+	{
+		try
+		{
+			if (!File.Exists(path))
+			{
+				return;
+			}
+			string text;
+			using (var input = new StreamReader(new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete)))
+			{
+				text = input.ReadToEnd();
+			}
+			text = System.Text.RegularExpressions.Regex.Replace(text, @"(?m)^(\s*AiApiKey\s*=)[^\r\n]*", "$1 （已隐藏）");
+			AddText(zip, name, text);
+		}
+		catch (Exception e)
+		{
+			AddText(zip, name + ".读取失败.txt", e.Message);
 		}
 	}
 

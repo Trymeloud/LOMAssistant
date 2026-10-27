@@ -38,6 +38,10 @@ public class ModPanel : MonoBehaviour
 		GameSpeed.Tick();
 		BackgroundRun.Tick();
 		FontScale.Tick();
+		if (InputGuard.HotkeyDown(ConfigManager.AiPanelKey.Value))
+		{
+			StoryReviewPanel.ToggleAi();
+		}
 		// 检测到冲突时自动打开一次设置页，玩家不按键也能看到
 		if (ConflictDetector.Warnings.Count > 0 && !_conflictShown && StoryReviewPanel.OpenSettings())
 		{

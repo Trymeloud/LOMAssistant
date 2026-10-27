@@ -75,6 +75,28 @@ public class PositionEventCache
 		return GetPositionEvents(position).OrderByDescending(GetPositionEventRate).ToList();
 	}
 
+	/// <summary>所有场所事件池里的事件（场所编号、事件）；事件表拿不到时是空的。</summary>
+	public List<(string Pool, PositionEventData Data)> AllEvents()
+	{
+		var list = new List<(string, PositionEventData)>();
+		PositionResultConfig config = Config();
+		if (config?.List == null)
+		{
+			return list;
+		}
+		foreach (PositionResultData pool in config.List)
+		{
+			foreach (PositionEventData e in GetPositionEvents(pool.name))
+			{
+				list.Add((pool.name, e));
+			}
+		}
+		return list;
+	}
+
+	/// <summary>场所编号的显示名（如「飞天殿_修炼」）。</summary>
+	public static string PlaceName(string poolKey) => GetPositionDisplayName(poolKey);
+
 	private static PositionResultConfig _config;
 
 	/// <summary>场所事件表：剧情场景里从 CheckPointManager 拿并记住；养成地图上没有它，就用记住的或在已载入的资源里找。</summary>
@@ -127,8 +149,30 @@ public class PositionEventCache
 		return GetPositionDisplayName(positionEventDataCache.FirstOrDefault((KeyValuePair<string, List<PositionEventData>> p) => p.Value.Contains(eventData)).Key) + "事件：" + DataHelper.GetEventName(eventData);
 	}
 
+	// 留学地图的场所事件池（Section_门派_场所…）：场所名取自留学地图菜单（section_0X_free_start_02 的选项和它们进的剧本）
+	private static readonly Dictionary<string, string> SectionPlaces = new Dictionary<string, string>
+	{
+		{ "Section_01_00", "崆峒·窝居" },
+		{ "Section_01_01", "崆峒·飞天殿" },
+		{ "Section_01_02", "崆峒·夺魄森林" },
+		{ "Section_01_03", "崆峒·铁拳巷" },
+		{ "Section_01_04", "崆峒·玄功洞" },
+		{ "Section_01_05", "崆峒·夺魄峰" },
+		{ "Section_01_06", "崆峒·无色广场" },
+		{ "Section_01_07", "崆峒·飞天殿（遇到小梅）" },
+		{ "Section_01_08", "崆峒·鹤崖" },
+		{ "Section_02_00", "青城·窝居" },
+		{ "Section_02_01", "青城·常风观" },
+		{ "Section_02_02", "青城·上清宫" },
+		{ "Section_02_03", "青城·青城山镇" },
+	};
+
 	private static string GetPositionDisplayName(string positionKey)
 	{
+		if (positionKey != null && positionKey.Length >= 13 && SectionPlaces.TryGetValue(positionKey.Substring(0, 13), out string section))
+		{
+			return section + (positionKey.Length > 13 ? "（" + positionKey + "）" : "");
+		}
 		string[] array = positionKey.Split('_');
 		if (array.Length == 0)
 		{

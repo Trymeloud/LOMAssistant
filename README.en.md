@@ -4,7 +4,7 @@
 
 [简体中文](README.md) · [繁體中文](README.zh-Hant.md) · **English** · [日本語](README.ja.md) · [한국어](README.ko.md)
 
-A BepInEx 6 plugin for *Legend of Mortal* (活侠传). The name 咖啡伴侣 ("coffee companion") comes from 「咖啡」 (coffee), the players' nickname for the heroine 瑞杏 (Ruixing), whose name sounds like the Chinese coffee chain Luckin Coffee (瑞幸, Ruixing). It supports the latest version of the game and adds a story overview, branch picking, a stat editor, a better save/load screen, save-anywhere and more.
+A BepInEx 6 plugin for *Legend of Mortal* (活侠传). The name 咖啡伴侣 ("coffee companion") comes from 「咖啡」 (coffee), the players' nickname for the heroine 瑞杏 (Ruixing), whose name sounds like the Chinese coffee chain Luckin Coffee (瑞幸, Ruixing). It supports the latest version of the game and adds an AI companion, a story overview, branch picking, a stat editor, better saves and more.
 
 The mod's own windows can be shown in English (AI-translated; screenshots below are in Chinese). It works with the English patches: the [LLM English patch](https://github.com/joshfreitas1984/LegendOfMortalOverLlm) and velvetcakes' English patch (XUnity.AutoTranslator, loaded through the mod's BepInEx 5 compatibility layer). With either one installed the mod switches to English by itself; text from the game's own data, such as stat and quest names, is in English only when the patch translates it.
 
@@ -28,7 +28,8 @@ The zip already contains BepInEx.
 
 | Key | Action |
 |---|---|
-| Tab | The Coffee Companion window (now, route map, story map, branch saves, save-anywhere, collection, stats, settings) |
+| Tab | The Coffee Companion window (now, route map, story map, branch saves, save-anywhere, collection, stats, AI companion, settings) |
+| F3 | AI companion tab |
 | F8 | Settings; on the save screen, edit the note of the selected save |
 | F9 | Stats page |
 | F5 / F7 / F6 | Save-anywhere: new save / load the latest / list all |
@@ -41,6 +42,20 @@ The zip already contains BepInEx.
 All keys can be changed or unbound under **Hotkeys** on the settings page.
 
 ## Features
+
+### AI companion (F3)
+
+Connect a large language model with your own API key to ask about the story and strategy, or to chat with the heroines and the Eldest Brother. Supports DeepSeek, Kimi, Qwen, Zhipu GLM, SiliconFlow, OpenRouter, OpenAI, Claude, Gemini, local Ollama, and any OpenAI-compatible endpoint.
+
+- **Guide**: looks up the game's own story data before answering: quests and their triggers, script branches and dialogue, affection and stat totals along each route, endings and deaths, romance routes, character bios, location events, duel conditions, plus your current progress and the options on screen.
+- **Heroines and the Eldest Brother**: the nine romanceable heroines and Tang Buyi, the Eldest Brother, speak in their own voice, their portraits change expression with what they say, and how they address you follows the story. They only know the story you have read. When you ask for help, a separate guide tip follows the reply; you can also set them to chat only.
+- **Spoilers**: Tell me anything / Only current and past / Hints only.
+- **Edits**: when the AI wants to change stats, affection, your sweetheart, story flags or this mod's settings, it shows a card first; nothing changes until you confirm.
+- **Chats**: each character's chats are stored locally; start new ones, switch between them, delete them, or export them to the desktop. Replies appear as they are written.
+- **Deep mode**: switches to a stronger model that checks the facts before answering: more accurate, but costlier and slower.
+- **Cost and privacy**: you pay the provider's own rates; the mod charges nothing. Your key and chats go only to the provider you choose, and the key is hidden in diagnostics exports.
+
+<img src="media/ai-companion.webp" width="640" alt="AI companion: 郁竹 answers in her own voice, with a guide tip below">
 
 ### Story overview (Tab)
 
@@ -58,7 +73,7 @@ All keys can be changed or unbound under **Hotkeys** on the settings page.
 
   <img src="media/story-flow.webp" width="640" alt="Story map: options, conditions and destinations between story segments">
 
-- **Branch saves**: progress is recorded at quest starts and key options; click **Replay from here** to go back and try another path. Separate per save, uses no save slots, synced with Steam Cloud.
+- **Branch saves**: progress is recorded when the game autosaves at story save points and at the start of each period; click **Replay from here** to go back and try another path. Separate per save, uses no save slots, synced with Steam Cloud.
 
   <img src="media/story-nodes.webp" width="640" alt="Branch saves: recorded story segments by date, replay or delete">
 
@@ -77,14 +92,15 @@ All keys can be changed or unbound under **Hotkeys** on the settings page.
 
   <img src="media/event-picker.webp" width="480" alt="Pick random events: the events that can trigger, their odds and changes">
 
-- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit.
+- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit. Turn on "Map hints: triggerable only" in settings to list only the quests that would trigger now; the rest are only counted.
+- **Item uses** (off by default, may reveal quest names): item descriptions in the bag and shops end with what using the item does and which stories check for it or take it. Setting: "Show item uses".
 - **Branch panel** (off by default, spoilers): lists the conditions of each branch check on the left, met in green and unmet in red.
 
   <img src="media/branch-panel.webp" width="480" alt="Branch panel: met conditions in green, unmet in red">
 
 - **Flag change notices** (off by default, spoilers): a notice when the story changes a flag; how long it stays can be set.
 - **Checks in the backlog**: story checks, their conditions and your values are recorded in the backlog.
-- **Hide UI for CGs**: right-click in a story scene to leave only the background, CG and portraits; right-click again to restore.
+- **Hide UI for CGs**: right-click in a story scene to leave only the background, CG and portraits; right-click, left-click or press any other key to restore.
 
 ### Saves
 
@@ -93,7 +109,7 @@ All keys can be changed or unbound under **Hotkeys** on the settings page.
 
   <img src="media/anytime-save.webp" width="640" alt="Save-anywhere page: all saves, load, note, delete">
 
-- **New save/load screen** (can switch back to the original): a list with your love interest's portrait, date and note, and a detail pane with their full portrait and the first lines after loading; manual and auto saves on separate pages. It opens on the save you made last; a switch at the top right of the load page lists them by slot or newest first.
+- **New save/load screen** (can switch back to the original): a list with your love interest's portrait, date and note, and a detail pane with their full portrait and the first lines after loading; manual and auto saves on separate pages. It opens on the save you made last; a switch at the top right of the load page lists them by slot or newest first; with newest first, the save page starts with an empty slot.
 
   <img src="media/save-browser.webp" width="640" alt="New load screen: save list with portraits and notes, and a detail pane with the portrait and the dialogue after loading">
 
@@ -108,6 +124,7 @@ Switches in the training and combat groups of the settings page (F8):
 - Action points: normal / not consumed / N per period
   > ⚠️ The last two can make some story events not trigger or trigger early, and may block key main quests. Use with care and keep saves.
 - Break the 100 stat cap; training, forging and alchemy use up no attempts or points, and forging and alchemy cost no silver
+- Develop gear without story requirements (off by default): the forge and alchemy room can develop new gear and medicines before the story that unlocks them; level and sect size requirements still apply
 - Duel invincibility and no damage to enemies; no damage to your side and no ultimate cooldown in team battles
 - Duel enemy forecast (off by default): shows the enemy's chosen move; the window can be moved and resized
 - Pinball total score; the fourth senior brother sells every item (off by default)
@@ -180,4 +197,4 @@ DOTNET=/path/to/dotnet ./Installer/build-installer.sh
 
 ## Credits
 
-See the [Chinese README](README.md#致谢). This project builds on 活侠传助手 by 爱死, takes ideas from 赵活系统 and code from LOM_SaveSlotExpander. Thanks to [lxsb222-spec](https://github.com/lxsb222-spec), [blakceyes](https://github.com/blakceyes), [NEXTAltair](https://github.com/NEXTAltair) and [pluvivanto](https://github.com/pluvivanto) for their pull requests, and to [mahosalieri85-a11y](https://github.com/mahosalieri85-a11y) and [iampigcheng](https://github.com/iampigcheng) for their issues.
+See the [Chinese README](README.md#致谢). This project builds on 活侠传助手 by 爱死, takes ideas from 赵活系统 and code from LOM_SaveSlotExpander. The AI Companion tab takes ideas from [江湖夜话](https://github.com/Cpjjason/jianghu-yehua) (Jianghu Yehua) by Cpjjason, another AI mod for the game that lets you chat privately with its characters, who can give you items, teach you martial arts and remember past talks ([video on Bilibili](https://www.bilibili.com/video/BV1s2nC6pE83/)). Some personality traits and habits of the characters on the AI Companion tab draw on the 活侠传 fan character card by 夏呆呆 from the 类脑 community. Thanks to [lxsb222-spec](https://github.com/lxsb222-spec), [blakceyes](https://github.com/blakceyes), [NEXTAltair](https://github.com/NEXTAltair) and [pluvivanto](https://github.com/pluvivanto) for their pull requests, and to [mahosalieri85-a11y](https://github.com/mahosalieri85-a11y) and [iampigcheng](https://github.com/iampigcheng) for their issues.

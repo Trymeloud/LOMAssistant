@@ -536,6 +536,8 @@ public static class ConditionBook
 	public static Dictionary<string, string> Conditions = new Dictionary<string, string>();
 	/// <summary>决斗输了会死的关卡 → 生死簿条目（剧本里 ChangeScene("Combat", 关卡) 的关卡名）。只来自 Mod 自带的数据。</summary>
 	public static Dictionary<string, string> CombatDeaths = new Dictionary<string, string>();
+	/// <summary>决斗关卡 → 说明和回合条件（第一行是关卡说明，之后「第 8 回合 → 我方加入「瑞笙」」这类）。只来自 Mod 自带的数据。</summary>
+	public static Dictionary<string, List<string>> Combats = new Dictionary<string, List<string>>();
 	private static bool _written;
 	private static string File => System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(ConditionBook).Assembly.Location) ?? ".", "StoryReview", "conditions.json");
 
@@ -545,6 +547,7 @@ public static class ConditionBook
 		public Dictionary<string, List<string>> Switches = new Dictionary<string, List<string>>();
 		public Dictionary<string, string> Conditions = new Dictionary<string, string>();
 		public Dictionary<string, string> CombatDeaths = new Dictionary<string, string>();
+		public Dictionary<string, List<string>> Combats;
 	}
 
 	static ConditionBook()
@@ -568,6 +571,7 @@ public static class ConditionBook
 			{
 				Book builtin = Newtonsoft.Json.JsonConvert.DeserializeObject<Book>(reader.ReadToEnd());
 				CombatDeaths = builtin?.CombatDeaths ?? CombatDeaths;
+				Combats = builtin?.Combats ?? Combats;
 				if (Switches.Count == 0)
 				{
 					Switches = builtin?.Switches ?? Switches;

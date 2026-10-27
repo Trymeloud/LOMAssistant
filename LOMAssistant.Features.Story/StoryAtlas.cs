@@ -144,13 +144,50 @@ public static class StoryAtlas
 			return;
 		}
 		var visited = new HashSet<string>(PlayerStatManagerData.Instance?.StoryKeyList ?? new List<string>(), StringComparer.Ordinal);
+		var progress = SeriesProgress();
 		foreach (StoryMission mission in Missions)
 		{
 			var scripts = mission.Scripts.Select(StoryScripts.Get).Where(s => s != null).ToList();
 			mission.Read = StoryScripts.ReadPercent(scripts.SelectMany(s => s.Lines));
-			mission.Visited = scripts.Any(s => s.Records.Any(visited.Contains));
+			mission.Visited = IsVisited(mission, scripts, visited, progress);
 		}
 		Version++; // 路线图、剧情图按新进度重画
+	}
+
+	// 支线现在进行到哪一步（存档里记着）：剧本一条剧情记录都不写的支线（同门关怀这类），只能靠它判断这一局做过没有
+	private static Dictionary<string, string> SeriesProgress()
+	{
+		var progress = new Dictionary<string, string>(StringComparer.Ordinal);
+		foreach (MissionData series in MissionManagerData.Instance?.GetFieldValue<SubMissionsData>("_subMissions")?.List ?? new List<MissionData>())
+		{
+			if (series != null && !progress.ContainsKey(series.Name))
+			{
+				progress[series.Name] = series.CurrentKey ?? "";
+			}
+		}
+		return progress;
+	}
+
+	/// <summary>这一局走过没有：剧本写下的剧情记录在本局的剧情记录里；支线的剧本一条都不写时，看存档里这条支线的进度。</summary>
+	private static bool IsVisited(StoryMission mission, List<StoryScript> scripts, HashSet<string> visited, Dictionary<string, string> progress)
+	{
+		if (scripts.Any(s => s.Records.Any(visited.Contains)))
+		{
+			return true;
+		}
+		return !mission.Main && !scripts.Any(s => s.Records.Count > 0) && progress.TryGetValue(mission.Series, out string current) && PassedInSeries(mission, current);
+	}
+
+	// 这一局已经过了这一步：整组支线已 clear（做完最后一步，剧本里会把任务组设成 clear），或者进度已经走到组里排在它后面的那一步
+	private static bool PassedInSeries(StoryMission mission, string current)
+	{
+		if (current == "clear")
+		{
+			return true;
+		}
+		var steps = Missions.Where(m => m.Series == mission.Series).Select(m => m.Key).ToList();
+		int at = steps.IndexOf(current), self = steps.IndexOf(mission.Key);
+		return at >= 0 && self >= 0 && at > self;
 	}
 
 	private static IEnumerator _steps;
@@ -268,6 +305,7 @@ public static class StoryAtlas
 		var owner = new Dictionary<string, StoryMission>(StringComparer.OrdinalIgnoreCase);
 		// 标题画面还没读档时，这一局走过的剧情记录是空的
 		var visited = new HashSet<string>(PlayerStatManagerData.Instance?.StoryKeyList ?? new List<string>(), StringComparer.Ordinal);
+		var progress = SeriesProgress();
 		int done = 0;
 		foreach (StoryMission mission in Missions)
 		{
@@ -321,7 +359,7 @@ public static class StoryAtlas
 			}
 			var scripts = mission.Scripts.Select(StoryScripts.Get).Where(s => s != null).ToList();
 			mission.Read = StoryScripts.ReadPercent(scripts.SelectMany(s => s.Lines));
-			mission.Visited = scripts.Any(s => s.Records.Any(visited.Contains));
+			mission.Visited = IsVisited(mission, scripts, visited, progress);
 			foreach (string name in mission.Scripts)
 			{
 				if (!owner.ContainsKey(name))
@@ -364,7 +402,7 @@ public static class StoryAtlas
 			}
 			var all = mission.Scripts.Select(StoryScripts.Get).Where(s => s != null).ToList();
 			mission.Read = StoryScripts.ReadPercent(all.SelectMany(s => s.Lines));
-			mission.Visited = all.Any(s => s.Records.Any(visited.Contains));
+			mission.Visited = IsVisited(mission, all, visited, progress);
 		}
 
 		// 剧本归属，以及别的任务接进来的地方（支线怎么进入）

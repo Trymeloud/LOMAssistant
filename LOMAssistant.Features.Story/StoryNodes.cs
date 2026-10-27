@@ -56,7 +56,7 @@ public sealed class StoryMark
 
 /// <summary>
 /// 剧情回顾的收录和存入。
-/// 收录：剧情走到有选项、掷骰或战斗的剧本时，取游戏此刻要写的存档，把起始剧本改成这个剧本，存进游戏存档文件夹（跟着 Steam 云同步）。
+/// 收录：游戏自动存档时（剧情的自动存档点、每旬开头的养成；战斗前的不收），取游戏此刻要写的存档，存进游戏存档文件夹（跟着 Steam 云同步）。
 /// 收录按存档分开：每份存档自己一条进度线（见 StoryLine），每条线上每个剧本只留最新一份。
 /// 游戏写存档时会把写入时间（TimeTick）一起存进去，复制到别的格子、自动存档、随时存档都原样带着；
 /// 读档时按它找回这份进度在哪条线、走到第几个节点，就不用改存档文件本身。
@@ -310,7 +310,7 @@ public static class StoryNodes
 		}
 	}
 
-	/// <summary>剧本加载时（还没执行）调用：刚读过档就补放音乐；有分岔的剧本收录一份。</summary>
+	/// <summary>剧本加载时（还没执行）调用：刚读过档就补放音乐。</summary>
 	public static void ScriptLoaded(string luaString, string friendlyName)
 	{
 		try
@@ -332,15 +332,6 @@ public static class StoryNodes
 				_justLoaded = false;
 				RestoreMusic(name);
 			}
-			if (!ConfigManager.EnableStoryReview.Value || AnytimeSave.AnytimeSave.Replaying || AnytimeSave.AnytimeSave.Restoring)
-			{
-				return;
-			}
-			if (!IsBigNode(name, luaString ?? ""))
-			{
-				return;
-			}
-			Keep(name);
 		}
 		catch (Exception ex)
 		{
@@ -348,73 +339,29 @@ public static class StoryNodes
 		}
 	}
 
-	private static HashSet<string> _missionStarts;
-
 	/// <summary>
-	/// 只在大节点收录：任务（主线、支线、事件）的开头剧本，和会改变剧情走向的选项
-	/// （选不同的项会接到不同的剧本、或推进主线）。只加减数值的选项、掷骰、战斗不收录，从前面最近的大节点重玩就能到。
+	/// 游戏自动存档时收录一份：剧情里的自动存档点、每旬开头的养成（战斗开打前的自动存档不收）。
+	/// 起始剧本就是游戏这次自动存档记下的那一个，重玩时和读自动存档一样从它开头开始。
 	/// </summary>
-	private static bool IsBigNode(string name, string text)
+	internal static void AutoSaved()
 	{
-		if (_missionStarts == null && MissionManagerData.Instance != null)
+		try
 		{
-			_missionStarts = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-			void Add(MissionData data)
+			PlayerStatManagerData player = PlayerStatManagerData.Instance;
+			if (player == null || SaveSystem.Instance == null || !ConfigManager.EnableStoryReview.Value || AnytimeSave.AnytimeSave.Replaying || AnytimeSave.AnytimeSave.Restoring)
 			{
-				foreach (MissionCheckData check in data?.GetFieldValue<MissionCheckData[]>("_missions") ?? new MissionCheckData[0])
-				{
-					if (check != null && !string.IsNullOrEmpty(check.StartScript))
-					{
-						_missionStarts.Add(check.StartScript);
-					}
-				}
+				return;
 			}
-			Add(MissionManagerData.Instance.Main);
-			SubMissionsData subs = MissionManagerData.Instance.GetFieldValue<SubMissionsData>("_subMissions");
-			if (subs != null)
+			string script = player.GetFieldValue<string>("_startStoryScript");
+			if (!string.IsNullOrEmpty(script))
 			{
-				foreach (MissionData data in subs.List)
-				{
-					Add(data);
-				}
+				Keep(script);
 			}
 		}
-		if (_missionStarts != null && _missionStarts.Contains(name))
+		catch (Exception ex)
 		{
-			return true;
+			FileLogger.LogWarning("[剧情回顾] 收录失败: " + ex.Message);
 		}
-		if (!text.Contains("choose("))
-		{
-			return false;
-		}
-		StoryScript script = StoryScripts.Parse(name, text);
-		// 选项真的会导向不同结果才算：推进到不同的主线、进入别的任务或事件的开头、触发结局或死亡。
-		// 每旬的空闲行动菜单（去闹市、外堡……）、只改数值或只是对话不同的选项都不算
-		var outcomes = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
-		foreach (StoryExit exit in script.Exits.Where(e => e.Path.Any(step => step.Kind == StoryStep.Option)))
-		{
-			if (exit.MainMission.Length > 0)
-			{
-				outcomes.Add("main:" + exit.MainMission);
-			}
-			else if (exit.ToTitle)
-			{
-				outcomes.Add("title");
-			}
-			else if (exit.Target.Length > 0 && _missionStarts != null && _missionStarts.Contains(exit.Target))
-			{
-				outcomes.Add("start:" + exit.Target);
-			}
-			else
-			{
-				outcomes.Add("same");
-			}
-		}
-		foreach (var (path, death, id) in script.Endings.Where(e => e.Path.Any(step => step.Kind == StoryStep.Option)))
-		{
-			outcomes.Add((death ? "dead:" : "end:") + id);
-		}
-		return outcomes.Count >= 2 && outcomes.Any(o => o != "same");
 	}
 
 	private static void Keep(string script)
@@ -432,7 +379,9 @@ public static class StoryNodes
 		{
 			return;
 		}
-		if (!(CreateSave.Invoke(SaveSystem.Instance, null) is GameSave save))
+		// 1.0.6001 起多了可选参数 includeStoryLog（回想记录要不要写进存档），反射调用要把它传上
+		object[] args = CreateSave.GetParameters().Length == 0 ? null : new object[] { true };
+		if (!(CreateSave.Invoke(SaveSystem.Instance, args) is GameSave save))
 		{
 			return;
 		}
@@ -656,7 +605,15 @@ internal static class StoryNodePatches
 
 	[HarmonyPostfix]
 	[HarmonyPatch(typeof(SaveSystem), "AutoSaveData")]
-	public static void AutoSaveData_Postfix() => StoryNodes.Flush();
+	public static void AutoSaveData_Postfix(string slot)
+	{
+		// 战斗开打前的自动存档（auto_battle）不收录，只收剧情（auto）和养成（auto_free）
+		if (slot != "auto_battle")
+		{
+			StoryNodes.AutoSaved();
+		}
+		StoryNodes.Flush();
+	}
 
 	// 读档页的「最近存档」和自动存档卡片：重玩用的存档位显示成「剧情回顾」，不显示「传奇replay」
 	[HarmonyPostfix]
