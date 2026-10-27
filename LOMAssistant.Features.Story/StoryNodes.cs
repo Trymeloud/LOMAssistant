@@ -379,7 +379,9 @@ public static class StoryNodes
 		{
 			return;
 		}
-		if (!(CreateSave.Invoke(SaveSystem.Instance, null) is GameSave save))
+		// 1.0.6001 起多了可选参数 includeStoryLog（回想记录要不要写进存档），反射调用要把它传上
+		object[] args = CreateSave.GetParameters().Length == 0 ? null : new object[] { true };
+		if (!(CreateSave.Invoke(SaveSystem.Instance, args) is GameSave save))
 		{
 			return;
 		}

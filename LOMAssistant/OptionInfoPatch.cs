@@ -373,10 +373,15 @@ internal static class OptionInfoPatch
 		LogCheckpoint("触发剧情检查点:", fieldValue);
 	}
 
-	[HarmonyPrefix]
+	// 只记真的满足、会触发的任务：没满足的每次行动都检查一遍，记下来会把回想（最多 300 条）占满
+	[HarmonyPostfix]
 	[HarmonyPatch(typeof(MissionCheckData), "Check")]
-	public static void PrefixCheckMission(MissionCheckData __instance)
+	public static void PostfixCheckMission(MissionCheckData __instance, bool __result)
 	{
+		if (!__result)
+		{
+			return;
+		}
 		ConditionResultItem[] fieldValue = __instance.GetFieldValue<ConditionResultItem[]>("_conditions");
 		StringBuilder stringBuilder = new StringBuilder("触发任务检查点:");
 		AppendConditions(fieldValue, stringBuilder);
@@ -516,49 +521,68 @@ internal static class OptionInfoPatch
 		}
 	}
 
-	private static void PrintToNarrativeLog(string message)
+	// 判定记录写进游戏的回想（1.0.6001 起是 StoryLogData；旧的 Fungus NarrativeLog 不再显示）。
+	// 不写进存档：读档后清掉，Mod 卸掉后也不会在玩家存档里留东西。文字记录游戏会用单独的颜色显示
+	// 本 Mod 写进回想的文字（认出自己的记录用，回想最多 300 条，这里留多一点）
+	private static readonly HashSet<string> _ours = new HashSet<string>();
+	private static readonly AccessTools.FieldRef<StoryLogEntryView, Text> LogContent = AccessTools.FieldRefAccess<StoryLogEntryView, Text>("_contentText");
+	private static readonly AccessTools.FieldRef<StoryLogEntryView, int> LogChoiceSize = AccessTools.FieldRefAccess<StoryLogEntryView, int>("_choiceFontSize");
+
+	// 回想里的判定记录用游戏选项那一行的小字号，不和对白一样大（游戏每次显示条目都先把字号重置，再按类型改）
+	[HarmonyPostfix]
+	[HarmonyPatch(typeof(StoryLogEntryView), nameof(StoryLogEntryView.Setup))]
+	public static void LogEntrySetup_Postfix(StoryLogEntryView __instance, StoryLogEntry entry)
 	{
-		string text = Regex.Replace(message, "^\\s*$\\n|\\r", string.Empty, RegexOptions.Multiline).Trim();
-		NarrativeLog narrativeLog = FungusManager.Instance.NarrativeLog;
-		if (narrativeLog != null)
+		try
 		{
-			NarrativeLogEntry entry = new NarrativeLogEntry
+			if (entry == null || entry.Type != StoryLogType.Text || entry.Text == null || !_ours.Contains(entry.Text))
 			{
-				// 不写说话人：回想里有名字就多一行金色大字，容易当成有人在说话；没有名字就只剩这行小字
-				name = "",
-				// 记到游戏的对话记录里，不经过本 Mod 界面的翻译，这里先换成界面语言（繁体、韩语、日语）
-				text = "<size=18>" + TextConverter.ForDisplay(text) + "</size>"
-			};
-			narrativeLog.AddLine(entry);
+				return;
+			}
+			Text content = LogContent(__instance);
+			int small = LogChoiceSize(__instance);
+			if (content != null)
+			{
+				content.fontSize = small > 0 && small < content.fontSize ? small : Mathf.RoundToInt(content.fontSize * 0.72f);
+			}
+		}
+		catch (Exception ex)
+		{
+			FileLogger.Log("[回想] 判定记录改字号失败（已忽略）：" + ex.Message);
 		}
 	}
-}
 
-/// <summary>
-/// 回想（对话记录）里的判定记录：以前说话人写的是内部名「LOMAssistant」，存档里留着的旧记录显示时把这行名字去掉，
-/// 和新记录一样只剩判定那行小字（游戏把名字排成 &lt;size=28&gt;&lt;color=#D9B077&gt;名字&lt;/color&gt;&lt;/size&gt; 单独一行）。
-/// </summary>
-internal static class NarrativeLogNamePatch
-{
-	// 测试版里名字写过 Mod 名（各语言），也一起去掉
-	private static readonly string[] OldNames = { "LOMAssistant", "咖啡伴侣", "咖啡伴侶", "커피 동반자", "珈琲のおとも" };
+	// 同一旬里内容一样的记录只写一次：养成地图每刷新一次地点事件、每做一次行动，游戏都会把同样的条件再查一遍
+	private static readonly HashSet<string> _logged = new HashSet<string>();
+	private static int _loggedAt;
 
-	[HarmonyPostfix]
-	[HarmonyPatch(typeof(NarrativeLog), nameof(NarrativeLog.GetPrettyHistory))]
-	public static void GetPrettyHistory_Postfix(ref string __result)
+	private static void PrintToNarrativeLog(string message)
 	{
-		if (__result == null)
+		// 只在剧情里记：养成地图上的多是地点、闲聊的内部开关，对玩家没用，还占回想的 300 条
+		if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name != "Story")
 		{
 			return;
 		}
-		foreach (string name in OldNames)
+		string text = Regex.Replace(message, "^\\s*$\\n|\\r", string.Empty, RegexOptions.Multiline).Trim();
+		GameTime now = PlayerStatManagerData.Instance?.GameTime;
+		string key = (ReferenceEquals(now, null) ? "" : now.Year + "-" + now.Month + "-" + (int)now.Stage + "|") + text;
+		// 读档时游戏清掉了不存档的记录（回想条数变少），去重表也跟着清
+		if (_logged.Count > 2000 || StoryLogData.Entries.Count < _loggedAt)
 		{
-			string line = "<size=28><color=#D9B077>" + name + "</color></size>\n";
-			if (__result.Contains(line))
-			{
-				__result = __result.Replace(line, "");
-			}
+			_logged.Clear();
 		}
+		if (text.Length > 0 && _logged.Add(key))
+		{
+			// 不经过本 Mod 界面的翻译，这里先换成界面语言（繁体、韩语、日语）
+			string shown = TextConverter.ForDisplay(text);
+			if (_ours.Count > 1000)
+			{
+				_ours.Clear();
+			}
+			_ours.Add(shown);
+			StoryLogData.AddText(shown, false);
+		}
+		_loggedAt = StoryLogData.Entries.Count;
 	}
 }
 

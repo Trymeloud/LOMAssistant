@@ -413,7 +413,7 @@ public static class ConfigManager
 		PopupOpacity = new ConfigElement<float>("PopupOpacity", "提示框的底色不透明度（0.3～1，1=不透明）：地图建筑提示、剧情分支小窗、决斗敌方预选、快进、读档进度这些浮在游戏画面上的提示。调低能透过提示框看到游戏画面，文字不变", 0.8f);
 		DialogOpacity = new ConfigElement<float>("DialogOpacity", "小窗的底色不透明度（0.3～1，1=不透明）：随机事件选择、存档备注。调低能透过小窗看到游戏画面，文字和按钮不变", 1f);
 		EnableFastStartup = new ConfigElement<bool>("EnableFastStartup", "开游戏更快：标题画面按钮浮现的开场动画加快 6 倍。true=开（默认），false=关，改后重启生效", defaultValue: true);
-		EnableFlowSpeedup = new ConfigElement<bool>("EnableFlowSpeedup", "流程提速：切场景不再写多余的全局存档副本、读档时旗标查表、回想关着时不重排、快进时指令不空等、数值变化后的停顿缩到 0.2 秒（没显示的不停顿）、养成地图上行动后的等待和转场加快 3 倍、决斗回合之间不干等。默认开；只有怀疑它导致问题时才关。true=开，false=关", defaultValue: true);
+		EnableFlowSpeedup = new ConfigElement<bool>("EnableFlowSpeedup", "流程提速：切场景不再写多余的全局存档副本、读档时旗标查表、快进时指令不空等、数值变化后的停顿缩到 0.2 秒（没显示的不停顿）、养成地图上行动后的等待和转场加快 3 倍、决斗回合之间不干等。默认开；只有怀疑它导致问题时才关。true=开，false=关", defaultValue: true);
 		TitlePartnerChoice = new ConfigElement<int>("TitlePartnerChoice", "标题画面显示的人物：0=跟随结局（默认），1=不显示，2=小师妹，3=龙湘，4=叶云裳，5=小兰，6=小梅，7=小竹，8=大师兄。回到标题画面时生效", 0);
 		SaveListOrder = new ConfigElement<int>("SaveListOrder", "新版存档、读档界面里手动存档的排列：0=按栏位号（默认），1=最近保存的在上面。打开界面时都会选中并滚到上次保存的那个存档", 0);
 		SaveSlotCount = new ConfigElement<int>("SaveSlotCount", "手动存档栏位数量（原版 20，小于 20 时按 20）", 100);
