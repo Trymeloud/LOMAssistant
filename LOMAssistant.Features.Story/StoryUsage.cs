@@ -39,6 +39,17 @@ public static class StoryUsage
 	private static readonly Regex Clauses = new Regex(@" 且 | 或 |\n");
 	// 条件里的好感：「好感度_虞小梅 需>=30」
 	private static readonly Regex RelationInCondition = new Regex(@"好感度_(\S+?)(?= 需)");
+	// 数值、技能、天赋（心相、性情、技能_南宫护心诀、变心、门派规模……）：条件里的「心相 需>=60」、分岔上的「心相 -30」
+	private static readonly Regex StatInCondition = new Regex(@"(?<=^|\s)([^\s()（）]+) 需");
+	private static readonly Regex StatEffect = new Regex(@"^(\S.*?) ([+-]?\d+)$");
+	private static readonly Dictionary<string, List<StoryUse>> Stats = new Dictionary<string, List<StoryUse>>(StringComparer.Ordinal);
+
+	/// <summary>剧本里判定过、改过的数值名（简体，条件里的写法，如「心相」「技能_南宫护心诀」）；剧本还没读完为空。</summary>
+	public static IEnumerable<string> StatNames => Ensure() ? Stats.Keys.ToList() : new List<string>();
+
+	/// <summary>剧本还没读完返回 null。</summary>
+	public static List<StoryUse> Stat(string name) => Ensure() ? Stats.TryGetValue(name, out var list) ? list : new List<StoryUse>() : null;
+
 	// 好感（按人名，简体）：只收判定的地方（分支判定、选项条件、任务触发条件）
 	private static readonly Dictionary<string, List<StoryUse>> Relations = new Dictionary<string, List<StoryUse>>(StringComparer.Ordinal);
 
@@ -76,6 +87,7 @@ public static class StoryUsage
 		Flags.Clear();
 		Items.Clear();
 		Relations.Clear();
+		Stats.Clear();
 		Dictionary<string, string> itemNames = ItemNames();
 		var seen = new HashSet<string>(StringComparer.Ordinal);
 		foreach (StoryScript script in StoryScripts.All)
@@ -107,6 +119,17 @@ public static class StoryUsage
 				use.Detail = add && amount > 1 ? "×" + amount : !add && amount > 0 ? "×" + amount : "";
 				Add(Items, ItemKey(type, id), use, seen);
 			}
+			foreach (var (path, text) in script.Effects)
+			{
+				Match m = StatEffect.Match(text.Trim());
+				// 好感另有反查；「暂存」是剧本里临时用的
+				if (!m.Success || m.Groups[1].Value.Contains("好感") || m.Groups[1].Value.Contains("暂存") || m.Groups[1].Value.Contains("合计"))
+				{
+					continue;
+				}
+				string amount = m.Groups[2].Value;
+				Add(Stats, m.Groups[1].Value, new StoryUse { Script = script.Name, Mission = mission, Path = path, Changes = true, Kind = "改", Detail = amount.StartsWith("-") || amount.StartsWith("+") ? amount : "+" + amount }, seen);
+			}
 			foreach (var (path, checkpoint, isSwitch) in script.Checks)
 			{
 				IEnumerable<string> texts = isSwitch
@@ -135,7 +158,7 @@ public static class StoryUsage
 				AddConditions(text, "触发条件", new StoryUse { Script = mission.StartScript, Mission = mission }, itemNames, seen);
 			}
 		}
-		FileLogger.Log($"[剧情回顾] 旗标、物品反查：{Flags.Count} 面旗标、{Items.Count} 件物品，用时 {timer.ElapsedMilliseconds} 毫秒");
+		FileLogger.Log($"[剧情回顾] 旗标、物品反查：{Flags.Count} 面旗标、{Items.Count} 件物品、{Stats.Count} 项数值，用时 {timer.ElapsedMilliseconds} 毫秒");
 	}
 
 	// 一段条件文字里每个用到旗标、物品的小条件各记一处（同一处同一个旗标只记一次）
@@ -161,6 +184,17 @@ public static class StoryUsage
 			foreach (Match m in RelationInCondition.Matches(clause))
 			{
 				Add(Relations, TextConverter.ToSimplified(m.Groups[1].Value), Copy(template, kind, shown), seen);
+			}
+			foreach (Match m in StatInCondition.Matches(clause))
+			{
+				string name = TextConverter.ToSimplified(m.Groups[1].Value);
+				// 旗标编号、好感、物品、时间、掷骰另有反查或不用查
+				if (Regex.IsMatch(name, @"^[A-Za-z0-9_]+$") || name.StartsWith("好感度_") || name.StartsWith("时间_") || name.StartsWith("随机值") || name.StartsWith("旗标")
+					|| Regex.IsMatch(name, @"^(书籍|杂物|贵重品)_") || name.Contains("暂存"))
+				{
+					continue;
+				}
+				Add(Stats, name, Copy(template, kind, shown), seen);
 			}
 			foreach (Match m in ItemInCondition.Matches(clause))
 			{

@@ -36,7 +36,327 @@ public static class AiItems
 		{
 			AppendUpgrade(sb, u, upgrades);
 		}
-		return sb.Length > 0 ? sb.ToString() : "没有叫「" + query + "」的物品或开发项目。换个说法（游戏里显示的名字），或者用 search 搜剧情。";
+		foreach (PlayerTalentData t in Resources.FindObjectsOfTypeAll<PlayerTalentData>().Where(t => t != null && Text(t.GetIdKey()).Contains(q)).GroupBy(t => t.Id).Select(g => g.First()).Take(4))
+		{
+			AppendTalent(sb, t, upgrades);
+		}
+		return sb.Length > 0 ? sb.ToString() : "没有叫「" + query + "」的物品、开发项目或天赋。换个说法（游戏里显示的名字），或者用 search 搜剧情。";
+	}
+
+	// ---------- 武学秘笈 ----------
+
+	private static string RefName(MartialStatReference r)
+	{
+		if (r == null)
+		{
+			return "";
+		}
+		string name = Text(r.GetNameKey());
+		return name.Length > 0 ? name : TextConverter.ToSimplified(r.StatType.ToString());
+	}
+
+	private static string ModifyText(MartialModifyStat m) =>
+		RefName(m.Stat) + " " + Signed(m.ModifyValue) + (m.Center ? "（往 50 靠拢，最多改这么多）" : "");
+
+	private static void AppendMartial(StringBuilder sb, Book book)
+	{
+		var factions = (book.MartialFaction ?? new MartialFactionType[0]).Where(f => f != MartialFactionType.無).Select(f => TextConverter.ToSimplified(f.ToString())).ToArray();
+		sb.Append("武学：").Append(TextConverter.ToSimplified(book.MartialType.ToString())).Append(factions.Length > 0 ? "，" + string.Join("、", factions) + "的功夫" : "")
+			.Append(book.Complete ? "" : "，残篇（凑齐后合成完整秘笈 " + book.CompleteId + "）").Append("，共 ").Append(book.MaxLevel).Append(" 级");
+		if (InGame())
+		{
+			sb.Append("；这一局练到第 ").Append(book.CurrentMartialLevel).Append(" 级").Append(book.IsMaxLevel ? "（已满）" : "，这一级已投 " + book.CurrentLevelPoints + " 点");
+		}
+		sb.Append('\n');
+		MartialLevelData[] levels = book.LevelData ?? new MartialLevelData[0];
+		for (int i = 0; i < levels.Length; i++)
+		{
+			MartialLevelData lv = levels[i];
+			if (lv == null)
+			{
+				continue;
+			}
+			sb.Append("- 第 ").Append(i + 1).Append(" 级：要 ").Append(lv.Points).Append(" 点");
+			var groups = new List<string>();
+			foreach (MartialLearnCompareGroup g in lv.Condition?.List ?? new List<MartialLearnCompareGroup>())
+			{
+				var items = (g.ItemList ?? new MartialLearnCompareItem[0]).Where(c => c?.Stat != null)
+					.Select(c => RefName(c.Stat) + " " + DataHelper.GetCompareOperator(c.CompareOp) + c.Value).ToArray();
+				if (items.Length > 0)
+				{
+					groups.Add(items.Length > 1 ? "（" + string.Join(" 或 ", items) + "）" : items[0]);
+				}
+			}
+			if (groups.Count > 0)
+			{
+				sb.Append("，修练条件 ").Append(string.Join(" 且 ", groups.ToArray()));
+			}
+			var up = (lv.LevelUpStat ?? new List<MartialModifyStat>()).Where(m => m?.Stat != null).Select(ModifyText).ToArray();
+			if (up.Length > 0)
+			{
+				sb.Append("，练成时 ").Append(string.Join("、", up));
+			}
+			foreach (MartialLearnConsumable c in lv.ConsumableList ?? new List<MartialLearnConsumable>())
+			{
+				var cost = (c.ConsumableList ?? new List<MartialModifyStat>()).Where(m => m?.Stat != null).Select(ModifyText).ToArray();
+				if (cost.Length > 0)
+				{
+					sb.Append("，每次修练消耗 ").Append(string.Join(c.LogicType == LogicOperatorType.OR ? " 或 " : "、", cost));
+				}
+			}
+			sb.Append('\n');
+		}
+		var related = (book.RelationStatConvert ?? new BookLevelStatConvertData[0]).Where(r => r != null).Select(r => Text(r.GetNameKey())).Where(n => n.Length > 0).Distinct().ToArray();
+		if (related.Length > 0)
+		{
+			sb.Append("等级越高加成越多的：").Append(string.Join("、", related)).Append('\n');
+		}
+	}
+
+	// ---------- 天赋 ----------
+
+	private static void AppendTalent(StringBuilder sb, PlayerTalentData t, List<UpgradeItemData> upgrades)
+	{
+		string name = Text(t.GetIdKey());
+		sb.Append("\n【天赋「").Append(name).Append("」】最高 ").Append(t.GetFieldValue<int>("_maxLevel")).Append(" 级")
+			.Append(t.CombatSkill ? "，决斗里能用的技能" : "").Append(t.BattleSkill ? "，战役里能用的技能" : "");
+		if (InGame())
+		{
+			sb.Append("；这一局 ").Append(t.Level > 0 ? "有，" + t.Level + " 级" : "还没有");
+		}
+		sb.Append('\n');
+		string desc = Text(t.GetDescKey());
+		if (desc.Length > 0)
+		{
+			sb.Append("说明：").Append(desc).Append('\n');
+		}
+		var from = new List<string>();
+		foreach (Book book in Resources.FindObjectsOfTypeAll<Book>().Where(b => b != null && b.IsMartial).GroupBy(b => b.Id).Select(g => g.First()))
+		{
+			MartialLevelData[] levels = book.LevelData ?? new MartialLevelData[0];
+			for (int i = 0; i < levels.Length; i++)
+			{
+				MartialModifyStat hit = (levels[i]?.LevelUpStat ?? new List<MartialModifyStat>()).FirstOrDefault(m => m?.Stat != null && m.Stat.StatType == MartialLevelupStatType.天賦 && RefName(m.Stat) == name);
+				if (hit != null)
+				{
+					from.Add("秘笈「" + Name(book) + "」练到第 " + (i + 1) + " 级（" + Signed(hit.ModifyValue) + "）");
+				}
+			}
+		}
+		foreach (UpgradeItemData u in upgrades)
+		{
+			UpgradeItemLevel[] levels = u.UpgradeLevels ?? new UpgradeItemLevel[0];
+			for (int i = 0; i < levels.Length; i++)
+			{
+				PlayerTalentData[] talents = levels[i]?.GetFieldValue<PlayerTalentData[]>("_talents") ?? new PlayerTalentData[0];
+				if (talents.Any(x => x != null && x.Id == t.Id))
+				{
+					from.Add("开发项目「" + Name(u) + "」练到第 " + (i + 1) + " 级");
+				}
+			}
+		}
+		sb.Append(from.Count > 0 ? "从哪来：" + string.Join("；", from.Distinct().ToArray()) + "\n" : "")
+			.Append("剧情里在哪给、在哪判定：用 usage 查「").Append(name).Append("」\n");
+	}
+
+	/// <summary>四师兄的商店：现在架上有什么（价格、剩几个、吃了加什么），以及之后哪个月会进什么新货。</summary>
+	public static string Shop()
+	{
+		if (!InGame())
+		{
+			return "玩家还没读档进游戏，看不到商店。";
+		}
+		ShopDatabase db = ShopDatabase.Instance;
+		if (db == null || db.Miscs == null)
+		{
+			return "商店还没进货（进过一次唐门、开过一次商店后才有）。";
+		}
+		var sb = new StringBuilder("【四师兄的商店，现在架上】（价格是原价，好感、身份会打折）\n");
+		void Section(string title, List<ShopItem> list)
+		{
+			var rows = (list ?? new List<ShopItem>()).Where(s => s?.Data != null && s.Count > 0).ToList();
+			if (rows.Count == 0)
+			{
+				return;
+			}
+			sb.Append(title).Append("：\n");
+			foreach (ShopItem s in rows)
+			{
+				sb.Append("- ").Append(Name(s.Data)).Append("，").Append(s.Data.Cost).Append(" 两，剩 ").Append(s.Count).Append(" 个");
+				string effect = Effect(s.Data);
+				if (effect.Length > 0)
+				{
+					sb.Append("｜").Append(effect);
+				}
+				sb.Append('\n');
+			}
+		}
+		Section("杂物", db.Miscs);
+		Section("消耗品", db.Consumables);
+		Section("书籍", db.Books);
+		Section("贵重品", db.Specials);
+		GameTime now = PlayerStatManagerData.Instance.GameTime;
+		var later = Resources.FindObjectsOfTypeAll<ShopItemTimeData>()
+			.Where(t => t != null && t.ItemData != null && !t.IsTrigger && (t.Year > now.Year || (t.Year == now.Year && t.Month > now.Month)))
+			.OrderBy(t => t.Year).ThenBy(t => t.Month).Take(8).ToList();
+		if (later.Count > 0)
+		{
+			sb.Append("之后会进的新货：\n");
+			foreach (ShopItemTimeData t in later)
+			{
+				ShopItemsData d = t.ItemData;
+				var names = (d.Books ?? new ShopItem[0]).Concat(d.Miscs ?? new ShopItem[0]).Concat(d.Specials ?? new ShopItem[0]).Concat(d.Consumables ?? new ShopItem[0])
+					.Where(s => s?.Data != null).Select(s => Name(s.Data)).Where(n => n.Length > 0).Distinct().ToArray();
+				if (names.Length > 0)
+				{
+					sb.Append("- 第").Append(t.Year).Append("年").Append(t.Month).Append("月").Append(t.CheckMissionStat ? "（还要看任务进度）" : "").Append("：").Append(string.Join("、", names)).Append('\n');
+				}
+			}
+		}
+		return sb.ToString();
+	}
+
+	/// <summary>
+	/// 门派经营：门派规模、资产、名声、人数、向心力，各设施的等级、每旬收入和每旬加减的数值（设施等级是一面旗标，剧情里升级，用 usage 查在哪升）。
+	/// 每旬结束时（行动次数用完进下一旬）所有开着的设施把收入加进门派资产，再结算各自的数值变化。
+	/// </summary>
+	public static string Sect()
+	{
+		PlayerStatManagerData player = PlayerStatManagerData.Instance;
+		if (!InGame() || player == null)
+		{
+			return "玩家还没读档进游戏，看不到门派。";
+		}
+		var sb = new StringBuilder("【门派】");
+		var shown = new List<string>();
+		foreach (GameStatType t in new[] { GameStatType.門派規模, GameStatType.門派資產, GameStatType.門派名聲, GameStatType.門派人數, GameStatType.向心力 })
+		{
+			try
+			{
+				GameStat stat = player.Stats.Get(t);
+				if (stat != null)
+				{
+					shown.Add(StatName(stat) + " " + stat.FinalValue);
+				}
+			}
+			catch
+			{
+			}
+		}
+		sb.Append(string.Join("，", shown.ToArray())).Append("\n门派规模决定开发项目能不能开（开发项目的「门派规模要求」），在剧情里提升，用 usage 查「门派规模」看在哪加。\n");
+		FacilityConfigData config = player.GetFieldValue<FacilityConfigData>("_facility");
+		FacilityItemData[] facilities = config?.Data ?? new FacilityItemData[0];
+		if (facilities.Length == 0)
+		{
+			return sb.ToString();
+		}
+		sb.Append("设施（每旬结束时，开着的设施把收入加进门派资产，并结算下面的数值变化）：\n");
+		foreach (FacilityItemData f in facilities.Where(f => f != null))
+		{
+			FlagData levelFlag = f.GetFieldValue<FlagData>("_level");
+			FacilityLevelData[] levels = f.GetFieldValue<FacilityLevelData[]>("_levelData") ?? new FacilityLevelData[0];
+			int level = levelFlag != null ? levelFlag.State : 0;
+			string name = Text(f.GetNameKey());
+			sb.Append("\n「").Append(name.Length > 0 ? name : f.name).Append("」现在 ").Append(level > 0 ? level + " 级" : "还没建").Append("（共 ").Append(levels.Length).Append(" 级")
+				.Append(levelFlag != null ? "，等级记在旗标 " + levelFlag.name + "，用 usage 查它在哪升级" : "").Append("）");
+			if (level > 0)
+			{
+				sb.Append("，这一旬收入 ").Append(f.GetTotalIncome());
+				string effect = Text(f.GetEffectKey());
+				if (effect.Length > 0)
+				{
+					sb.Append("；效果：").Append(effect);
+				}
+			}
+			sb.Append('\n');
+			for (int i = 0; i < levels.Length; i++)
+			{
+				if (levels[i] == null)
+				{
+					continue;
+				}
+				string mods = Modifies(levels[i].ModifyData);
+				sb.Append("- ").Append(i + 1).Append(" 级：每旬收入 ").Append(levels[i].BaseIncome).Append(mods.Length > 0 ? "，每旬 " + mods : "").Append('\n');
+			}
+			foreach (FacilityAdditionData add in f.GetFieldValue<FacilityAdditionData[]>("_additionData") ?? new FacilityAdditionData[0])
+			{
+				if (add == null)
+				{
+					continue;
+				}
+				FlagData flag = add.GetFieldValue<FlagData>("_flag");
+				string note = AiKnowledge.Clean(TextConverter.ToSimplified(add.GetFieldValue<string>("_note") ?? ""));
+				string mods = Modifies(add.ModifyItem);
+				sb.Append("- 追加").Append(note.Length > 0 ? "「" + note + "」" : "").Append(add.IsActive() ? "（已开）" : "（没开）")
+					.Append(flag != null ? "，要旗标 " + DataHelper.GetFlagName(flag) + " (" + flag.name + ")" : "")
+					.Append("：收入 +").Append(add.Income).Append(add.RateIncome != 0f ? "、总收入 +" + Mathf.RoundToInt(add.RateIncome * 100) + "%" : "")
+					.Append(mods.Length > 0 ? "，每旬 " + mods : "").Append('\n');
+			}
+		}
+		return sb.ToString();
+	}
+
+	private static string StatName(GameStat stat) => AiKnowledge.Clean(TextConverter.ToSimplified(string.IsNullOrEmpty(stat.Name) ? stat.StatType.ToString() : stat.Name));
+
+	private static string Modifies(FacilityModifyItem[] items)
+	{
+		var parts = new List<string>();
+		foreach (FacilityModifyItem m in items ?? new FacilityModifyItem[0])
+		{
+			if (m == null)
+			{
+				continue;
+			}
+			var one = new List<string>();
+			foreach (FacilityModifyStatItem s in m.Stat ?? new FacilityModifyStatItem[0])
+			{
+				if (s?.Data != null)
+				{
+					one.Add(StatName(s.Data) + " " + Signed(s.Value));
+				}
+			}
+			foreach (FacilityModifyRelationshipItem r in m.Relationship ?? new FacilityModifyRelationshipItem[0])
+			{
+				if (r?.Data != null)
+				{
+					one.Add(TextConverter.ToSimplified(r.Data.Type.ToString()) + "好感 " + Signed(r.Value));
+				}
+			}
+			foreach (FacilityModifyFlagItem f in m.Flag ?? new FacilityModifyFlagItem[0])
+			{
+				if (f?.Data != null)
+				{
+					one.Add(AiKnowledge.Clean(DataHelper.GetFlagName(f.Data)) + " (" + f.Data.name + ") " + Signed(f.Value));
+				}
+			}
+			int random = m.GetFieldValue<int>("_randomCount");
+			if (one.Count > 0)
+			{
+				parts.Add(random > 0 ? "从「" + string.Join("、", one.ToArray()) + "」里随机 " + random + " 项" : string.Join("、", one.ToArray()));
+			}
+		}
+		return string.Join("；", parts.ToArray());
+	}
+
+	private static string Signed(int v) => v >= 0 ? "+" + v : v.ToString();
+
+	// 背包说明里的「使用效果：……」那一行（吃喝、使用时一并发生的数值变化）
+	private static string Effect(ItemData item)
+	{
+		if (item.ItemType == GameItemType.書籍)
+		{
+			return "";
+		}
+		try
+		{
+			string uses = TextConverter.ToSimplified(ItemUsePatch.Uses(item));
+			string line = uses.Split('\n').FirstOrDefault(l => l.StartsWith("使用效果")) ?? "";
+			return AiKnowledge.Clean(line);
+		}
+		catch
+		{
+			return "";
+		}
 	}
 
 	private static string Text(string key)
@@ -83,6 +403,10 @@ public static class AiItems
 		if (desc.Length > 0)
 		{
 			sb.Append("说明：").Append(desc).Append('\n');
+		}
+		if (item is Book book && book.IsMartial)
+		{
+			AppendMartial(sb, book);
 		}
 		// 使用效果、剧情里判定、收走（同背包说明里的「用途」）
 		string uses = TextConverter.ToSimplified(ItemUsePatch.Uses(item)).Trim();
@@ -165,7 +489,7 @@ public static class AiItems
 		string kind = UpgradeType(u.ItemType);
 		string where = u.ItemType == UpgradeItemType.毒術 ? "制毒" : u.ItemType == UpgradeItemType.煉丹 ? "炼丹" : "铁铺（锻冶）";
 		sb.Append("\n【开发项目「").Append(Name(u)).Append("」】").Append(where).Append(" · ").Append(kind)
-			.Append("；门派规模要求 ").Append(u.RequiredSectLevel).Append("；每点花 ").Append(u.CostMoney).Append(" 门派资产\n");
+			.Append("；门派规模要求 ").Append(u.RequiredSectLevel).Append("；每投 1 点开发点数花 ").Append(u.CostMoney).Append(" 两银子\n");
 		string desc = Text(u.GetDescKey());
 		if (desc.Length > 0)
 		{

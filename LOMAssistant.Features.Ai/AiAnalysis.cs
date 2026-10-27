@@ -53,7 +53,43 @@ public static class AiAnalysis
 				.Append(AiKnowledge.FlagNow(id) is int now ? "；这一局现在 = " + now : "").Append('\n');
 			AppendUses(sb, uses.OrderByDescending(u => u.Changes));
 		}
-		return sb.Length > 0 ? sb.ToString() : "没找到「" + name + "」的旗标或好感判定。换个说法（旗标说明里的词、人名），或者先用 search。";
+		// 数值、技能、天赋：名字完全相同的优先，其次是包含这几个字的（「南宫护心诀」找到「技能_南宫护心诀」）
+		string bare = Regex.Replace(q, @"^(技能|天赋)[_·:：]?", "");
+		var stats = StoryUsage.StatNames.Where(n => n == q || n == "技能_" + bare || n == "天赋_" + bare).ToList();
+		if (stats.Count == 0 && bare.Length >= 2)
+		{
+			stats = StoryUsage.StatNames.Where(n => n.Contains(bare)).OrderBy(n => n.Length).Take(3).ToList();
+		}
+		foreach (string stat in stats)
+		{
+			AppendStat(sb, stat);
+		}
+		return sb.Length > 0 ? sb.ToString() : "没找到「" + name + "」的旗标、数值、技能或好感判定。换个说法（旗标说明里的词、数值名、人名），或者先用 search。";
+	}
+
+	// 数值改的地方往往上百处：判定的地方全列，改的地方按任务合计（每个任务列出加减了哪些数）
+	private static void AppendStat(StringBuilder sb, string stat)
+	{
+		List<StoryUse> uses = StoryUsage.Stat(stat) ?? new List<StoryUse>();
+		var checks = uses.Where(u => !u.Changes).ToList();
+		var changes = uses.Where(u => u.Changes).ToList();
+		sb.Append("\n【数值「").Append(stat).Append("」】判定的地方 ").Append(checks.Count).Append(" 处，改的地方 ").Append(changes.Count).Append(" 处（这一局现在的值用 player_state 看）\n");
+		AppendUses(sb, checks);
+		if (changes.Count > 0)
+		{
+			sb.Append("改的地方（按任务，同一任务分岔互斥，不能直接加起来）：\n");
+			int n = 0;
+			foreach (var g in changes.GroupBy(u => u.Mission))
+			{
+				if (++n > MaxUses)
+				{
+					sb.Append("- ……还有更多任务，没列完\n");
+					break;
+				}
+				string where = g.Key != null ? "任务 " + g.Key.Key + "「" + AiKnowledge.Clean(g.Key.Title) + "」" + (g.Key.When.Length > 0 ? " " + AiKnowledge.Clean(g.Key.When) : "") : "地点事件、随机事件等（剧本 " + string.Join("、", g.Select(u => u.Script).Distinct().Take(4).ToArray()) + "）";
+				sb.Append("- ").Append(where).Append("：").Append(string.Join("、", g.Select(u => u.Detail).Distinct().Take(8).ToArray())).Append('\n');
+			}
+		}
 	}
 
 	private static string FlagName(string id)
