@@ -114,7 +114,7 @@ public partial class StoryReviewPanel
 		GUI.Label(new Rect(x + S(10), r.y, r.xMax - x - S(10), h), save.Status(), Middle(_muted));
 		GUI.Label(new Rect(r.x, r.y + S(42), r.width, S(28)),
 			ConfigManager.AnytimeSaveLimit.Value > 0
-				? $"共 {saves.Count} 个，最多保留 {ConfigManager.AnytimeSaveLimit.Value} 个，超过自动删最旧的（设置页可改）。鼠标停在存档上看当时的剧情和对白。"
+				? $"共 {saves.Count} 个，最多保留 {ConfigManager.AnytimeSaveLimit.Value} 个，超过自动删最旧的，有备注的不删（设置页可改）。鼠标停在存档上看当时的剧情和对白。"
 				: $"共 {saves.Count} 个，不自动删（设置页可设上限）。鼠标停在存档上看当时的剧情和对白。", _muted);
 
 		// 筛选：全部 / 剧情 / 养成 / 有备注

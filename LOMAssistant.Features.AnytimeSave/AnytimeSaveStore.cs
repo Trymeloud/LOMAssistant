@@ -222,14 +222,15 @@ public partial class AnytimeSave
 		summaries.RemoveAll(s => s.file == name);
 		summaries.Add(Summarize(data, name));
 		Sort();
-		// 0 = 不限，不自动删
+		// 0 = 不限，不自动删；有备注的是玩家特意留的，不删也不算进上限
 		int limit = ConfigManager.AnytimeSaveLimit.Value;
-		while (limit > 0 && summaries.Count > limit)
+		while (limit > 0 && summaries.Count(s => string.IsNullOrEmpty(s.note)) > limit)
 		{
-			SaveSummary oldest = summaries[summaries.Count - 1];
+			int i = summaries.FindLastIndex(s => string.IsNullOrEmpty(s.note));
+			SaveSummary oldest = summaries[i];
 			DeleteFiles(oldest.file);
-			summaries.RemoveAt(summaries.Count - 1);
-			FileLogger.Log("[随时存档] 超过上限 " + limit + " 个，删掉最旧的 " + oldest.file);
+			summaries.RemoveAt(i);
+			FileLogger.Log("[随时存档] 超过上限 " + limit + " 个（有备注的不算），删掉最旧的 " + oldest.file);
 		}
 		WriteIndex();
 	}
