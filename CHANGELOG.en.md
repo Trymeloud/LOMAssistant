@@ -2,6 +2,17 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.8 (2026-10-28)
+
+- **Save-anywhere saves still load after game updates**: before loading, each story script the save passed through is checked; only saves whose scripts were changed by an update can't be loaded (the list says why), and the rest load as usual. If a load still goes out of step, you get a notice and return to the title screen instead of a black screen.
+- **Save-anywhere ambient sound**: ambient sound that the story had already stopped no longer starts again after loading (for saves made with this version or later).
+- **Colored choice outcomes**: gains are green and losses red, on dialogue choices, dice checks, hover tips and in the Coffee Companion window.
+- **AI guide**: an empty chat offers a few starter questions to click; it sees which choices and destinations you have read, and recommends unread ones not yet taken this playthrough first; it tells who is speaking in the current dialogue.
+- **Break stat caps**: now also covers sword, hidden weapons, fist, Confucianism, Taoism and Buddhism.
+- **Save-anywhere limit**: only old saves without notes are deleted; saves with notes are kept and don't count toward the limit.
+- **Text boxes**: typing in a Coffee Companion text box no longer opens the backlog with L on the training map.
+- **Hover tips**: in Simplified and Traditional Chinese, text wraps by character width, and marks such as "）" and "，" no longer start a line.
+
 ## 3.0.7 (2026-10-27)
 
 - **Fixed battles being won the moment they start**: the Stats tab's "allow negative values" also affected enemy factions' health, so enemies fell as soon as they appeared. It now applies only to the hero's own stats.
