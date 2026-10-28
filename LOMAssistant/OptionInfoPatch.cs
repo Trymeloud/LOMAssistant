@@ -146,9 +146,20 @@ internal static class OptionInfoPatch
 		string note = OptionNote(key);
 		if (note.Length > 0)
 		{
-			__result = __result + TextConverter.ForDisplay("\n<size=16>(" + note + ")</size>");
+			__result = __result + TextConverter.ForDisplay("\n<size=16>(" + ColorDeltas(note) + ")</size>");
 		}
 	}
+
+	// 「嘴力 +1」「南宫浅好感 -2」「银两 +500」：加的绿色、减的红色（条件里的「需>=40」「=1」不算）
+	private static readonly Regex Delta = new Regex(@"(?<=^|[、；：:\s(（①-⑳])([^\s、；：:()（）<>=①-⑳]+?) ([+-]\d+)(?=$|[、；）)\s])");
+
+	// 对话选项是浅色底，绿要深一点才看得清；掷骰线路、悬停提示是深色底，换回浅绿（见 DiceNoWrap、悬停提示）
+	internal const string DeltaUpDark = "#3F7A25";
+
+	/// <summary>后果说明里的加减上色：加的绿、减的红。选项按钮、掷骰线路、悬停提示都用它；light 为深色底上用的浅绿。</summary>
+	internal static string ColorDeltas(string note, bool light = false) =>
+		string.IsNullOrEmpty(note) ? note : Delta.Replace(note, m => m.Groups[2].Value.StartsWith("-") ? RichText.Red(m.Value)
+			: light ? RichText.Green(m.Value) : "<color=" + DeltaUpDark + ">" + m.Value + "</color>");
 
 	/// <summary>
 	/// 一个选项的后果说明（不带括号、字号）：被锁的选项写真正的解锁条件和解锁后的效果；其余写选了会怎样，
@@ -325,6 +336,11 @@ internal static class OptionInfoPatch
 			// 标题照最大字号（28），说明往右写完，太长的由 DiceFitToScreen 缩小
 			foreach (TMPro.TMP_Text text in root.GetComponentsInChildren<TMPro.TMP_Text>(includeInactive: true))
 			{
+				// 掷骰线路是深色底：后果说明里加的那一项换回浅绿
+				if (text.text != null && text.text.Contains(DeltaUpDark))
+				{
+					text.text = text.text.Replace(DeltaUpDark, "#A3B86C");
+				}
 				text.enableWordWrapping = false;
 				text.overflowMode = TMPro.TextOverflowModes.Overflow;
 				if (text.enableAutoSizing)
@@ -729,7 +745,7 @@ internal sealed class OptionHoverHint : MonoBehaviour
 				top = Mathf.Max(top, RectTransformUtility.WorldToScreenPoint(cam, corners[2]).y);
 			}
 		}
-		var content = new GUIContent(TextConverter.ForDisplay(note));
+		var content = new GUIContent(TextConverter.ForDisplay(OptionInfoPatch.ColorDeltas(note, light: true)));
 		float width = Mathf.Min(Mathf.Max(max.x - min.x, 360f * scale), Screen.width - 16f * scale);
 		float height = _style.CalcHeight(content, width);
 		float x = Mathf.Clamp(min.x, 8f * scale, Screen.width - width - 8f * scale);

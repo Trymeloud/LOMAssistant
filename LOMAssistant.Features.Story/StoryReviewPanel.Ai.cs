@@ -385,6 +385,10 @@ public partial class StoryReviewPanel
 	private float _aiEvalAsked = -100f;
 	// 输入框的控件编号（画完输入框时记下），回车判断在画它之前，要靠它认
 	private int _aiInputId;
+
+	// 空对话里的预设问题（玩家最常问的几类），最多三个
+	private static readonly string[] AssistantStarters = { "这里应该怎么选？", "下一段主线之前，做什么养成比较好？", "现在能触发哪些支线和小剧情？" };
+	private static readonly string[] HeroineStarters = { "这里应该怎么选？", "怎样才能和你走得更近？", "你最近在忙些什么？" };
 	private float _aiRefocusLogged = -100f;
 	// 自己画的光标：闪烁从光标最后一次移动算起，打字、移动时一直亮着
 	private int _aiCaretIndex = -1;
@@ -1024,6 +1028,23 @@ public partial class StoryReviewPanel
 			// 等回答时点点点轮着动
 			string dots = new string('·', 1 + (int)(Time.realtimeSinceStartup * 2.5f) % 3);
 			GUILayout.Label(string.Format("{0} 正在想{1}", persona != null ? TextConverter.ForDisplay(persona.Name) : "AI", dots), _aiName);
+		}
+		// 还没说过话：给几个可以直接点的问题（按界面语言发出去）
+		if (shown.Count == 0 && !AiChat.Busy)
+		{
+			GUILayout.Space(S(12));
+			GUILayout.Label("可以这样问：", _muted);
+			foreach (string q in persona != null ? HeroineStarters : AssistantStarters)
+			{
+				GUILayout.BeginHorizontal();
+				if (GUILayout.Button(q, _button, GUILayout.ExpandWidth(false), Ctl()))
+				{
+					AiChat.Ask(TextConverter.ForDisplay(q));
+				}
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+				GUILayout.Space(S(6));
+			}
 		}
 		GUILayout.EndScrollView();
 		GUILayout.EndArea();

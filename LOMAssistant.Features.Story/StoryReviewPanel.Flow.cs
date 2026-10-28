@@ -673,7 +673,7 @@ public partial class StoryReviewPanel
 		{
 			GUILayout.BeginVertical(_card);
 			GUILayout.Label(Cached(exit, () => OnPaper(StoryScripts.Describe(exit)) + "<color=#A3302A>" + ReadMark(exit) + "</color>"), _rich);
-			string effects = Cached((exit, "效果"), () => string.Join("　", box.Last.EffectsOn(exit).ToArray()));
+			string effects = Cached((exit, "效果", PanelTheme.Dark), () => PanelDeltas(string.Join("　", box.Last.EffectsOn(exit).ToArray())));
 			if (effects.Length > 0)
 			{
 				GUILayout.Label(effects, _muted);

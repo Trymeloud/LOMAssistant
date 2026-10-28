@@ -120,7 +120,7 @@ public partial class StoryReviewPanel
 				GUILayout.Label(way, _rich);
 				if (effects.Length > 0)
 				{
-					GUILayout.Label(effects, _muted);
+					GUILayout.Label(Cached((way, effects, PanelTheme.Dark), () => PanelDeltas(effects)), _muted);
 				}
 				GUILayout.EndVertical();
 			}

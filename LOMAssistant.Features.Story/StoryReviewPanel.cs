@@ -732,6 +732,19 @@ public partial class StoryReviewPanel : MonoBehaviour
 	private readonly Dictionary<object, string> _texts = new Dictionary<object, string>();
 	private int _textsAtlas = -1, _textsNodes = -1;
 
+	// 「嘴力 +1」「心相 -30」：加的玉绿、减的朱砂（跟着浅色、深色主题），条件里的「需>=40」「=1」不算
+	private static readonly System.Text.RegularExpressions.Regex PanelDelta = new System.Text.RegularExpressions.Regex(@"(?<=^|[、；：:\s(（①-⑳])([^\s、；：:()（）<>=①-⑳]+?) ([+-]\d+)(?=$|[、；）)\s])");
+
+	private static string PanelDeltas(string text)
+	{
+		if (string.IsNullOrEmpty(text))
+		{
+			return text;
+		}
+		string up = "#" + ColorUtility.ToHtmlStringRGB(Jade), down = "#" + ColorUtility.ToHtmlStringRGB(Cinnabar);
+		return PanelDelta.Replace(text, m => "<color=" + (m.Groups[2].Value.StartsWith("-") ? down : up) + ">" + m.Value + "</color>");
+	}
+
 	private string Cached(object key, Func<string> make)
 	{
 		if (_textsAtlas != StoryAtlas.Version || _textsNodes != StoryNodes.Version)
