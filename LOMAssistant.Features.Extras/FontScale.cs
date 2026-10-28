@@ -14,12 +14,14 @@ namespace LOMAssistant.Features.Extras;
 /// 普通文字（UnityEngine.UI.Text）在排版时先取一份排版参数，在这里把字号乘上比例，不改组件本身记的字号，100% 就完全是原样。
 /// TextMeshPro 的文字没有这一步，启用时记下原字号再改它的字号，比例改回 100% 时换回原字号。
 /// 本 Mod 自己的窗口是 IMGUI 画的，不受影响。放大太多界面可能放不下，字会挤出框。
+/// 放大以后格子正好装下的数字（六维、锻造等级等）会被折成两行，原版设成超出就截掉，结果整个数字不见了：
+/// 放大时不截，超出格子照样画出来；没有空格的短文字（数字、一个词）不折行。
 /// </summary>
 public static class FontScale
 {
 	private static int _appliedDialogue = 100, _appliedGame = 100;
 	private static readonly Dictionary<int, bool> Dialogue = new Dictionary<int, bool>();
-	private static readonly Dictionary<int, (float Size, float Min, float Max)> TmpBase = new Dictionary<int, (float, float, float)>();
+	private static readonly Dictionary<int, (float Size, float Min, float Max, TextOverflowModes Overflow)> TmpBase = new Dictionary<int, (float, float, float, TextOverflowModes)>();
 
 	private static float DialogueFactor => Mathf.Clamp(ConfigManager.FontScale.Value, 50, 200) / 100f;
 	private static float GameFactor => Mathf.Clamp(ConfigManager.GameFontScale.Value, 50, 200) / 100f;
@@ -89,6 +91,32 @@ public static class FontScale
 		__result.fontSize = Mathf.Max(1, Mathf.RoundToInt(__result.fontSize * factor));
 		__result.resizeTextMinSize = Mathf.Max(1, Mathf.RoundToInt(__result.resizeTextMinSize * factor));
 		__result.resizeTextMaxSize = Mathf.Max(1, Mathf.RoundToInt(__result.resizeTextMaxSize * factor));
+		if (factor > 1f)
+		{
+			// 放大后装不下时不截掉（截掉的是整行，数字就没了）；数字、单个词不折行
+			__result.verticalOverflow = VerticalWrapMode.Overflow;
+			if (IsShort(__instance.text))
+			{
+				__result.horizontalOverflow = HorizontalWrapMode.Overflow;
+			}
+		}
+	}
+
+	// 没有空白的短文字：数字、「Lv.3」、一个词
+	private static bool IsShort(string text)
+	{
+		if (string.IsNullOrEmpty(text) || text.Length > 12)
+		{
+			return false;
+		}
+		foreach (char c in text)
+		{
+			if (char.IsWhiteSpace(c))
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	[HarmonyPostfix]
@@ -116,8 +144,15 @@ public static class FontScale
 			{
 				return;
 			}
-			original = (text.fontSize, text.fontSizeMin, text.fontSizeMax);
+			original = (text.fontSize, text.fontSizeMin, text.fontSizeMax, text.overflowMode);
 			TmpBase[id] = original;
+		}
+		// 放大时超出框的不截掉、不变省略号；回到 100% 换回原来的
+		bool clips = original.Overflow == TextOverflowModes.Truncate || original.Overflow == TextOverflowModes.Ellipsis;
+		TextOverflowModes overflow = factor > 1f && clips ? TextOverflowModes.Overflow : original.Overflow;
+		if (text.overflowMode != overflow)
+		{
+			text.overflowMode = overflow;
 		}
 		float size = original.Size * factor;
 		if (Mathf.Approximately(text.fontSize, size))

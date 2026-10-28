@@ -159,7 +159,7 @@ internal static class OptionInfoPatch
 
 	/// <summary>后果说明里的加减上色：加的绿、减的红。选项按钮、掷骰线路、悬停提示都用它；light 为深色底上用的浅绿、浅红。</summary>
 	internal static string ColorDeltas(string note, bool light = false) =>
-		string.IsNullOrEmpty(note) ? note : Delta.Replace(note, m => m.Groups[2].Value.StartsWith("-")
+		string.IsNullOrEmpty(note) || !ConfigManager.ColorOptionDeltas.Value ? note : Delta.Replace(note, m => m.Groups[2].Value.StartsWith("-")
 			? light ? RichText.Red(m.Value) : "<color=" + DeltaDownDark + ">" + m.Value + "</color>"
 			: light ? RichText.Green(m.Value) : "<color=" + DeltaUpDark + ">" + m.Value + "</color>");
 
@@ -757,5 +757,41 @@ internal sealed class OptionHoverHint : MonoBehaviour
 			y = Screen.height - top - height - 4f * scale;
 		}
 		GUI.Box(new Rect(x, y, width, height), content, PanelTheme.Sync(_style));
+	}
+}
+
+/// <summary>
+/// 选项后果的加减默认用深绿、深红（浅色选项底上看得清）。同一句话也会出现在深色底上（暗场景的选项、养成地图的行程表），
+/// 那里的字本身是浅色的：文字设成浅色字时，把深绿、深红换成浅绿、浅红。按字本身的颜色判断底色，不用逐个界面去认。
+/// </summary>
+[HarmonyPatch]
+internal static class DeltaColorFit
+{
+	private const string UpLight = "#A3B86C", DownLight = "#CD594A";
+
+	private static bool LightText(Color c) => 0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b > 0.5f;
+
+	private static string Fit(string value, Color color)
+	{
+		if (value == null || value.IndexOf("<color=#", StringComparison.Ordinal) < 0 || !LightText(color)
+			|| (value.IndexOf(OptionInfoPatch.DeltaUpDark, StringComparison.Ordinal) < 0 && value.IndexOf(OptionInfoPatch.DeltaDownDark, StringComparison.Ordinal) < 0))
+		{
+			return value;
+		}
+		return value.Replace(OptionInfoPatch.DeltaUpDark, UpLight).Replace(OptionInfoPatch.DeltaDownDark, DownLight);
+	}
+
+	[HarmonyPrefix]
+	[HarmonyPatch(typeof(Text), nameof(Text.text), MethodType.Setter)]
+	private static void Text_Prefix(Text __instance, ref string value)
+	{
+		value = Fit(value, __instance.color);
+	}
+
+	[HarmonyPrefix]
+	[HarmonyPatch(typeof(TMPro.TMP_Text), nameof(TMPro.TMP_Text.text), MethodType.Setter)]
+	private static void Tmp_Prefix(TMPro.TMP_Text __instance, ref string value)
+	{
+		value = Fit(value, __instance.color);
 	}
 }

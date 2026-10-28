@@ -737,7 +737,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 
 	private static string PanelDeltas(string text)
 	{
-		if (string.IsNullOrEmpty(text))
+		if (string.IsNullOrEmpty(text) || !ConfigManager.ColorOptionDeltas.Value)
 		{
 			return text;
 		}

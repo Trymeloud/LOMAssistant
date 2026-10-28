@@ -659,6 +659,7 @@ public static class UiTextEnglish
 		["总是"] = "Always",
 		["不出"] = "Never",
 		["选项后果"] = "Option results",
+		["选项后果加减上色"] = "Color gains and losses in option results",
 		["总是显示"] = "Always",
 		["鼠标悬停"] = "Hover",
 		["不显示"] = "Never",
@@ -802,6 +803,7 @@ public static class UiTextEnglish
 	public static readonly Dictionary<string, string> Descriptions = new Dictionary<string, string>
 	{
 		["EnableOptionInfo"] = "Option hints (results and unlock conditions), place event hints and the check log in the backlog.",
+		["ColorOptionDeltas"] = "Gains in option results are green and losses red (dialogue options, dice checks, hover tips and the Coffee Companion window). When off, they use the same color as the rest of the text.",
 		["OptionResultMode"] = "What each dialogue option will do and its unlock conditions: always shown / only when hovered or selected with a gamepad / never.",
 		["LockedStats"] = "Stats locked on the stats tab (recorded when you click a lock): stat names, comma separated. Clear it to unlock all.",
 		["EventRules"] = "「Always」 and 「Never」 for random events (recorded when you click them in the event picker): event ID=1 always, =2 never, semicolon separated. Clear it to remove all.",

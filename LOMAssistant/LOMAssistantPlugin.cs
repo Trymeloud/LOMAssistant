@@ -105,6 +105,7 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 			if (ConfigManager.EnableOptionInfo.Value)
 			{
 				TryPatchAll(typeof(OptionInfoPatch));
+				TryPatchAll(typeof(DeltaColorFit));
 				OptionHoverHint.Ensure(base.gameObject);
 				LogInfo("选项信息补丁已应用。");
 			}

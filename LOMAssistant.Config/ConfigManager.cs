@@ -161,6 +161,7 @@ public static class ConfigManager
 
 	public static ConfigElement<bool> PresetChooserShown;
 	public static ConfigElement<int> OptionResultMode;
+	public static ConfigElement<bool> ColorOptionDeltas;
 
 	public static ConfigElement<int> AnytimeSaveLimit;
 
@@ -423,6 +424,7 @@ public static class ConfigManager
 		LockedStats = new ConfigElement<string>("LockedStats", "数值页锁住的数值（在数值页点锁，自动记录）：数值名，逗号隔开。清空就全部解锁", "");
 		EventRules = new ConfigElement<string>("EventRules", "随机事件的「总是」「不出」（在随机事件选择框里点，自动记录）：事件编号=1 总是触发、=2 不出，分号隔开。清空就全部取消", "");
 		OptionResultMode = new ConfigElement<int>("OptionResultMode", "对话选项后面的后果说明（选了会怎样、解锁条件）：0=总是显示（默认），1=鼠标停在选项上（或手柄选中）才显示，2=不显示", 0);
+		ColorOptionDeltas = new ConfigElement<bool>("ColorOptionDeltas", "选项后果里的加减上色：加的绿色、减的红色（对话选项、掷骰、悬停提示、咖啡伴侣窗口）。关掉后和其他文字同色。true=开，false=关", defaultValue: true);
 		CustomTitle = new ConfigElement<string>("CustomTitle", "自定义称号：对话框名字上方、人物介绍、属性页显示的称号换成这个（空=照游戏原样）。在数值页「称号」里改", "");
 		BreakStatLimit = new ConfigElement<bool>("BreakStatLimit", "突破属性上限：体力、内力、轻功、学问、嘴力、心相、性情、处世、修养、道德、阴阳、命运、魅力、厨艺、抗毒、抗麻，刀剑、暗器、拳掌，儒学、道学、释学原本最高 100，打开后上限改成 9999；关掉后超过的部分会在下次变化时截回。true=开，false=关", defaultValue: false);
 		EnableSkipRead = new ConfigElement<bool>("EnableSkipRead", "一键快进已读对话：剧情里按一下热键（默认 F2）一直跳过读过的对话，再按一下停，碰到没读过的对话自己停。已不用：不想要就把 SkipReadKey 设成 None", defaultValue: true);
