@@ -7,7 +7,7 @@ using UnityEngine;
 namespace LOMAssistant.Features.Extras;
 
 /// <summary>
-/// 突破属性上限（设置页「养成」，默认关）：体力、内力、心相等属性原本最高 100，打开后可以加到 9999。
+/// 突破属性上限（设置页「养成」，默认关）：体力、内力、心相、刀剑、暗器、拳掌、儒学道学释学等属性原本最高 100，打开后可以加到 9999。
 /// 不能直接改 GameStat 的上限（Max）：游戏把属性折算成战斗加成、属性等级时用的是「数值 ÷ 上限」，
 /// 上限改成 9999 后 100 点只算 1%，实际效果反而变低。所以上限照旧是 100，折算时超过 100 的部分另外接着往上算（见 GetResult_Prefix），只放开两处截断：
 /// 加值、设值时临时把上限换成 9999 再截；最终值的截断（上限 + 额外上限）把额外上限抬高。
@@ -22,6 +22,8 @@ public static class StatLimitPatch
 		GameStatType.體力, GameStatType.內力, GameStatType.輕功, GameStatType.學問, GameStatType.嘴力, GameStatType.心理衛生,
 		GameStatType.性情, GameStatType.處世, GameStatType.修養, GameStatType.道德, GameStatType.陰陽內功, GameStatType.命運,
 		GameStatType.魅力, GameStatType.廚藝, GameStatType.抗毒, GameStatType.抗麻,
+		// 武功三项：决斗的普攻、暗器、绝招、格挡都按「武功 × 倍率」算，超过 100 照样往上加；儒学、道学、释学用在剧情和秘笈的判定
+		GameStatType.武功刀劍, GameStatType.武功暗器, GameStatType.武功拳掌, GameStatType.儒學, GameStatType.道學, GameStatType.佛學,
 	};
 
 	private static readonly AccessTools.FieldRef<GameStat, int> MaxField = AccessTools.FieldRefAccess<GameStat, int>("_max");

@@ -809,7 +809,7 @@ public static class UiTextEnglish
 		["PanelScale"] = "Text size of this mod's windows (%: text and buttons grow together; for small screens such as the Steam Deck). 100 = normal, 130 = 30% bigger.",
 		["KeepRunningInBackground"] = "The game and music keep running when you switch to another window.",
 		["EnableRightClickHideUI"] = "In story scenes, the hotkey (right mouse by default) hides the dialogue box, other UI and this mod's windows, leaving the background, CG and portraits. Press again to bring them back.",
-		["BreakStatLimit"] = "Stats normally capped at 100 (constitution, inner energy, agility, learning, eloquence, mood and so on) can go higher. When off, anything above the cap is cut the next time it changes.",
+		["BreakStatLimit"] = "Stats normally capped at 100 (constitution, inner energy, agility, learning, eloquence, mood, sword, hidden weapons, fist, Confucianism, Taoism, Buddhism and so on) can go higher. When off, anything above the cap is cut the next time it changes.",
 		["EnableSkipRead"] = "In story scenes, the hotkey (F2 by default) skips read dialogue; press again to stop. It stops by itself at unread dialogue.",
 		["SkipReadKey"] = "Hotkey to skip read dialogue (same as holding Ctrl).",
 		["SkipActionKey"] = "Hotkey for Pass: on the training map or a free-action menu in a story, spends one action like the Pass button in the ESC menu (the Pass button must be on). Unbound by default.",
