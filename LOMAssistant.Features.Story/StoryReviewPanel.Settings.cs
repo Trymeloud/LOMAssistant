@@ -342,13 +342,35 @@ public partial class StoryReviewPanel
 		}
 	}
 
+	private readonly Dictionary<(GUIStyle, int), GUIStyle> _shrunk = new Dictionary<(GUIStyle, int), GUIStyle>();
+
+	/// <summary>文字比宽度长时，返回字号小一些的同款样式（最小原来的八成）；放得下就是原样式。</summary>
+	private GUIStyle Shrunk(GUIStyle style, string text, float width)
+	{
+		float full = style.CalcSize(new GUIContent(text)).x;
+		if (full <= width || style.fontSize <= 0)
+		{
+			return style;
+		}
+		int size = Mathf.Max(Mathf.CeilToInt(style.fontSize * 0.8f), Mathf.FloorToInt(style.fontSize * width / full));
+		if (!_shrunk.TryGetValue((style, size), out GUIStyle small))
+		{
+			small = new GUIStyle(style) { fontSize = size };
+			_shrunk[(style, size)] = small;
+		}
+		return small;
+	}
+
 	private void DrawSettingRow(SettingRow row, float width)
 	{
 		IConfigElement element = row.Element;
 		GUILayout.BeginHorizontal(_card, GUILayout.Width(width - S(10)));
 		GUIStyle line = Middle(_label);
 		float nameWidth = S(232);
-		GUILayout.Label(Fit(TextConverter.ForDisplay(row.Name), line, nameWidth), line, GUILayout.Width(nameWidth), Ctl());
+		// 译文比中文长时先把字缩小一点（最小到八成）放进去，还放不下才截短
+		string shownName = TextConverter.ForDisplay(row.Name);
+		GUIStyle nameStyle = Shrunk(line, shownName, nameWidth);
+		GUILayout.Label(Fit(shownName, nameStyle, nameWidth), nameStyle, GUILayout.Width(nameWidth), Ctl());
 		Rect nameRect = GUILayoutUtility.GetLastRect();
 		if (row.Restart)
 		{
