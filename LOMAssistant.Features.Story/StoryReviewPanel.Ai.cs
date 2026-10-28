@@ -1132,6 +1132,34 @@ public partial class StoryReviewPanel
 		return string.Join(" ", parts);
 	}
 
+	/// <summary>回想（1.0.6001 起的 StoryLogData）里最后一条对白的说话人；没写说话人就是旁白。</summary>
+	private static string LastSpeaker()
+	{
+		try
+		{
+			var entries = Mortal.Core.StoryLogData.Entries;
+			for (int i = entries.Count - 1; i >= 0; i--)
+			{
+				Mortal.Core.StoryLogEntry e = entries[i];
+				if (e.Type != Mortal.Core.StoryLogType.Story)
+				{
+					continue;
+				}
+				if (string.IsNullOrEmpty(e.Speaker))
+				{
+					return "旁白";
+				}
+				string name = Mortal.Core.LocalizationManager.Instance.LocaleResolver.GetString("Character/" + e.Speaker);
+				name = TextConverter.ToSimplified(RichText.Strip(name ?? "")).Trim();
+				return name.Length > 0 && !name.StartsWith("Character/") ? name : "旁白";
+			}
+		}
+		catch
+		{
+		}
+		return "旁白";
+	}
+
 	/// <summary>屏幕上正显示的对白、选项、掷骰：直接读游戏界面上的字。</summary>
 	internal static string OnScreen()
 	{
@@ -1149,6 +1177,12 @@ public partial class StoryReviewPanel
 					.Select(t => TextConverter.ToSimplified(RichText.Strip(t.text ?? "")).Replace("\n", " ").Trim()).Where(t => t.Length > 0).ToArray());
 				if (line.Length > 0)
 				{
+					// 对话框里没有名字（有的对话框不显示名字）时，用回想最后一条对白记下的说话人补上，
+					// 不然扮演女主角时会把别人的台词当成自己说的
+					if (!line.Contains("："))
+					{
+						line = LastSpeaker() + "：" + line;
+					}
 					sb.Append("对白：").Append(line).Append('\n');
 				}
 			}
