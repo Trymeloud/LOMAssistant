@@ -37,6 +37,8 @@ public class SaveFile
 	public string version, coreHash, storyHash, savedAt, scene, rootScript, currentScript, nativeSlot, gameJson, randomJson, preview;
 	// 存档时正在放的音乐、环境音（存档本身不记，读档快进时剧本里不一定会再放一次）
 	public string music, envSound;
+	// 存档时音乐、环境音的音量：剧本常用淡出到 0 关掉环境音，名字还留着；读档重放时 PlayEnvSound 会把音量拉回 100，要再调回去。以前的存档没有，是 -1
+	public float musicVolume = -1, envVolume = -1;
 	// 存档时台上看得见的角色（读档快进时清场特效可能没跑，读档后把不在名单里的隐藏）
 	public List<string> visibleCharacters;
 	public int target;
@@ -404,7 +406,7 @@ public partial class AnytimeSave : MonoBehaviour
 				rootScript = rootScript, currentScript = PlayerStatManagerData.Instance.CurrentStoryScript,
 				nativeSlot = SaveSystem.Instance.CurrentSlot,
 				gameJson = SaveSystem.Instance.GetCurrentSaveData(), randomJson = JsonUtility.ToJson(UnityEngine.Random.state),
-				music = CurrentSound("_currentMusic"), envSound = CurrentSound("_currentEnvSound"),
+				music = CurrentSound("_currentMusic"), envSound = CurrentSound("_currentEnvSound"), musicVolume = CurrentVolume("BackgroundMusic"), envVolume = CurrentVolume("EnvSound"),
 				visibleCharacters = VisibleCharacters(),
 				target = active, preview = Preview(), gameTime = GameTimeText(),
 				dice = CaptureDice(),
@@ -692,12 +694,25 @@ public partial class AnytimeSave : MonoBehaviour
 		catch { return null; }
 	}
 
+	/// <summary>Wwise 里音乐（BackgroundMusic）、环境音（EnvSound）的全局音量，0~100；读不到是 -1。</summary>
+	internal static float CurrentVolume(string rtpc)
+	{
+		try
+		{
+			int type = 1; // 全局值
+			return AkSoundEngine.GetRTPCValue(rtpc, null, 0u, out float value, ref type) == AKRESULT.AK_Success ? value : -1;
+		}
+		catch { return -1; }
+	}
+
 	private static void RestoreSound(SaveFile data)
 	{
 		try
 		{
 			if (!string.IsNullOrEmpty(data.music)) SoundManager.Instance.PlayMusic(data.music);
 			if (!string.IsNullOrEmpty(data.envSound)) SoundManager.Instance.PlayEnvSound(data.envSound);
+			if (data.musicVolume >= 0) AkSoundEngine.SetRTPCValue("BackgroundMusic", data.musicVolume);
+			if (data.envVolume >= 0) AkSoundEngine.SetRTPCValue("EnvSound", data.envVolume);
 		}
 		catch (Exception e) { FileLogger.LogWarning("[随时存档] 恢复音乐失败: " + e.Message); }
 	}
