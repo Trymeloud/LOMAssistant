@@ -2,6 +2,13 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.9 (2026-10-28)
+
+- **Stat presets**: values you change on the Stats tab are recorded; click "Stat presets" to save them as a preset. After loading another save or starting a new game, click Apply to set them all at once; values you didn't change are left alone.
+- **Love interest portrait on the save screen**: if you have bonded with her in that save, the detail pane shows a shy expression.
+- **Numbers cut off with larger game text**: numbers that no longer fit their box (the six main stats, forging levels and so on) are now shown instead of being cut off.
+- **Gain and loss colors in option results**: light green and red on dark backgrounds, dark green and red on light ones as before; a new "Color gains and losses in option results" switch under Settings > Story turns the colors off.
+
 ## 3.0.8 (2026-10-28)
 
 - **Save-anywhere saves still load after game updates**: before loading, each story script the save passed through is checked; only saves whose scripts were changed by an update can't be loaded (the list says why), and the rest load as usual. If a load still goes out of step, you get a notice and return to the title screen instead of a black screen.
