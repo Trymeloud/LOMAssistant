@@ -386,9 +386,16 @@ public partial class StoryReviewPanel
 	// 输入框的控件编号（画完输入框时记下），回车判断在画它之前，要靠它认
 	private int _aiInputId;
 
-	// 空对话里的预设问题（玩家最常问的几类），最多三个
-	private static readonly string[] AssistantStarters = { "这里应该怎么选？", "下一段主线之前，做什么养成比较好？", "现在能触发哪些支线和小剧情？" };
-	private static readonly string[] HeroineStarters = { "这里应该怎么选？", "怎样才能和你走得更近？", "你最近在忙些什么？" };
+	// 空对话里的预设问题（玩家最常问的几类）
+	private static readonly string[] AssistantStarters =
+	{
+		"这里应该怎么选？", "下一段主线之前，做什么养成比较好？", "现在能触发哪些支线和小剧情？",
+		"现在优先做什么？有哪些我没看过的事件可以触发？", "这个选项会改什么旗标，后面有什么呼应？",
+	};
+	private static readonly string[] HeroineStarters =
+	{
+		"这里应该怎么选？", "怎样才能和你走得更近？", "你最近在忙些什么？", "接下来有什么事件能增加你的好感？", "你觉得我这个人怎么样？",
+	};
 	private float _aiRefocusLogged = -100f;
 	// 自己画的光标：闪烁从光标最后一次移动算起，打字、移动时一直亮着
 	private int _aiCaretIndex = -1;
