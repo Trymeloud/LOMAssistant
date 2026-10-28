@@ -442,6 +442,12 @@ public partial class StoryReviewPanel : MonoBehaviour
 	{
 		var content = new GUIContent(_tooltip);
 		float width = Mathf.Round(Mathf.Min(S(460), _small.CalcSize(content).x + S(20)));
+		// 中文按字宽自己折行，句末标点（「）」「，」）不放到行首；韩、日、英文画的时候才逐行翻译，不能先拆行
+		string language = TextConverter.DisplayLanguage;
+		if (language == "ChineseSimplified" || language == "ChineseTraditional")
+		{
+			content = new GUIContent(Wrap(_tooltip, _small, width - Mathf.Round(S(10)) * 2 - 2f));
+		}
 		float height = Mathf.Round(_small.CalcHeight(content, width - S(20)) + S(14));
 		Vector2 anchor = GUIUtility.ScreenToGUIPoint(_tooltipAnchor.position);
 		float y = anchor.y + _tooltipAnchor.height + S(4);

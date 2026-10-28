@@ -835,7 +835,7 @@ public static class UiTextEnglish
 		["DebugPanelKey"] = "Hotkey that opens the stats panel.",
 		["EnableAnytimeSave"] = "Turns on save anywhere (during dialogue, options, dice rolls or on the training map; a new save each time, separate from the game's slots).",
 		["AnytimeSaveLimit"] = "Most save-anywhere saves kept. Older ones are deleted beyond this. 0 = no limit (default).",
-		["随时存档最多保留几个（0=不限）"] = "Save-anywhere limit (0 = none)",
+		["随时存档上限（0=不限）"] = "Save-anywhere limit (0 = none)",
 		["共 {0} 个，不自动删（设置页可设上限）。鼠标停在存档上看当时的剧情和对白。"] = "{0} saves, none deleted automatically (set a limit in Settings). Hover a save to see the story and dialogue at that point.",
 		["AnytimeSaveKey"] = "Hotkey for a new save-anywhere save.",
 		["AnytimeLoadKey"] = "Hotkey that loads the latest save-anywhere save.",
