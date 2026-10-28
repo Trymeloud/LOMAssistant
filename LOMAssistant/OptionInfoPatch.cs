@@ -153,12 +153,14 @@ internal static class OptionInfoPatch
 	// 「嘴力 +1」「南宫浅好感 -2」「银两 +500」：加的绿色、减的红色（条件里的「需>=40」「=1」不算）
 	private static readonly Regex Delta = new Regex(@"(?<=^|[、；：:\s(（①-⑳])([^\s、；：:()（）<>=①-⑳]+?) ([+-]\d+)(?=$|[、；）)\s])");
 
-	// 对话选项是浅色底，绿要深一点才看得清；掷骰线路、悬停提示是深色底，换回浅绿（见 DiceNoWrap、悬停提示）
-	internal const string DeltaUpDark = "#3F7A25";
+	// 对话选项是浅色底，绿、红都要深一点才看得清；掷骰线路、悬停提示是深色底，换回浅色（见 DiceNoWrap、悬停提示）
+	internal const string DeltaUpDark = "#1C560B";
+	internal const string DeltaDownDark = "#8A1C12";
 
-	/// <summary>后果说明里的加减上色：加的绿、减的红。选项按钮、掷骰线路、悬停提示都用它；light 为深色底上用的浅绿。</summary>
+	/// <summary>后果说明里的加减上色：加的绿、减的红。选项按钮、掷骰线路、悬停提示都用它；light 为深色底上用的浅绿、浅红。</summary>
 	internal static string ColorDeltas(string note, bool light = false) =>
-		string.IsNullOrEmpty(note) ? note : Delta.Replace(note, m => m.Groups[2].Value.StartsWith("-") ? RichText.Red(m.Value)
+		string.IsNullOrEmpty(note) ? note : Delta.Replace(note, m => m.Groups[2].Value.StartsWith("-")
+			? light ? RichText.Red(m.Value) : "<color=" + DeltaDownDark + ">" + m.Value + "</color>"
 			: light ? RichText.Green(m.Value) : "<color=" + DeltaUpDark + ">" + m.Value + "</color>");
 
 	/// <summary>
@@ -336,10 +338,10 @@ internal static class OptionInfoPatch
 			// 标题照最大字号（28），说明往右写完，太长的由 DiceFitToScreen 缩小
 			foreach (TMPro.TMP_Text text in root.GetComponentsInChildren<TMPro.TMP_Text>(includeInactive: true))
 			{
-				// 掷骰线路是深色底：后果说明里加的那一项换回浅绿
-				if (text.text != null && text.text.Contains(DeltaUpDark))
+				// 掷骰线路是深色底：后果说明里的加减换回浅绿、浅红
+				if (text.text != null && (text.text.Contains(DeltaUpDark) || text.text.Contains(DeltaDownDark)))
 				{
-					text.text = text.text.Replace(DeltaUpDark, "#A3B86C");
+					text.text = text.text.Replace(DeltaUpDark, "#A3B86C").Replace(DeltaDownDark, "#CD594A");
 				}
 				text.enableWordWrapping = false;
 				text.overflowMode = TMPro.TextOverflowModes.Overflow;
