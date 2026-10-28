@@ -46,6 +46,12 @@ public class SaveBrowser : MonoBehaviour
 		{ 5, "Girl6_小蘭" }, { 6, "Girl7_小竹" }, { 7, "Girl8_小菊" }, { 8, "Girl4_龍湘" },
 	};
 
+	// 结缘后详情栏用的害羞立绘：文件名各人不同（小梅没有 shy、小兰只有 shy2），选的都和 normal 同尺寸；瑞杏没有害羞表情，照旧 normal
+	private static readonly Dictionary<int, string> ShyPortraits = new Dictionary<int, string>
+	{
+		{ 0, "shy" }, { 2, "shy" }, { 3, "shy1" }, { 4, "shy" }, { 5, "shy2" }, { 6, "shy" }, { 7, "shy" }, { 8, "shy" },
+	};
+
 	private sealed class Entry
 	{
 		public string Slot = ""; // 删除、备注用的栏位名（001、auto_1 …）
@@ -923,7 +929,7 @@ public class SaveBrowser : MonoBehaviour
 		_noteBox.SetTextWithoutNotify(note);
 		SetButtonText(_primaryButton, e.Caption == NewGame ? "开始新游戏" : _isLoad ? "读取" : data == null ? "存到这里" : "覆盖这一栏");
 		_deleteButton.gameObject.SetActive(e.CanDelete && data != null);
-		ShowPortrait(data == null ? -1 : lover);
+		ShowPortrait(data == null ? -1 : lover, data != null && Bonded(data, lover));
 		Localize(_detail);
 	}
 
@@ -1167,29 +1173,43 @@ public class SaveBrowser : MonoBehaviour
 
 	// ---------------- 立绘、头像 ----------------
 
-	private static readonly Dictionary<int, AsyncOperationHandle<Sprite>> PortraitLoads = new Dictionary<int, AsyncOperationHandle<Sprite>>();
-	private int _wantedPortrait = -2;
+	// 按（心上人, 表情）缓存，同一位的 normal 和害羞各读一次
+	private static readonly Dictionary<(int, string), AsyncOperationHandle<Sprite>> PortraitLoads = new Dictionary<(int, string), AsyncOperationHandle<Sprite>>();
+	private (int, string) _wantedPortrait = (-2, null);
 
-	private void ShowPortrait(int lover)
+	/// <summary>这份存档里已经和心上人结缘（「攻略某」旗标已设）。读的是存档自己的旗标，不是当前这一局的。</summary>
+	private static bool Bonded(GameSave data, int lover)
 	{
-		_wantedPortrait = lover;
+		StoryRomance.Heroine h = StoryRomance.All.FirstOrDefault(x => x.Lover == lover);
+		if (h == null || data.EventFlags == null)
+		{
+			return false;
+		}
+		string flag = h.Steps[h.Steps.Length - 1];
+		return (data.EventFlags.FirstOrDefault(f => f != null && f.Name == flag)?.State ?? 0) >= 1;
+	}
+
+	private void ShowPortrait(int lover, bool bonded = false)
+	{
+		string mood = bonded && ShyPortraits.TryGetValue(lover, out string shy) ? shy : "normal";
+		_wantedPortrait = (lover, mood);
 		_portrait.enabled = false;
-		if (!LoadPortrait(lover, out AsyncOperationHandle<Sprite> handle))
+		if (!LoadPortrait(lover, mood, out AsyncOperationHandle<Sprite> handle))
 		{
 			return;
 		}
 		if (handle.IsDone)
 		{
-			ApplyPortrait(lover, handle);
+			ApplyPortrait(lover, mood, handle);
 		}
 		else
 		{
-			handle.Completed += h => ApplyPortrait(lover, h);
+			handle.Completed += h => ApplyPortrait(lover, mood, h);
 		}
 	}
 
-	/// <summary>开始（或已经）读这位心上人的立绘；没有立绘返回 false。</summary>
-	private static bool LoadPortrait(int lover, out AsyncOperationHandle<Sprite> handle)
+	/// <summary>开始（或已经）读这位心上人的这张立绘；没有立绘返回 false。</summary>
+	private static bool LoadPortrait(int lover, string mood, out AsyncOperationHandle<Sprite> handle)
 	{
 		handle = default;
 		if (!Portraits.TryGetValue(lover, out string folder))
@@ -1198,10 +1218,10 @@ public class SaveBrowser : MonoBehaviour
 		}
 		try
 		{
-			if (!PortraitLoads.TryGetValue(lover, out handle))
+			if (!PortraitLoads.TryGetValue((lover, mood), out handle))
 			{
-				handle = Addressables.LoadAssetAsync<Sprite>("Assets/__Project/Images/Characters/" + folder + "/normal.png");
-				PortraitLoads[lover] = handle;
+				handle = Addressables.LoadAssetAsync<Sprite>("Assets/__Project/Images/Characters/" + folder + "/" + mood + ".png");
+				PortraitLoads[(lover, mood)] = handle;
 			}
 			return true;
 		}
@@ -1215,9 +1235,9 @@ public class SaveBrowser : MonoBehaviour
 	/// <summary>列表里的小头像：游戏属性页那套心上人头像；心上人是「自己」（还没有）时不显示。</summary>
 	private static Sprite Avatar(int lover) => lover == NoLover ? null : LoverIcon(lover);
 
-	private void ApplyPortrait(int lover, AsyncOperationHandle<Sprite> handle)
+	private void ApplyPortrait(int lover, string mood, AsyncOperationHandle<Sprite> handle)
 	{
-		if (this == null || _portrait == null || lover != _wantedPortrait)
+		if (this == null || _portrait == null || _wantedPortrait != (lover, mood))
 		{
 			return;
 		}
@@ -1226,6 +1246,11 @@ public class SaveBrowser : MonoBehaviour
 			_portrait.sprite = handle.Result;
 			_portrait.enabled = true;
 			FitPortrait(handle.Result);
+		}
+		else if (mood != "normal")
+		{
+			// 害羞立绘读不到时退回 normal，不留空
+			ShowPortrait(lover);
 		}
 	}
 

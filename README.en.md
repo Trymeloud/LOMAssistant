@@ -109,7 +109,7 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/anytime-save.webp" width="640" alt="Save-anywhere page: all saves, load, note, delete">
 
-- **New save/load screen** (can switch back to the original): a list with your love interest's portrait, date and note, and a detail pane with their full portrait and the first lines after loading; manual and auto saves on separate pages. It opens on the save you made last; a switch at the top right of the load page lists them by slot or newest first; with newest first, the save page starts with an empty slot.
+- **New save/load screen** (can switch back to the original): a list with your love interest's portrait, date and note, and a detail pane with their full portrait (a shy expression once you have bonded with her in that save) and the first lines after loading; manual and auto saves on separate pages. It opens on the save you made last; a switch at the top right of the load page lists them by slot or newest first; with newest first, the save page starts with an empty slot.
 
   <img src="media/save-browser.webp" width="640" alt="New load screen: save list with portraits and notes, and a detail pane with the portrait and the dialogue after loading">
 
@@ -146,6 +146,7 @@ Stats, martial arts, sects, relationships (everyone), talents, training and craf
 - **Titles**: pick any title or write your own.
 - **Flags**: over a thousand, grouped by sect favour, characters, story and more.
 - **Reverse lookup**: click a flag, book or item to list the scenes that change or check it; click a name under relationships to list the scenes that check it. Each links to the story map.
+- **Stat presets**: values you change on the Stats tab are recorded; click "Stat presets" to save them as a preset. After loading another save or starting a new game, click Apply to set them all at once; values you didn't change are left alone.
 
 <img src="media/stats.webp" width="640" alt="Stats page: stats, martial arts, sects, titles, relationships and more, all editable">
 
