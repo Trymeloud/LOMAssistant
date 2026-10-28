@@ -219,9 +219,15 @@ public partial class StoryReviewPanel
 			head.Add(mission);
 		}
 		GUILayout.Label($"<b>{AnytimeSave.AnytimeSave.DisplayName(s)}</b>　<color=#73644F>{when}</color>　" + string.Join(" · ", head.Where(t => t.Length > 0).ToArray()), _rich);
+		// 存档经过的剧本被游戏更新改过：重演会对不上，不让读
+		bool changed = s.error == null && AnytimeSave.AnytimeSave.ChangedScript(s.scripts) != null;
 		if (s.error != null)
 		{
 			GUILayout.Label("<color=#A3302A>读不了：" + s.error + "</color>", _small);
+		}
+		else if (changed)
+		{
+			GUILayout.Label("<color=#A3302A>游戏更新改过这个存档经过的剧本，读不了</color>", _small);
 		}
 		else if (s.preview.Length > 0)
 		{
@@ -258,7 +264,7 @@ public partial class StoryReviewPanel
 			_noteText = s.note ?? "";
 			GUI.FocusControl("anytimeNote");
 		}
-		GUI.enabled = s.error == null && !save.Busy;
+		GUI.enabled = s.error == null && !changed && !save.Busy;
 		if (GUILayout.Button("读取", _primary, GUILayout.Width(S(80)), Ctl()))
 		{
 			save.LoadFile(s.file);

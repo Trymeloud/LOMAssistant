@@ -162,10 +162,19 @@ public partial class AnytimeSave : MonoBehaviour
 	internal void Fail(string s)
 	{
 		Faulted = true; Replaying = false; Restoring = false; pendingLoad = false; active = -1;
-		Time.timeScale = 0; Notice("恢复已停止：" + s + "。请从标题界面重新读档。", 9999);
-		// 打开咖啡伴侣窗口的随时存档页，那里有「返回标题」
-		LOMAssistant.Features.Story.StoryReviewPanel.ShowAnytime();
+		Time.timeScale = 0; Notice("恢复已停止：" + s + "。马上回到标题画面，请重新读档。", 12);
 		LOMAssistantPlugin.LogError("随时存档：" + s);
+		// 停在半路的剧情没法继续，画面是黑的：几秒后自动回标题（按真实时间等，游戏这时是暂停的）
+		StartCoroutine(BackToTitleLater());
+	}
+
+	private IEnumerator BackToTitleLater()
+	{
+		yield return new WaitForSecondsRealtime(4f);
+		if (Faulted)
+		{
+			BackToTitle();
+		}
 	}
 
 	private void Apply(SaveFile data, bool atTarget)
@@ -464,8 +473,40 @@ public partial class AnytimeSave : MonoBehaviour
 		LoadFrom(data);
 	}
 
+	// 剧本名 → 现在游戏里这个剧本的哈希（没有这个剧本是空字符串）；游戏运行中剧本不会变
+	private static readonly Dictionary<string, string> currentHashes = new Dictionary<string, string>(StringComparer.Ordinal);
+
+	/// <summary>
+	/// 存档经过的剧本里，被游戏更新改过（或删掉）的第一个；都没改是 null。
+	/// 只看存档记下的剧本：游戏更新大多不动已有剧情，没改到的随时存档照样能读。
+	/// </summary>
+	public static string ChangedScript(List<ScriptStamp> scripts)
+	{
+		if (scripts == null) return null;
+		foreach (ScriptStamp stamp in scripts)
+		{
+			if (stamp?.name == null || !stamp.name.EndsWith(".LuaScript", StringComparison.Ordinal)) continue;
+			if (!currentHashes.TryGetValue(stamp.name, out string now))
+			{
+				// 和游戏读剧本是同一个文件（Story/ChineseTraditional/剧本名），哈希算法和存档时一样
+				string text = DataHelper.LoadLuaScript(stamp.name.Substring(0, stamp.name.Length - 10));
+				now = text.Length > 0 ? Hash(text) : "";
+				currentHashes[stamp.name] = now;
+			}
+			if (now != stamp.hash) return stamp.name.Substring(0, stamp.name.Length - 10);
+		}
+		return null;
+	}
+
 	private void LoadFrom(SaveFile data)
 	{
+		// 游戏更新改了存档经过的剧本时，重演到那里就对不上、只能停在半路：读之前先拦下，不进黑屏
+		string changed = ChangedScript(data.scripts);
+		if (changed != null)
+		{
+			Notice("这个随时存档经过的剧本 " + changed + " 被游戏更新改过了，读不了。请读普通存档，再重新存随时存档。", 12);
+			return;
+		}
 		loading = data;
 		SetPanel(false); pendingLoad = true;
 		LOMAssistant.Features.Story.StoryReviewPanel.Hide();
