@@ -182,6 +182,13 @@ public class LuaParser
 			var results = new Dictionary<string, List<Action>>();
 			var jumps = new Dictionary<string, List<(string, int)>>();
 			MatchCollection matchCollection = indexMarkerRegex.Matches(luaScript);
+			// 整个剧本只拆一次行，记下每行的起点，按选项标记的位置找行号（章节剧本几千行、上百个选项，每个选项都重拆会卡）
+			string[] scriptLines = luaScript.Split('\n');
+			var lineStarts = new int[scriptLines.Length];
+			for (int n = 1; n < scriptLines.Length; n++)
+			{
+				lineStarts[n] = lineStarts[n - 1] + scriptLines[n - 1].Length + 1;
+			}
 			for (int i = 0; i < matchCollection.Count; i++)
 			{
 				string option = matchCollection[i].Groups[1].Value;
@@ -190,21 +197,26 @@ public class LuaParser
 				{
 					continue;
 				}
-				int start = matchCollection[i].Index + matchCollection[i].Length;
-				int end = luaScript.Length;
-				if (i + 1 < matchCollection.Count)
+				int markerLine = Array.BinarySearch(lineStarts, matchCollection[i].Index);
+				string blockContent = BranchBlock(scriptLines, markerLine < 0 ? ~markerLine - 1 : markerLine);
+				if (blockContent == null)
 				{
-					end = Math.Min(end, matchCollection[i + 1].Index);
-				}
-				else
-				{
-					Match match = endBlockRegex.Match(luaScript, start);
-					if (match.Success)
+					int start = matchCollection[i].Index + matchCollection[i].Length;
+					int end = luaScript.Length;
+					if (i + 1 < matchCollection.Count)
 					{
-						end = match.Index;
+						end = Math.Min(end, matchCollection[i + 1].Index);
 					}
+					else
+					{
+						Match match = endBlockRegex.Match(luaScript, start);
+						if (match.Success)
+						{
+							end = match.Index;
+						}
+					}
+					blockContent = luaScript.Substring(start, end - start);
 				}
-				string blockContent = luaScript.Substring(start, end - start);
 				List<Action> list = new List<Action>();
 				AddActionsToList(blockContent, modifyRegex, ActionType.ModifyAction, list);
 				AddActionsToList(blockContent, battleScenesRegex, ActionType.BattleScene, list);
@@ -223,6 +235,50 @@ public class LuaParser
 			OptionJumps[pair.Key] = pair.Value;
 		}
 		return new Dictionary<string, List<Action>>(parsed.Results);
+	}
+
+	private static readonly Regex choiceBranchRegex = new Regex("^(if|elseif)\\s+choice_\\w+\\s*==\\s*\\d+\\s+then$");
+
+	/// <summary>
+	/// 选项标记（--index:O_xxx）所在的那一支：从它前面的「if/elseif choice_… == n then」起，到同一层的下一个 elseif、else 或 end，
+	/// 或这一支里的下一个菜单（setmenudialog，之后的变化要看那个菜单怎么选）为止。
+	/// 以前按「到下一个选项标记为止」截，一组里最后一个选项会越过这一支的结尾，把菜单结束后人人都有的变化也算进去。
+	/// 前面不是选项的 if 时返回 null，照原来的截法。
+	/// </summary>
+	private static string BranchBlock(string[] lines, int markerLine)
+	{
+		int head = markerLine - 1;
+		while (head >= 0 && (lines[head].Trim().Length == 0 || lines[head].Trim().StartsWith("--")))
+		{
+			head--;
+		}
+		if (head < 0 || !choiceBranchRegex.IsMatch(lines[head].Trim()))
+		{
+			return null;
+		}
+		var body = new List<string>();
+		int depth = 0;
+		for (int i = head + 1; i < lines.Length; i++)
+		{
+			string line = lines[i].Trim();
+			bool opens = (line.StartsWith("if ") && line.EndsWith("then")) || line.StartsWith("for ") || line.StartsWith("while ") || line.Contains("function(");
+			bool sibling = line.StartsWith("elseif ") || line == "else";
+			bool closes = line == "end" || line.StartsWith("end ") || line.StartsWith("end)");
+			if ((depth == 0 && (sibling || closes)) || line.Contains("setmenudialog("))
+			{
+				break;
+			}
+			if (opens)
+			{
+				depth++;
+			}
+			else if (closes)
+			{
+				depth--;
+			}
+			body.Add(lines[i]);
+		}
+		return string.Join("\n", body.ToArray());
 	}
 
 	private void AddActionsToList(string blockContent, Regex regex, ActionType actionType, List<Action> actionList)
