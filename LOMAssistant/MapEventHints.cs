@@ -259,7 +259,12 @@ public class MapEventHints : MonoBehaviour
 		// 一句都没读过才算没看过：触发过的事件只走了其中一条分岔，读过的比例到不了 100%
 		StoryScript s = StoryScripts.Get(script);
 		ReadStorySystem read = ReadStorySystem.Instance;
-		return s != null && read != null && s.Lines.Count > 0 && !s.Lines.Any(read.ExistKey);
+		if (s == null || read == null || s.Lines.Count == 0 || s.Lines.Any(read.ExistKey))
+		{
+			return false;
+		}
+		// 有一条走法一句对白都没有（后山修练的普通结果：对白只在和小师妹一起练功那一支），遇到过也不会留下已读，看不出来就不标
+		return s.Exits.All(exit => s.Talk.Any(t => StoryScripts.IsPrefix(t.Path, exit.Path)));
 	}
 
 	// 主线开始了、在别的地方：这里点了只会说「先去办主线」，什么事件都不触发
