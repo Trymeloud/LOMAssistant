@@ -798,6 +798,8 @@ public static class UiTextEnglish
 		["夏侯兰"] = "Xiahou Lan",
 		["郁竹"] = "Yu Zhu",
 		["魏菊"] = "Wei Ju",
+		["随时存档上限（0=不限）"] = "Quick save cap (0=none)",
+		["共 {0} 个，不自动删（设置页可设上限）。鼠标停在存档上看当时的剧情和对白。"] = "{0} saves, none deleted automatically (set a limit in Settings). Hover a save to see the story and dialogue at that point.",
 	};
 
 	/// <summary>设置说明（配置名 → 英文）。</summary>
@@ -868,8 +870,6 @@ public static class UiTextEnglish
 		["DebugPanelKey"] = "Hotkey that opens the stats panel.",
 		["EnableAnytimeSave"] = "Turns on save anywhere (during dialogue, options, dice rolls or on the training map; a new save each time, separate from the game's slots).",
 		["AnytimeSaveLimit"] = "Most save-anywhere saves kept (saves with notes don't count and are never deleted). The next time you save, older ones beyond the limit are deleted at once. 0 = no limit (default).",
-		["随时存档上限（0=不限）"] = "Quick save cap (0=none)",
-		["共 {0} 个，不自动删（设置页可设上限）。鼠标停在存档上看当时的剧情和对白。"] = "{0} saves, none deleted automatically (set a limit in Settings). Hover a save to see the story and dialogue at that point.",
 		["AnytimeSaveKey"] = "Hotkey for a new save-anywhere save.",
 		["AnytimeLoadKey"] = "Hotkey that loads the latest save-anywhere save.",
 		["AnytimePanelKey"] = "Hotkey that opens the save-anywhere tab (list, load, notes, delete).",
