@@ -177,7 +177,7 @@ Changing values or flags at random can break the story; save first.
 
 **Option results missing, dice cannot be picked?** An older mod of the same kind is installed. The installer handles this; for manual installs, remove the old mods from `BepInEx\plugins`.
 
-**Works with 邪神认知污染ON and 剧情随行?** Yes. For 邪神认知污染ON install only 「1_必装_插件」, not 「2_只有没装过BepInEx才装」 (if you did, run this mod's installer again). Clashing hotkeys are given up automatically; bind another under **Hotkeys**.
+**Works with other mods?** Yes, mods whose features don't overlap can be installed alongside it. If a hotkey clashes, this mod gives way automatically, and you can bind another key under Settings > Hotkeys. If another mod ships its own BepInEx, run this mod's installer again after installing it.
 
 **Linux / Steam Deck?** Install manually and add `WINEDLLOVERRIDES="winhttp=n,b" %command%` to the Steam launch options.
 
