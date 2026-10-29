@@ -18,6 +18,8 @@ public class SaveSummary
 	public string file = "";
 	public int number;
 	public string savedAt = "", scene = "", gameTime = "", script = "", preview = "", note = "";
+	/// <summary>存档经过的剧本和哈希，用来看游戏更新有没有改到这些剧本；以前的索引里没有，是 null。</summary>
+	public List<ScriptStamp> scripts;
 	/// <summary>存档时之前的几句对白（最近的在最后）。</summary>
 	public List<string> lines = new List<string>();
 	/// <summary>这一段剧情里做过的选择（最近的在最后）。</summary>
@@ -164,6 +166,7 @@ public partial class AnytimeSave
 			gameTime = data.gameTime ?? "",
 			script = data.scene == "Free" ? "" : data.currentScript ?? data.rootScript ?? "",
 			preview = RichText.Strip(data.preview ?? ""),
+			scripts = data.scripts,
 		};
 		List<Entry> trace = data.trace ?? new List<Entry>();
 		int end = data.scene == "Story" && data.target >= 0 && data.target < trace.Count ? data.target : trace.Count - 1;
@@ -222,13 +225,15 @@ public partial class AnytimeSave
 		summaries.RemoveAll(s => s.file == name);
 		summaries.Add(Summarize(data, name));
 		Sort();
-		int limit = Math.Max(1, ConfigManager.AnytimeSaveLimit.Value);
-		while (summaries.Count > limit)
+		// 0 = 不限，不自动删；有备注的是玩家特意留的，不删也不算进上限
+		int limit = ConfigManager.AnytimeSaveLimit.Value;
+		while (limit > 0 && summaries.Count(s => string.IsNullOrEmpty(s.note)) > limit)
 		{
-			SaveSummary oldest = summaries[summaries.Count - 1];
+			int i = summaries.FindLastIndex(s => string.IsNullOrEmpty(s.note));
+			SaveSummary oldest = summaries[i];
 			DeleteFiles(oldest.file);
-			summaries.RemoveAt(summaries.Count - 1);
-			FileLogger.Log("[随时存档] 超过上限 " + limit + " 个，删掉最旧的 " + oldest.file);
+			summaries.RemoveAt(i);
+			FileLogger.Log("[随时存档] 超过上限 " + limit + " 个（有备注的不算），删掉最旧的 " + oldest.file);
 		}
 		WriteIndex();
 	}
@@ -277,10 +282,11 @@ public partial class AnytimeSave
 	/// <summary>F7：读最近的那个随时存档。</summary>
 	public void LoadLatest()
 	{
-		SaveSummary latest = Saves().FirstOrDefault(s => s.error == null);
+		// 游戏更新改过经过的剧本的读不了，跳过
+		SaveSummary latest = Saves().FirstOrDefault(s => s.error == null && ChangedScript(s.scripts) == null);
 		if (latest == null)
 		{
-			Notice("还没有随时存档");
+			Notice(Saves().Any(s => s.error == null) ? "随时存档经过的剧本都被游戏更新改过了，读不了" : "还没有随时存档");
 			return;
 		}
 		LoadFile(latest.file);

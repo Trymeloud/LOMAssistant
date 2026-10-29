@@ -146,9 +146,22 @@ internal static class OptionInfoPatch
 		string note = OptionNote(key);
 		if (note.Length > 0)
 		{
-			__result = __result + TextConverter.ForDisplay("\n<size=16>(" + note + ")</size>");
+			__result = __result + TextConverter.ForDisplay("\n<size=16>(" + ColorDeltas(note) + ")</size>");
 		}
 	}
+
+	// 「嘴力 +1」「南宫浅好感 -2」「银两 +500」：加的绿色、减的红色（条件里的「需>=40」「=1」不算）
+	private static readonly Regex Delta = new Regex(@"(?<=^|[、；：:\s(（①-⑳])([^\s、；：:()（）<>=①-⑳]+?) ([+-]\d+)(?=$|[、；）)\s])");
+
+	// 对话选项是浅色底，绿、红都要深一点才看得清；掷骰线路、悬停提示是深色底，换回浅色（见 DiceNoWrap、悬停提示）
+	internal const string DeltaUpDark = "#1C560B";
+	internal const string DeltaDownDark = "#8A1C12";
+
+	/// <summary>后果说明里的加减上色：加的绿、减的红。选项按钮、掷骰线路、悬停提示都用它；light 为深色底上用的浅绿、浅红。</summary>
+	internal static string ColorDeltas(string note, bool light = false) =>
+		string.IsNullOrEmpty(note) || !ConfigManager.ColorOptionDeltas.Value ? note : Delta.Replace(note, m => m.Groups[2].Value.StartsWith("-")
+			? light ? RichText.Red(m.Value) : "<color=" + DeltaDownDark + ">" + m.Value + "</color>"
+			: light ? RichText.Green(m.Value) : "<color=" + DeltaUpDark + ">" + m.Value + "</color>");
 
 	/// <summary>
 	/// 一个选项的后果说明（不带括号、字号）：被锁的选项写真正的解锁条件和解锁后的效果；其余写选了会怎样，
@@ -325,6 +338,11 @@ internal static class OptionInfoPatch
 			// 标题照最大字号（28），说明往右写完，太长的由 DiceFitToScreen 缩小
 			foreach (TMPro.TMP_Text text in root.GetComponentsInChildren<TMPro.TMP_Text>(includeInactive: true))
 			{
+				// 掷骰线路是深色底：后果说明里的加减换回浅绿、浅红
+				if (text.text != null && (text.text.Contains(DeltaUpDark) || text.text.Contains(DeltaDownDark)))
+				{
+					text.text = text.text.Replace(DeltaUpDark, "#A3B86C").Replace(DeltaDownDark, "#CD594A");
+				}
 				text.enableWordWrapping = false;
 				text.overflowMode = TMPro.TextOverflowModes.Overflow;
 				if (text.enableAutoSizing)
@@ -729,7 +747,7 @@ internal sealed class OptionHoverHint : MonoBehaviour
 				top = Mathf.Max(top, RectTransformUtility.WorldToScreenPoint(cam, corners[2]).y);
 			}
 		}
-		var content = new GUIContent(TextConverter.ForDisplay(note));
+		var content = new GUIContent(TextConverter.ForDisplay(OptionInfoPatch.ColorDeltas(note, light: true)));
 		float width = Mathf.Min(Mathf.Max(max.x - min.x, 360f * scale), Screen.width - 16f * scale);
 		float height = _style.CalcHeight(content, width);
 		float x = Mathf.Clamp(min.x, 8f * scale, Screen.width - width - 8f * scale);
@@ -739,5 +757,41 @@ internal sealed class OptionHoverHint : MonoBehaviour
 			y = Screen.height - top - height - 4f * scale;
 		}
 		GUI.Box(new Rect(x, y, width, height), content, PanelTheme.Sync(_style));
+	}
+}
+
+/// <summary>
+/// 选项后果的加减默认用深绿、深红（浅色选项底上看得清）。同一句话也会出现在深色底上（暗场景的选项、养成地图的行程表），
+/// 那里的字本身是浅色的：文字设成浅色字时，把深绿、深红换成浅绿、浅红。按字本身的颜色判断底色，不用逐个界面去认。
+/// </summary>
+[HarmonyPatch]
+internal static class DeltaColorFit
+{
+	private const string UpLight = "#A3B86C", DownLight = "#CD594A";
+
+	private static bool LightText(Color c) => 0.2126f * c.r + 0.7152f * c.g + 0.0722f * c.b > 0.5f;
+
+	private static string Fit(string value, Color color)
+	{
+		if (value == null || value.IndexOf("<color=#", StringComparison.Ordinal) < 0 || !LightText(color)
+			|| (value.IndexOf(OptionInfoPatch.DeltaUpDark, StringComparison.Ordinal) < 0 && value.IndexOf(OptionInfoPatch.DeltaDownDark, StringComparison.Ordinal) < 0))
+		{
+			return value;
+		}
+		return value.Replace(OptionInfoPatch.DeltaUpDark, UpLight).Replace(OptionInfoPatch.DeltaDownDark, DownLight);
+	}
+
+	[HarmonyPrefix]
+	[HarmonyPatch(typeof(Text), nameof(Text.text), MethodType.Setter)]
+	private static void Text_Prefix(Text __instance, ref string value)
+	{
+		value = Fit(value, __instance.color);
+	}
+
+	[HarmonyPrefix]
+	[HarmonyPatch(typeof(TMPro.TMP_Text), nameof(TMPro.TMP_Text.text), MethodType.Setter)]
+	private static void Tmp_Prefix(TMPro.TMP_Text __instance, ref string value)
+	{
+		value = Fit(value, __instance.color);
 	}
 }

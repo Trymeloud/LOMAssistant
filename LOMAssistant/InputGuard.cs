@@ -294,6 +294,7 @@ public static class InputGuardActionGate
 		"Mortal.Core.InputButton:InputActionChanged",
 		"Mortal.Free.FreeManager:NextInputAction", "Mortal.Free.FreeManager:MenuActionChanged",
 		"Mortal.Free.FreeManager:StatusActionChanged", "Mortal.Free.FreeManager:SaveActionPerformed", "Mortal.Free.FreeManager:ToggleSelectedPerformed",
+		"Mortal.Free.FreeManager:LogActionPerformed", "Mortal.Core.StoryLogPanel:CloseActionPerformed",
 		"Mortal.Story.StoryManager:MenuActionChanged", "Mortal.Story.StoryManager:SubmitActionChanged", "Mortal.Story.StoryManager:StatusActionChanged",
 		"Mortal.Story.StoryManager:AutoActionChanged", "Mortal.Story.StoryManager:LogActionChanged", "Mortal.Story.StoryManager:SkipActionPerformed",
 		"Mortal.Story.DiceMenuDialog:NextInputAction", "Mortal.Story.DiceMenuDialog:DestinyAction",

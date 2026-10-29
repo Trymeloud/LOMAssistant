@@ -385,6 +385,17 @@ public partial class StoryReviewPanel
 	private float _aiEvalAsked = -100f;
 	// 输入框的控件编号（画完输入框时记下），回车判断在画它之前，要靠它认
 	private int _aiInputId;
+
+	// 空对话里的预设问题（玩家最常问的几类）
+	private static readonly string[] AssistantStarters =
+	{
+		"这里应该怎么选？", "下一段主线之前，做什么养成比较好？", "现在能触发哪些支线和小剧情？",
+		"现在优先做什么？有哪些我没看过的事件可以触发？", "这个选项会改什么旗标，后面有什么呼应？",
+	};
+	private static readonly string[] HeroineStarters =
+	{
+		"这里应该怎么选？", "怎样才能和你走得更近？", "你最近在忙些什么？", "接下来有什么事件能增加你的好感？", "你觉得我这个人怎么样？",
+	};
 	private float _aiRefocusLogged = -100f;
 	// 自己画的光标：闪烁从光标最后一次移动算起，打字、移动时一直亮着
 	private int _aiCaretIndex = -1;
@@ -1025,6 +1036,23 @@ public partial class StoryReviewPanel
 			string dots = new string('·', 1 + (int)(Time.realtimeSinceStartup * 2.5f) % 3);
 			GUILayout.Label(string.Format("{0} 正在想{1}", persona != null ? TextConverter.ForDisplay(persona.Name) : "AI", dots), _aiName);
 		}
+		// 还没说过话：给几个可以直接点的问题（按界面语言发出去）
+		if (shown.Count == 0 && !AiChat.Busy)
+		{
+			GUILayout.Space(S(12));
+			GUILayout.Label("可以这样问：", _muted);
+			foreach (string q in persona != null ? HeroineStarters : AssistantStarters)
+			{
+				GUILayout.BeginHorizontal();
+				if (GUILayout.Button(q, _button, GUILayout.ExpandWidth(false), Ctl()))
+				{
+					AiChat.Ask(TextConverter.ForDisplay(q));
+				}
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+				GUILayout.Space(S(6));
+			}
+		}
 		GUILayout.EndScrollView();
 		GUILayout.EndArea();
 
@@ -1132,6 +1160,34 @@ public partial class StoryReviewPanel
 		return string.Join(" ", parts);
 	}
 
+	/// <summary>回想（1.0.6001 起的 StoryLogData）里最后一条对白的说话人；没写说话人就是旁白。</summary>
+	private static string LastSpeaker()
+	{
+		try
+		{
+			var entries = Mortal.Core.StoryLogData.Entries;
+			for (int i = entries.Count - 1; i >= 0; i--)
+			{
+				Mortal.Core.StoryLogEntry e = entries[i];
+				if (e.Type != Mortal.Core.StoryLogType.Story)
+				{
+					continue;
+				}
+				if (string.IsNullOrEmpty(e.Speaker))
+				{
+					return "旁白";
+				}
+				string name = Mortal.Core.LocalizationManager.Instance.LocaleResolver.GetString("Character/" + e.Speaker);
+				name = TextConverter.ToSimplified(RichText.Strip(name ?? "")).Trim();
+				return name.Length > 0 && !name.StartsWith("Character/") ? name : "旁白";
+			}
+		}
+		catch
+		{
+		}
+		return "旁白";
+	}
+
 	/// <summary>屏幕上正显示的对白、选项、掷骰：直接读游戏界面上的字。</summary>
 	internal static string OnScreen()
 	{
@@ -1149,6 +1205,12 @@ public partial class StoryReviewPanel
 					.Select(t => TextConverter.ToSimplified(RichText.Strip(t.text ?? "")).Replace("\n", " ").Trim()).Where(t => t.Length > 0).ToArray());
 				if (line.Length > 0)
 				{
+					// 对话框里没有名字（有的对话框不显示名字）时，用回想最后一条对白记下的说话人补上，
+					// 不然扮演女主角时会把别人的台词当成自己说的
+					if (!line.Contains("："))
+					{
+						line = LastSpeaker() + "：" + line;
+					}
 					sb.Append("对白：").Append(line).Append('\n');
 				}
 			}

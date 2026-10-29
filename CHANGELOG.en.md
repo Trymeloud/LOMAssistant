@@ -2,6 +2,35 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.0.9 (2026-10-28)
+
+- **Stat presets**: values you change on the Stats tab are recorded; click "Stat presets" to save them as a preset. After loading another save or starting a new game, click Apply to set them all at once; values you didn't change are left alone.
+- **Love interest portrait on the save screen**: if you have bonded with her in that save, the detail pane shows a shy expression.
+- **Numbers cut off with larger game text**: numbers that no longer fit their box (the six main stats, forging levels and so on) are now shown instead of being cut off.
+- **Gain and loss colors in option results**: light green and red on dark backgrounds, dark green and red on light ones as before; a new "Color gains and losses in option results" switch under Settings > Story turns the colors off.
+
+## 3.0.8 (2026-10-28)
+
+- **Save-anywhere saves still load after game updates**: before loading, each story script the save passed through is checked; only saves whose scripts were changed by an update can't be loaded (the list says why), and the rest load as usual. If a load still goes out of step, you get a notice and return to the title screen instead of a black screen.
+- **Save-anywhere ambient sound**: ambient sound that the story had already stopped no longer starts again after loading (for saves made with this version or later).
+- **Colored choice outcomes**: gains are green and losses red, on dialogue choices, dice checks, hover tips and in the Coffee Companion window.
+- **AI guide**: an empty chat offers a few starter questions to click; it sees which choices and destinations you have read, and recommends unread ones not yet taken this playthrough first; it tells who is speaking in the current dialogue.
+- **Break stat caps**: now also covers sword, hidden weapons, fist, Confucianism, Taoism and Buddhism.
+- **Save-anywhere limit**: only old saves without notes are deleted; saves with notes are kept and don't count toward the limit.
+- **Text boxes**: typing in a Coffee Companion text box no longer opens the backlog with L on the training map.
+- **Hover tips**: in Simplified and Traditional Chinese, text wraps by character width, and marks such as "）" and "，" no longer start a line.
+
+## 3.0.7 (2026-10-27)
+
+- **Fixed battles being won the moment they start**: the Stats tab's "allow negative values" also affected enemy factions' health, so enemies fell as soon as they appeared. It now applies only to the hero's own stats.
+- **Right-click hide UI**: with the system menu or the status (training) screen open, right-click closes them as usual.
+- **"Original" sort on the load screen**: by slot, with every empty slot shown; click an empty slot to start a new game there.
+- **Pass hotkey**: new in the Settings hotkeys, unbound by default.
+- **Save anywhere**: filter by story, training or with notes; grouped by in-game month, foldable, with group delete (noted saves are kept); no longer deleted automatically by default, set a limit in Settings.
+- **Traditional Chinese UI**: characters such as 劍聖 and 症 now show correctly.
+- **Export diagnostics**: if the desktop can't be written, saves to Documents or another folder instead and selects the file in Explorer.
+- **Installer**: if another tool switched the mod loader off, reinstalling turns it back on.
+
 ## 3.0.6 (2026-10-27)
 
 - **Updated for game version 1.0.6001**: check records go into the new backlog, only during story scenes and in small text; identical checks are recorded once per period, and quests only when they actually trigger.

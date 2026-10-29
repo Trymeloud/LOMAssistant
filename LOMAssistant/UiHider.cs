@@ -35,11 +35,14 @@ public class UiHider : MonoBehaviour
 		}
 	}
 
-	/// <summary>回想（对话记录）开着的时候右键不隐藏界面。</summary>
+	/// <summary>
+	/// 回想（对话记录）、系统菜单、状态（练功）等面板开着的时候右键不隐藏界面：游戏用右键关这些面板，被拿走就关不掉。
+	/// </summary>
 	private static bool LogOpen()
 	{
 		Mortal.Story.StoryManager story = Mortal.Story.StoryManager.Instance;
-		return story != null && story.GetFieldValue<bool>("_logOpen");
+		return story != null && (story.GetFieldValue<bool>("_logOpen") || story.GetFieldValue<bool>("_menuOpen")
+			|| story.GetFieldValue<bool>("_statusOpen") || story.GetFieldValue<bool>("_panelOpen"));
 	}
 
 	private static bool InStory()

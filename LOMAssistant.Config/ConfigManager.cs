@@ -146,6 +146,8 @@ public static class ConfigManager
 
 	public static ConfigElement<KeyCode> SkipReadKey;
 
+	public static ConfigElement<KeyCode> SkipActionKey;
+
 	public static ConfigElement<bool> EnableSkipRead;
 
 	public static ConfigElement<bool> BreakStatLimit;
@@ -159,6 +161,7 @@ public static class ConfigManager
 
 	public static ConfigElement<bool> PresetChooserShown;
 	public static ConfigElement<int> OptionResultMode;
+	public static ConfigElement<bool> ColorOptionDeltas;
 
 	public static ConfigElement<int> AnytimeSaveLimit;
 
@@ -196,6 +199,30 @@ public static class ConfigManager
 		MigrateStoryReviewKey();
 		MigrateHideUIKey();
 		MigrateHotkeyToggles();
+		MigrateAnytimeLimit();
+	}
+
+	/// <summary>随时存档上限的默认值从 100 改成不限（0）：还是旧默认值 100 的改成 0，自己改过的不动。只换一次。</summary>
+	private static void MigrateAnytimeLimit()
+	{
+		try
+		{
+			string mark = System.IO.Path.Combine(System.IO.Path.GetDirectoryName(typeof(ConfigManager).Assembly.Location) ?? ".", "StoryReview", "anytime-limit");
+			if (System.IO.File.Exists(mark))
+			{
+				return;
+			}
+			if (AnytimeSaveLimit.Value == 100)
+			{
+				AnytimeSaveLimit.Value = 0;
+			}
+			System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(mark));
+			System.IO.File.WriteAllText(mark, "");
+		}
+		catch (Exception ex)
+		{
+			DicePlugin.LogError("随时存档上限迁移失败: " + ex.Message);
+		}
 	}
 
 	/// <summary>
@@ -397,10 +424,12 @@ public static class ConfigManager
 		LockedStats = new ConfigElement<string>("LockedStats", "数值页锁住的数值（在数值页点锁，自动记录）：数值名，逗号隔开。清空就全部解锁", "");
 		EventRules = new ConfigElement<string>("EventRules", "随机事件的「总是」「不出」（在随机事件选择框里点，自动记录）：事件编号=1 总是触发、=2 不出，分号隔开。清空就全部取消", "");
 		OptionResultMode = new ConfigElement<int>("OptionResultMode", "对话选项后面的后果说明（选了会怎样、解锁条件）：0=总是显示（默认），1=鼠标停在选项上（或手柄选中）才显示，2=不显示", 0);
+		ColorOptionDeltas = new ConfigElement<bool>("ColorOptionDeltas", "选项后果里的加减上色：加的绿色、减的红色（对话选项、掷骰、悬停提示、咖啡伴侣窗口）。关掉后和其他文字同色。true=开，false=关", defaultValue: true);
 		CustomTitle = new ConfigElement<string>("CustomTitle", "自定义称号：对话框名字上方、人物介绍、属性页显示的称号换成这个（空=照游戏原样）。在数值页「称号」里改", "");
-		BreakStatLimit = new ConfigElement<bool>("BreakStatLimit", "突破属性上限：体力、内力、轻功、学问、嘴力、心相、性情、处世、修养、道德、阴阳、命运、魅力、厨艺、抗毒、抗麻原本最高 100，打开后上限改成 9999；关掉后超过的部分会在下次变化时截回。true=开，false=关", defaultValue: false);
+		BreakStatLimit = new ConfigElement<bool>("BreakStatLimit", "突破属性上限：体力、内力、轻功、学问、嘴力、心相、性情、处世、修养、道德、阴阳、命运、魅力、厨艺、抗毒、抗麻，刀剑、暗器、拳掌，儒学、道学、释学原本最高 100，打开后上限改成 9999；关掉后超过的部分会在下次变化时截回。true=开，false=关", defaultValue: false);
 		EnableSkipRead = new ConfigElement<bool>("EnableSkipRead", "一键快进已读对话：剧情里按一下热键（默认 F2）一直跳过读过的对话，再按一下停，碰到没读过的对话自己停。已不用：不想要就把 SkipReadKey 设成 None", defaultValue: true);
 		SkipReadKey = new ConfigElement<KeyCode>("SkipReadKey", "一键快进的热键：剧情里按一下一直跳过读过的对话（像一直按着 Ctrl），再按一下停；碰到没读过的对话会自己停", KeyCode.F2);
+		SkipActionKey = new ConfigElement<KeyCode>("SkipActionKey", "空过的热键：养成地图上、剧情里的自由行动菜单里按一下，和 ESC 菜单的「空过」一样消耗 1 次行动（要先开着「空过」按钮）。默认不绑定", KeyCode.None);
 		HideUIKey = new ConfigElement<KeyCode>("HideUIKey", "隐藏界面看 CG 的按键，默认鼠标右键（Mouse1）；习惯右键做别的事可以改成键盘上的键，如 H", KeyCode.Mouse1);
 		EnableStoryReview = new ConfigElement<bool>("EnableStoryReview", "剧情回顾：游戏在剧情存档点、每旬开头自动存档时，在存档文件夹里收录这一刻的进度（LOMStory_ 开头，跟着 Steam 云同步），以后可以从这里重玩。true=开，false=关", defaultValue: true);
 		GamepadPanelButton = new ConfigElement<int>("GamepadPanelButton", "手柄开关咖啡伴侣窗口的按键：0=按下左摇杆（L3），1=按下右摇杆（R3），2=LB 和 RB 一起按", 0);
@@ -415,7 +444,7 @@ public static class ConfigManager
 		EnableFastStartup = new ConfigElement<bool>("EnableFastStartup", "开游戏更快：标题画面按钮浮现的开场动画加快 6 倍。true=开（默认），false=关，改后重启生效", defaultValue: true);
 		EnableFlowSpeedup = new ConfigElement<bool>("EnableFlowSpeedup", "流程提速：切场景不再写多余的全局存档副本、读档时旗标查表、快进时指令不空等、数值变化后的停顿缩到 0.2 秒（没显示的不停顿）、养成地图上行动后的等待和转场加快 3 倍、决斗回合之间不干等。默认开；只有怀疑它导致问题时才关。true=开，false=关", defaultValue: true);
 		TitlePartnerChoice = new ConfigElement<int>("TitlePartnerChoice", "标题画面显示的人物：0=跟随结局（默认），1=不显示，2=小师妹，3=龙湘，4=叶云裳，5=小兰，6=小梅，7=小竹，8=大师兄。回到标题画面时生效", 0);
-		SaveListOrder = new ConfigElement<int>("SaveListOrder", "新版存档、读档界面里手动存档的排列：0=按栏位号（默认），1=最近保存的在上面。打开界面时都会选中并滚到上次保存的那个存档", 0);
+		SaveListOrder = new ConfigElement<int>("SaveListOrder", "新版存档、读档界面里手动存档的排列：0=按栏位号（默认），1=最近保存的在上面，2=按栏位号、读档页也列出所有空栏位（点空栏位在那一格开新游戏，同原版）。打开界面时都会选中并滚到上次保存的那个存档", 0);
 		SaveSlotCount = new ConfigElement<int>("SaveSlotCount", "手动存档栏位数量（原版 20，小于 20 时按 20）", 100);
 		LegendSlotPages = new ConfigElement<int>("LegendSlotPages", "传奇栏位页数：保存传奇和图鉴的传奇界面每页 12 格，多于 1 页时下面出现翻页按钮（原版 1 页）", 5);
 		AutoSaveHistory = new ConfigElement<int>("AutoSaveHistory", "每类自动存档（养成/剧情/战斗）额外保留的旧档数量，0=不保留", 5);
@@ -424,7 +453,7 @@ public static class ConfigManager
 		EnableDebugPanel = new ConfigElement<bool>("EnableDebugPanel", "数值面板热键（F9 打开「数值」页）。已不用：不想要就把 DebugPanelKey 设成 None", defaultValue: true);
 		DebugPanelKey = new ConfigElement<KeyCode>("DebugPanelKey", "打开数值面板的热键，如 F9 / P 等", KeyCode.F9);
 		EnableAnytimeSave = new ConfigElement<bool>("EnableAnytimeSave", "是否启用随时存档（剧情台词、选项、掷骰和养成界面都能存，每次存一个新档，不占原版存档栏）。true=开，false=关，改后重启生效", defaultValue: true);
-		AnytimeSaveLimit = new ConfigElement<int>("AnytimeSaveLimit", "随时存档最多保留几个，超过就自动删最旧的", 100);
+		AnytimeSaveLimit = new ConfigElement<int>("AnytimeSaveLimit", "随时存档最多保留几个（有备注的不算，也不删）：下次存新的随时存档时，超出的旧存档会一次删掉；0=不限（默认），不自动删", 0);
 		AnytimeSaveKey = new ConfigElement<KeyCode>("AnytimeSaveKey", "随时存档：存一个新的随时存档的热键", KeyCode.F5);
 		AnytimeLoadKey = new ConfigElement<KeyCode>("AnytimeLoadKey", "随时存档：读取最近一个随时存档的热键", KeyCode.F7);
 		AnytimePanelKey = new ConfigElement<KeyCode>("AnytimePanelKey", "打开咖啡伴侣窗口的随时存档页（列表、读取、备注、删除）的热键", KeyCode.F6);

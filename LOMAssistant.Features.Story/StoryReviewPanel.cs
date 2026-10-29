@@ -442,6 +442,12 @@ public partial class StoryReviewPanel : MonoBehaviour
 	{
 		var content = new GUIContent(_tooltip);
 		float width = Mathf.Round(Mathf.Min(S(460), _small.CalcSize(content).x + S(20)));
+		// 中文按字宽自己折行，句末标点（「）」「，」）不放到行首；韩、日、英文画的时候才逐行翻译，不能先拆行
+		string language = TextConverter.DisplayLanguage;
+		if (language == "ChineseSimplified" || language == "ChineseTraditional")
+		{
+			content = new GUIContent(Wrap(_tooltip, _small, width - Mathf.Round(S(10)) * 2 - 2f));
+		}
 		float height = Mathf.Round(_small.CalcHeight(content, width - S(20)) + S(14));
 		Vector2 anchor = GUIUtility.ScreenToGUIPoint(_tooltipAnchor.position);
 		float y = anchor.y + _tooltipAnchor.height + S(4);
@@ -725,6 +731,19 @@ public partial class StoryReviewPanel : MonoBehaviour
 	// 条件文字要查表、读当前数值，每帧重算会卡；算一次存着，打开面板或数据变了再重算
 	private readonly Dictionary<object, string> _texts = new Dictionary<object, string>();
 	private int _textsAtlas = -1, _textsNodes = -1;
+
+	// 「嘴力 +1」「心相 -30」：加的玉绿、减的朱砂（跟着浅色、深色主题），条件里的「需>=40」「=1」不算
+	private static readonly System.Text.RegularExpressions.Regex PanelDelta = new System.Text.RegularExpressions.Regex(@"(?<=^|[、；：:\s(（①-⑳])([^\s、；：:()（）<>=①-⑳]+?) ([+-]\d+)(?=$|[、；）)\s])");
+
+	private static string PanelDeltas(string text)
+	{
+		if (string.IsNullOrEmpty(text) || !ConfigManager.ColorOptionDeltas.Value)
+		{
+			return text;
+		}
+		string up = "#" + ColorUtility.ToHtmlStringRGB(Jade), down = "#" + ColorUtility.ToHtmlStringRGB(Cinnabar);
+		return PanelDelta.Replace(text, m => "<color=" + (m.Groups[2].Value.StartsWith("-") ? down : up) + ">" + m.Value + "</color>");
+	}
 
 	private string Cached(object key, Func<string> make)
 	{

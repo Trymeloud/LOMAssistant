@@ -134,7 +134,20 @@ public partial class StoryReviewPanel
 			DrawUsage(r);
 			return;
 		}
+		if (_statPresetsOpen)
+		{
+			DrawStatPresets(r);
+			return;
+		}
 		string query = SearchBox(new Rect(r.x, r.y, S(420), S(36)), ref _statsSearch);
+		// 数值预设：改过的项存起来，换存档时一次套用
+		string presetLabel = StatTouched.Count > 0 ? string.Format("数值预设（改过 {0} 项）", StatTouched.Count) : "数值预设";
+		if (GUI.Button(new Rect(r.x + S(432), r.y, _button.CalcSize(new GUIContent(presetLabel)).x + S(24), S(36)), presetLabel, _button))
+		{
+			_statPresetsOpen = true;
+			_statPresetResult = null;
+			_statPresetsScroll = Vector2.zero;
+		}
 		if (query != _flagQuery)
 		{
 			_flagQuery = query;
@@ -333,7 +346,7 @@ public partial class StoryReviewPanel
 		GUILayout.EndHorizontal();
 	}
 
-	private static void SetManual(StatRow row, int value)
+	private static void SetManual(StatRow row, int value, bool record = true)
 	{
 		if (row.LockStat != null)
 		{
@@ -342,6 +355,11 @@ public partial class StoryReviewPanel
 		else
 		{
 			row.Set(value);
+		}
+		// 记进「数值预设」的这次改过的项（套用预设时不记）
+		if (record)
+		{
+			TouchStat(row);
 		}
 	}
 

@@ -23,9 +23,9 @@ public static class AiKnowledge
 	{
 		("search", "按关键词搜游戏剧情：任务名、任务说明和摘要、对白原文、结局和成就、可结缘的女主角。不知道编号时先用它。返回匹配的任务编号、剧本编号、结局编号和片段。",
 			Schema(("query", "string", "关键词，如人名、任务名、地点、一句对白里的词。用简体中文"))),
-		("quest", "看一个任务的详情：所属任务组、主线还是支线、发生时间、地点、触发条件、从哪些剧本接进来、之后接到哪些任务、包含的剧本和每个剧本的剧情摘要。",
+		("quest", "看一个任务的详情：所属任务组、主线还是支线、发生时间、地点、触发条件、从哪些剧本接进来、之后接到哪些任务、包含的剧本和每个剧本的剧情摘要，以及玩家读过多少（全部周目）、这一局走过没有。",
 			Schema(("key", "string", "任务编号，如 S2700_01（从 search 结果里拿）"))),
-		("script", "看一个剧本的详情：游戏的剧情记录、选项、每条分岔路径上的数值和旗标变化、接到哪个剧本、结局和死亡、决斗；以及按分岔分开的对白原文。对白多时分页。",
+		("script", "看一个剧本的详情：游戏的剧情记录、选项、每条分岔路径上的数值和旗标变化、接到哪个剧本、结局和死亡、决斗；以及按分岔分开的对白原文。每个选项、去处标出玩家读过多少（全部周目）和这一局走过没有。对白多时分页。",
 			Schema(("name", "string", "剧本编号，如 S2700_02_01"), ("page", "integer", "对白第几页，从 1 开始，默认 1"))),
 		("endings", "按关键词查结局（汗青书）、死亡（生死簿）、成就、结局 CG：名称、说明，以及在哪个剧本、走哪条分岔能达成。也能按图鉴编号查，如「生死簿3」「结局4」。关键词带「奖励」「二周目」「命运」时，先列出图鉴奖励（收集多少条生死簿、汗青书、哪些成就，开二周目时加什么）。关键词留空则列出全部名称。",
 			Schema(("query", "string", "关键词；传空字符串列出全部名称"))),
@@ -346,6 +346,42 @@ public static class AiKnowledge
 		return sb.ToString().Trim();
 	}
 
+	// 读过多少（全部周目，按对白算）：没有对白时不写
+	private static string ReadNote(IEnumerable<string> lines)
+	{
+		int? read = StoryScripts.ReadPercent(lines);
+		return read == null ? "" : read == 0 ? "〔没读过〕" : read == 100 ? "〔读过〕" : "〔读过 " + read + "%〕";
+	}
+
+	// 这一局走过：剧本写下的剧情记录出现在这一局的剧情记录里
+	private static bool VisitedThisRun(IEnumerable<StoryScript> scripts)
+	{
+		List<string> keys = PlayerStatManagerData.Instance?.StoryKeyList;
+		if (keys == null || keys.Count == 0)
+		{
+			return false;
+		}
+		var visited = new HashSet<string>(keys, StringComparer.Ordinal);
+		return scripts.Any(x => x != null && x.Records.Any(visited.Contains));
+	}
+
+	// 一个去处：这条分岔上的对白加接下去那个剧本的对白读过多少，接下去的剧本这一局走过没有
+	private static string ExitReadNote(StoryScript s, StoryExit exit)
+	{
+		var lines = s.Talk.Where(t => t.Path.Count > 0 && StoryScripts.IsPrefix(t.Path, exit.Path)).Select(t => t.Key).ToList();
+		StoryScript next = exit.Target.Length > 0 ? StoryScripts.Get(exit.Target) : null;
+		if (next != null)
+		{
+			lines.AddRange(next.Lines);
+		}
+		string note = ReadNote(lines);
+		if (next != null && VisitedThisRun(new[] { next }))
+		{
+			note += "（这一局走过）";
+		}
+		return note;
+	}
+
 	private static string MissionLine(StoryMission m) => m.Key + "「" + Clean(m.Title) + "」" + (m.Main ? "（主线）" : "（支线）") + (m.When.Length > 0 ? " " + Clean(m.When) : "");
 
 	private static string Search(string query)
@@ -471,6 +507,9 @@ public static class AiKnowledge
 			return "没有任务「" + key + "」。先用 search 找编号。";
 		}
 		var sb = new StringBuilder("任务 ").Append(MissionLine(m)).Append('\n');
+		bool walked = m.Visited || VisitedThisRun(m.Scripts.Select(StoryScripts.Get));
+		sb.Append("玩家进度：对白读过 ").Append(m.Read == null ? "（没有对白）" : m.Read + "%").Append("（全部周目合计）")
+			.Append(PlayerStatManagerData.Instance != null ? (walked ? "；这一局走过" : "；这一局还没走过") : "").Append('\n');
 		sb.Append("任务组：").Append(Clean(m.SeriesTitle)).Append(m.Inactive ? "；不会在地图上自己触发，只能由别的剧本接进来" : "").Append('\n');
 		if (m.Desc.Length > 0)
 		{
@@ -531,19 +570,19 @@ public static class AiKnowledge
 			}
 			if (s.Menus.Count > 0)
 			{
-				sb.Append("\n【选项】\n");
+				sb.Append("\n【选项】（〔〕里是这个选项后面的对白玩家读过多少，全部周目合计）\n");
 				foreach (List<StoryStep> menu in s.Menus)
 				{
-					sb.Append("- ").Append(string.Join(" / ", menu.Select(x => Clean(StoryScripts.Describe(x))).ToArray())).Append('\n');
+					sb.Append("- ").Append(string.Join(" / ", menu.Select(x => Clean(StoryScripts.Describe(x)) + ReadNote(s.Talk.Where(t => t.Path.Any(p => p.Kind == x.Kind && p.Key == x.Key)).Select(t => t.Key))).ToArray())).Append('\n');
 				}
 			}
 			if (s.Exits.Count > 0)
 			{
-				sb.Append("\n【去处】（分岔路径 ⇒ 接到哪；变化是这条路上的数值、好感、旗标、物品变化）\n");
+				sb.Append("\n【去处】（分岔路径 ⇒ 接到哪；变化是这条路上的数值、好感、旗标、物品变化；〔〕里是这条路和接下去的剧本玩家读过多少（全部周目），以及这一局走过没有）\n");
 				foreach (StoryExit exit in s.Exits)
 				{
 					string target = exit.ToTitle ? "回到标题（结局）" : exit.ToMap ? "回地图" : exit.Target.Length > 0 ? "剧本 " + exit.Target + (StoryAtlas.Owner.TryGetValue(exit.Target, out StoryMission t) && t != owner ? "（任务 " + t.Key + "「" + Clean(t.Title) + "」）" : "") : "（剧本结束）";
-					sb.Append("- ").Append(PathText(exit.Path)).Append(exit.AfterScene ? "，战斗后" : "").Append(" ⇒ ").Append(target);
+					sb.Append("- ").Append(PathText(exit.Path)).Append(exit.AfterScene ? "，战斗后" : "").Append(" ⇒ ").Append(target).Append(ExitReadNote(s, exit));
 					if (exit.MainMission.Length > 0)
 					{
 						sb.Append("，主线推进到 ").Append(exit.MainMission);

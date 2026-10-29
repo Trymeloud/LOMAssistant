@@ -11,6 +11,8 @@ namespace LOMAssistant.Features.Extras;
 /// （游戏的最终值本来卡在下限以上，底数为负时不卡）。
 /// 底数已经是负数时，游戏加减、设值不再把它拉回下限：加多少就从负数往上加；往下扣不会比现在更低。
 /// 读档时存档里的负数底数照样读进来。底数没变成负数的数值完全按原版。
+/// 只管主角自己的数值（数值页能改的那些）：别的数值（敌方势力的默认血量等）有的本来就是底数 0、靠下限抬到 200，
+/// 按负数处理会变成 0（团战敌人一出生就死，直接获胜），这些一律按原版。
 /// </summary>
 public static class NegativeBasePatch
 {
@@ -19,6 +21,38 @@ public static class NegativeBasePatch
 
 	/// <summary>读档时大于 0：存档里的负数底数照样读进来。</summary>
 	private static int _loading;
+
+	// 主角自己的数值（PlayerStatData 里的那份，整局不换对象）；第一次用时记下来
+	private static readonly System.Collections.Generic.HashSet<GameStat> _playerStats = new System.Collections.Generic.HashSet<GameStat>();
+
+	private static float _nextTry;
+
+	private static bool IsPlayerStat(GameStat stat)
+	{
+		// 最终值每帧要算很多次：还没找到主角的数值时最多每秒找一次
+		if (_playerStats.Count == 0 && Time.realtimeSinceStartup >= _nextTry)
+		{
+			_nextTry = Time.realtimeSinceStartup + 1f;
+			try
+			{
+				var list = Traverse.Create(PlayerStatManagerData.Instance?.Stats).Field("_list").GetValue<System.Collections.IEnumerable>();
+				if (list != null)
+				{
+					foreach (object o in list)
+					{
+						if (o is GameStat g)
+						{
+							_playerStats.Add(g);
+						}
+					}
+				}
+			}
+			catch
+			{
+			}
+		}
+		return _playerStats.Contains(stat);
+	}
 
 	/// <summary>
 	/// 数值页设定最终值：底数够用时走游戏自己的加减；要低于加成时直接写负数底数（最终值可以是负数，最低 -9999）。
@@ -60,7 +94,7 @@ public static class NegativeBasePatch
 		{
 			return;
 		}
-		if (_loading > 0 && value < __instance.Min)
+		if (_loading > 0 && value < __instance.Min && IsPlayerStat(__instance))
 		{
 			ValueField(__instance) = value;
 			return;
@@ -71,7 +105,7 @@ public static class NegativeBasePatch
 	// 原来就是负数底数：结果不低于原来的值，还在下限以下就保留（游戏刚把它截成了下限）
 	private static void Keep(GameStat stat, int old, int wanted)
 	{
-		if (old >= stat.Min)
+		if (old >= stat.Min || !IsPlayerStat(stat))
 		{
 			return;
 		}
@@ -88,7 +122,7 @@ public static class NegativeBasePatch
 	public static void FinalValue_Postfix(GameStat __instance, ref int __result)
 	{
 		int value = ValueField(__instance);
-		if (value < __instance.Min)
+		if (value < __instance.Min && IsPlayerStat(__instance))
 		{
 			__result = Mathf.Min(__result, value + __instance.AdditionValue);
 		}

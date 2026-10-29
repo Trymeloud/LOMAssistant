@@ -932,7 +932,14 @@ internal class InstallerForm : Form
 				Close();
 				return;
 			}
-			MessageBox.Show(this, F("已导出到桌面：\n{0}\n\n路径已复制。反馈问题时把这个压缩包发给作者（QQ 群 496887060）。", Path.GetFileName(path)), L("导出诊断"), MessageBoxButtons.OK, MessageBoxIcon.Information);
+			try
+			{
+				System.Diagnostics.Process.Start("explorer.exe", "/select,\"" + path + "\"");
+			}
+			catch
+			{
+			}
+			MessageBox.Show(this, F("已导出：\n{0}\n\n路径已复制，资源管理器里也已选中它。反馈问题时把这个压缩包发给作者（QQ 群 496887060）。", path), L("导出诊断"), MessageBoxButtons.OK, MessageBoxIcon.Information);
 		}
 		catch (Exception e)
 		{
@@ -990,7 +997,13 @@ internal class InstallerForm : Form
 			}
 			// 混进了 BepInEx 5 的文件时，加载器多半被换掉了，版本一样也要重装一遍
 			bool mixed = File.Exists(Path.Combine(_game, @"BepInEx\core\BepInEx.dll")) || File.Exists(Path.Combine(_game, @"BepInEx\core\BepInEx.Preloader.dll"));
-			if (installed != null && newest != null && File.Exists(Path.Combine(_game, "winhttp.dll")) && !mixed
+			// 加载器开关被别的 Mod 管理器关掉了：也重装一遍，复制过去的 doorstop_config.ini 会把它打开
+			bool switchedOff = Diagnostics.DoorstopDisabled(_game);
+			if (switchedOff)
+			{
+				Log(L("加载器开关被关掉了（doorstop_config.ini 里 enabled = false），重新安装把它打开。"));
+			}
+			if (installed != null && newest != null && File.Exists(Path.Combine(_game, "winhttp.dll")) && !mixed && !switchedOff
 				&& (Short(installed) == Short(newest) || installed > newest))
 			{
 				DisablePlugins(disable);

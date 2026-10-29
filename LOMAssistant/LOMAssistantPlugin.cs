@@ -16,7 +16,7 @@ using UnityEngine;
 
 namespace LOMAssistant;
 
-[BepInPlugin("LOMAssistant", "咖啡伴侣", "3.0.6")]
+[BepInPlugin("LOMAssistant", "咖啡伴侣", "3.0.9")]
 public class LOMAssistantPlugin : BaseUnityPlugin
 {
 	private Harmony _harmony;
@@ -50,6 +50,7 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 		{
 			LOMAssistant.Features.Story.StoryReviewPanel.ToggleStats();
 		}
+		LOMAssistant.Features.Extras.SkipActionPatch.CheckHotkey();
 	}
 
 	private void OnDestroy()
@@ -104,6 +105,7 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 			if (ConfigManager.EnableOptionInfo.Value)
 			{
 				TryPatchAll(typeof(OptionInfoPatch));
+				TryPatchAll(typeof(DeltaColorFit));
 				OptionHoverHint.Ensure(base.gameObject);
 				LogInfo("选项信息补丁已应用。");
 			}
@@ -134,6 +136,8 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 				TryPatchAll(typeof(BattleWinPatch));
 				LogInfo("团战直接获胜补丁已应用。");
 			}
+			// 团战开打、结束写进 Mod 日志（只记录，不改游戏）
+			TryPatchAll(typeof(BattleLogPatch));
 			TryPatchAll(typeof(PinballScorePatch));
 			LogInfo("弹珠分数补丁已应用。");
 			TryPatchAll(typeof(TrainingCheatPatch));

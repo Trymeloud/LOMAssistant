@@ -120,7 +120,7 @@ public partial class StoryReviewPanel
 				GUILayout.Label(way, _rich);
 				if (effects.Length > 0)
 				{
-					GUILayout.Label(effects, _muted);
+					GUILayout.Label(Cached((way, effects, PanelTheme.Dark), () => PanelDeltas(effects)), _muted);
 				}
 				GUILayout.EndVertical();
 			}
@@ -200,7 +200,7 @@ public partial class StoryReviewPanel
 		GUILayout.Label(option + (mark.Length > 0 ? "　<color=#A3302A>" + mark + "</color>" : ""), _rich);
 		if (result.Length > 0)
 		{
-			GUILayout.Label(Cached((key, "result"), () => ColorDeltas(result)), _muted);
+			GUILayout.Label(Cached((key, "result", LOMAssistant.Config.ConfigManager.ColorOptionDeltas.Value), () => ColorDeltas(result)), _muted);
 		}
 		GUILayout.EndVertical();
 	}
@@ -208,7 +208,7 @@ public partial class StoryReviewPanel
 	private static readonly System.Text.RegularExpressions.Regex Delta = new System.Text.RegularExpressions.Regex(@"(?<![\w.])([+-])(\d+(?:\.\d+)?)");
 
 	/// <summary>数值变化上色：加的绿、减的红。</summary>
-	private static string ColorDeltas(string text) =>
+	private static string ColorDeltas(string text) => !LOMAssistant.Config.ConfigManager.ColorOptionDeltas.Value ? text :
 		Delta.Replace(text, m => (m.Groups[1].Value == "+" ? "<color=#2F6B3A>" : "<color=#A3302A>") + m.Value + "</color>");
 
 	// Translate each mission-title segment separately. IDs and internal keys stay unchanged.

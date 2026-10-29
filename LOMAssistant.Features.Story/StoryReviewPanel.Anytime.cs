@@ -18,6 +18,12 @@ public partial class StoryReviewPanel
 	private string _noteFile, _noteText = "";
 	private string _deleteFile;
 	private float _deleteUntil;
+	// 列表筛选（0 全部、1 剧情、2 养成、3 有备注）、折起来的月份、整组删除要点两下
+	private int _anytimeFilter;
+	private readonly HashSet<string> _anytimeFolded = new HashSet<string>();
+	private string _deleteGroup;
+	private float _deleteGroupUntil;
+	private static readonly string[] AnytimeFilters = { "全部", "剧情", "养成", "有备注" };
 
 	/// <summary>咖啡伴侣窗口开着吗（随时存档的提示开着窗口时不另外画）。</summary>
 	public static bool IsOpen => Instance != null && Instance._visible;
@@ -107,9 +113,25 @@ public partial class StoryReviewPanel
 		}
 		GUI.Label(new Rect(x + S(10), r.y, r.xMax - x - S(10), h), save.Status(), Middle(_muted));
 		GUI.Label(new Rect(r.x, r.y + S(42), r.width, S(28)),
-			$"共 {saves.Count} 个，最多保留 {ConfigManager.AnytimeSaveLimit.Value} 个，超过自动删最旧的（设置页可改）。鼠标停在存档上看当时的剧情和对白。", _muted);
+			ConfigManager.AnytimeSaveLimit.Value > 0
+				? $"共 {saves.Count} 个，最多保留 {ConfigManager.AnytimeSaveLimit.Value} 个，超过自动删最旧的，有备注的不删（设置页可改）。鼠标停在存档上看当时的剧情和对白。"
+				: $"共 {saves.Count} 个，不自动删（设置页可设上限）。鼠标停在存档上看当时的剧情和对白。", _muted);
 
-		var area = new Rect(r.x, r.y + S(76), r.width, r.height - S(76));
+		// 筛选：全部 / 剧情 / 养成 / 有备注
+		float fx = r.x;
+		for (int i = 0; i < AnytimeFilters.Length; i++)
+		{
+			float w = S(96);
+			if (GUI.Button(new Rect(fx, r.y + S(74), w, S(32)), AnytimeFilters[i], _anytimeFilter == i ? _primary : _button))
+			{
+				_anytimeFilter = i;
+			}
+			fx += w + S(8);
+		}
+		List<SaveSummary> shown = saves.Where(s => _anytimeFilter == 0 || (_anytimeFilter == 1 && s.scene == "Story")
+			|| (_anytimeFilter == 2 && s.scene == "Free") || (_anytimeFilter == 3 && !string.IsNullOrEmpty(s.note))).ToList();
+
+		var area = new Rect(r.x, r.y + S(114), r.width, r.height - S(114));
 		DragScroll("anytime", area, ref _anytimeScroll);
 		GUILayout.BeginArea(area);
 		_anytimeScroll = GUILayout.BeginScrollView(_anytimeScroll);
@@ -117,12 +139,68 @@ public partial class StoryReviewPanel
 		{
 			GUILayout.Label("还没有随时存档。在剧情的台词、选项、掷骰时或养成界面按 " + InputGuard.KeyName(ConfigManager.AnytimeSaveKey.Value) + " 存一个。", _muted);
 		}
-		foreach (SaveSummary s in saves.ToList())
+		else if (shown.Count == 0)
 		{
-			DrawAnytimeRow(save, s);
+			GUILayout.Label("没有符合筛选的随时存档。", _muted);
+		}
+		// 按游戏里的月份分组（列表本来就按时间从新到旧），每组可以折起来、整组删除
+		foreach (var group in shown.GroupBy(AnytimeMonth).ToList())
+		{
+			DrawAnytimeGroup(save, group.Key, group.ToList());
+			if (!_anytimeFolded.Contains(group.Key))
+			{
+				foreach (SaveSummary s in group)
+				{
+					DrawAnytimeRow(save, s);
+				}
+			}
 		}
 		GUILayout.EndScrollView();
 		GUILayout.EndArea();
+	}
+
+	/// <summary>存档时的游戏月份（「第2年　3月」，中间全角空格让两半各自翻译），分组用；没记下日期的归到一组。</summary>
+	private static string AnytimeMonth(SaveSummary s)
+	{
+		var m = System.Text.RegularExpressions.Regex.Match(s.gameTime ?? "", @"^第(\d+)年(\d+)月");
+		return m.Success ? "第" + m.Groups[1].Value + "年　" + m.Groups[2].Value + "月" : "日期不明";
+	}
+
+	private void DrawAnytimeGroup(AnytimeSave.AnytimeSave save, string month, List<SaveSummary> items)
+	{
+		bool folded = _anytimeFolded.Contains(month);
+		GUILayout.BeginHorizontal();
+		if (GUILayout.Button((folded ? "▶ " : "▼ ") + "<b>" + month + "</b>　<color=#73644F>" + items.Count + " 个存档</color>", _rich, Ctl()))
+		{
+			if (!_anytimeFolded.Remove(month))
+			{
+				_anytimeFolded.Add(month);
+			}
+		}
+		GUILayout.FlexibleSpace();
+		// 整组删除要点两下；有备注的留着
+		int removable = items.Count(s => string.IsNullOrEmpty(s.note));
+		GUI.enabled = removable > 0 && !save.Busy;
+		bool confirm = _deleteGroup == month && Time.unscaledTime < _deleteGroupUntil;
+		string label = confirm ? "确定删除这 " + removable + " 个？" : "删这一组（有备注的不删）";
+		if (GUILayout.Button(label, confirm ? _primary : _button, GUILayout.Width(S(confirm ? 200 : 240)), Ctl()))
+		{
+			if (confirm)
+			{
+				_deleteGroup = null;
+				foreach (SaveSummary s in items.Where(s => string.IsNullOrEmpty(s.note)).ToList())
+				{
+					save.Delete(s.file);
+				}
+			}
+			else
+			{
+				_deleteGroup = month;
+				_deleteGroupUntil = Time.unscaledTime + 3f;
+			}
+		}
+		GUI.enabled = true;
+		GUILayout.EndHorizontal();
 	}
 
 	private void DrawAnytimeRow(AnytimeSave.AnytimeSave save, SaveSummary s)
@@ -141,9 +219,15 @@ public partial class StoryReviewPanel
 			head.Add(mission);
 		}
 		GUILayout.Label($"<b>{AnytimeSave.AnytimeSave.DisplayName(s)}</b>　<color=#73644F>{when}</color>　" + string.Join(" · ", head.Where(t => t.Length > 0).ToArray()), _rich);
+		// 存档经过的剧本被游戏更新改过：重演会对不上，不让读
+		bool changed = s.error == null && AnytimeSave.AnytimeSave.ChangedScript(s.scripts) != null;
 		if (s.error != null)
 		{
 			GUILayout.Label("<color=#A3302A>读不了：" + s.error + "</color>", _small);
+		}
+		else if (changed)
+		{
+			GUILayout.Label("<color=#A3302A>游戏更新改过这个存档经过的剧本，读不了</color>", _small);
 		}
 		else if (s.preview.Length > 0)
 		{
@@ -180,7 +264,7 @@ public partial class StoryReviewPanel
 			_noteText = s.note ?? "";
 			GUI.FocusControl("anytimeNote");
 		}
-		GUI.enabled = s.error == null && !save.Busy;
+		GUI.enabled = s.error == null && !changed && !save.Busy;
 		if (GUILayout.Button("读取", _primary, GUILayout.Width(S(80)), Ctl()))
 		{
 			save.LoadFile(s.file);

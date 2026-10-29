@@ -10,7 +10,8 @@ using UnityEngine;
 namespace LOMAssistant;
 
 /// <summary>
-/// 导出诊断：把排查问题需要的文件打成一个压缩包放到桌面，路径复制到剪贴板。
+/// 导出诊断：把排查问题需要的文件打成一个压缩包放到桌面（桌面写不进去就依次试「文档」、游戏目录、游戏存档文件夹、临时文件夹），
+/// 路径复制到剪贴板，并在资源管理器里选中它。
 /// 包含：本 Mod 最近 3 个日志、BepInEx 日志、游戏日志（Player.log）、本 Mod 配置、plugins 插件清单和版本信息。
 /// 不包含存档。
 /// </summary>
@@ -18,13 +19,9 @@ public static class DiagnosticsExport
 {
 	public static string Export()
 	{
-		string desktop = Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory);
-		if (string.IsNullOrEmpty(desktop) || !Directory.Exists(desktop))
-		{
-			desktop = Paths.GameRootPath;
-		}
-		string zipPath = Path.Combine(desktop, "咖啡伴侣诊断_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".zip");
-		using (FileStream stream = File.Create(zipPath))
+		string name = "咖啡伴侣诊断_" + DateTime.Now.ToString("yyyyMMdd_HHmmss") + ".zip";
+		FileStream stream = CreateWritable(name, out string zipPath);
+		using (stream)
 		using (var zip = new ZipArchive(stream, ZipArchiveMode.Create))
 		{
 			AddText(zip, "说明.txt", Summary());
@@ -51,7 +48,46 @@ public static class DiagnosticsExport
 		catch
 		{
 		}
+		try
+		{
+			System.Diagnostics.Process.Start("explorer.exe", "/select,\"" + zipPath + "\"");
+		}
+		catch
+		{
+		}
 		return zipPath;
+	}
+
+	// 有的电脑桌面没有写入权限（公司电脑、权限被改过、杀毒软件拦着），按顺序找第一个写得进去的地方
+	private static FileStream CreateWritable(string name, out string path)
+	{
+		var dirs = new[]
+		{
+			Environment.GetFolderPath(Environment.SpecialFolder.DesktopDirectory),
+			Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+			Paths.GameRootPath,
+			Application.persistentDataPath,
+			Path.GetTempPath(),
+		};
+		Exception last = null;
+		foreach (string dir in dirs)
+		{
+			if (string.IsNullOrEmpty(dir) || !Directory.Exists(dir))
+			{
+				continue;
+			}
+			try
+			{
+				path = Path.Combine(dir, name);
+				return File.Create(path);
+			}
+			catch (Exception e)
+			{
+				last = e;
+				FileLogger.Log("导出诊断：" + dir + " 写不进去（" + e.Message + "），换下一个位置");
+			}
+		}
+		throw last ?? new IOException("没有可以写入的文件夹");
 	}
 
 	private static string Summary()

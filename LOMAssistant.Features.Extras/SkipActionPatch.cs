@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using HarmonyLib;
+using LOMAssistant.Config;
 using Mortal.Core;
 using Mortal.Free;
 using Mortal.Story;
@@ -53,6 +54,25 @@ public static class SkipActionPatch
 		catch (Exception e)
 		{
 			LOMAssistantPlugin.LogError("空过：添加按钮失败: " + e);
+		}
+	}
+
+	/// <summary>空过热键（默认不绑定）：养成地图上同 ESC 菜单的「空过」，剧情里的自由行动菜单同剧情 ESC 菜单的「空过」。</summary>
+	internal static void CheckHotkey()
+	{
+		KeyCode key = ConfigManager.SkipActionKey.Value;
+		if (key == KeyCode.None || !ConfigManager.EnableSkipAction.Value || GUIUtility.keyboardControl != 0 || InputGuard.ModWindowOpen || !InputGuard.HotkeyDown(key))
+		{
+			return;
+		}
+		string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
+		if (scene == "Free" && FreeManager.Instance != null)
+		{
+			OnSkipClick();
+		}
+		else if (scene == "Story" && InBreakMenu())
+		{
+			OnStorySkipClick();
 		}
 	}
 
