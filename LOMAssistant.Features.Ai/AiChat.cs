@@ -203,7 +203,7 @@ public static class AiChat
 			{
 				Shown.Add(new Entry { Kind = Kind.Activity, Text = AiKnowledge.Activity(call.Name, call.Args) });
 				string result;
-				if (call.Name != "propose_change" && !looked.Add(call.Name + call.Args.ToString(Newtonsoft.Json.Formatting.None)))
+				if (call.Name != "propose_change" && !looked.Add(call.Name + call.Args.ToString(Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonConverter[0])))
 				{
 					result = "（这个查询前面已经查过，结果就在上面，直接用）";
 				}
@@ -215,7 +215,7 @@ public static class AiChat
 				{
 					result = result.Substring(0, MaxToolChars) + "\n……（太长，后面省略）";
 				}
-				AiDebug.Tool(call.Name, call.Args.ToString(Newtonsoft.Json.Formatting.None), result);
+				AiDebug.Tool(call.Name, call.Args.ToString(Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonConverter[0]), result);
 				turn.Add(new ChatMessage { Role = ChatMessage.Tool, CallId = call.Id, Text = result });
 			}
 		}

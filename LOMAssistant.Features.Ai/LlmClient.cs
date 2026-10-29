@@ -137,7 +137,7 @@ public static class LlmClient
 				body["stream_options"] = new JObject { ["include_usage"] = true };
 			}
 		}
-		byte[] payload = Encoding.UTF8.GetBytes(body.ToString(Formatting.None));
+		byte[] payload = Encoding.UTF8.GetBytes(body.ToString(Formatting.None, new JsonConverter[0]));
 		// 服务商一时忙不过来（429、5xx、Claude 的 529）且还没收到任何内容时，等一会儿自动再试，最多再试两次
 		for (int attempt = 0; ; attempt++)
 		{
@@ -553,7 +553,7 @@ public static class LlmClient
 						{
 							["id"] = c.Id,
 							["type"] = "function",
-							["function"] = new JObject { ["name"] = c.Name, ["arguments"] = c.Args.ToString(Formatting.None) }
+							["function"] = new JObject { ["name"] = c.Name, ["arguments"] = c.Args.ToString(Formatting.None, new JsonConverter[0]) }
 						};
 						if (c.Extra != null)
 						{
