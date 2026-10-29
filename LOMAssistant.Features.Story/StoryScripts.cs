@@ -480,18 +480,18 @@ public static class StoryScripts
 			case StoryStep.Option:
 				string need = step.Requirement.Length > 0 ? DataHelper.ParseConditionCheckpoint(step.Requirement) : "";
 				if (korean)
-					return "선택 「" + OptionText(step.Key) + "」" + (need.Length > 0 ? " (필요: " + TextConverter.ForDisplay(TextConverter.ToSimplified(need)) + ")" : "");
+					return KoreanStoryText.Get(KoreanStoryMessage.SelectOption, OptionText(step.Key)) + (need.Length > 0 ? " (" + KoreanStoryText.Get(KoreanStoryMessage.Requires, TextConverter.ForDisplay(TextConverter.ToSimplified(need))) + ")" : "");
 				return "选「" + OptionText(step.Key) + "」" + (need.Length > 0 ? "（需 " + TextConverter.ToSimplified(need) + "）" : "");
 			case StoryStep.Dice:
 				if (korean)
-					return "주사위 판정 「" + OptionText(step.Key) + "」" + (step.Range.Length > 0 ? " (" + step.Range + ")" : "");
+					return KoreanStoryText.Get(KoreanStoryMessage.DiceResult, OptionText(step.Key)) + (step.Range.Length > 0 ? " (" + step.Range + ")" : "");
 				return "掷骰「" + OptionText(step.Key) + "」" + (step.Range.Length > 0 ? "（" + step.Range + "）" : "");
 			default:
 				if (step.Arm == 0)
 					return Otherwise(step.Key, true);
 				string arm = DataHelper.SwitchBranchCondition(step.Key, step.Arm);
 				if (korean)
-					return arm.Length > 0 ? "조건: " + TextConverter.ForDisplay(TextConverter.ToSimplified(arm)) : "조건 불명";
+					return arm.Length > 0 ? KoreanStoryText.Get(KoreanStoryMessage.IfCondition, TextConverter.ForDisplay(TextConverter.ToSimplified(arm))) : KoreanStoryText.Get(KoreanStoryMessage.UnknownCondition);
 				return arm.Length > 0 ? "若 " + TextConverter.ToSimplified(arm) : "条件不明";
 		}
 	}
@@ -518,11 +518,11 @@ public static class StoryScripts
 		var arms = ArmConditions(checkpoint);
 		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
 		if (arms.Count == 0)
-			return korean ? "그 외" : "否则";
+			return korean ? KoreanStoryText.Get(KoreanStoryMessage.Otherwise) : "否则";
 		if (korean)
 		{
 			arms = arms.Select(a => UiTextKorean.ConditionSummary(a, full)).ToList();
-			return arms.Count == 1 ? "그 외 (불충족: " + arms[0] + ")" : "그 외 (모두 불충족: " + string.Join("; ", arms.ToArray()) + ")";
+			return KoreanStoryText.Get(arms.Count == 1 ? KoreanStoryMessage.OtherwiseOne : KoreanStoryMessage.OtherwiseAll, string.Join("; ", arms));
 		}
 		if (!full)
 			arms = arms.Select(a => a.Length > 18 ? a.Substring(0, 18) + "…" : a).ToList();
@@ -551,9 +551,9 @@ public static class StoryScripts
 		string where;
 		if (korean)
 		{
-			where = exit.ToTitle ? "타이틀 화면으로 돌아감 (결말)"
-				: exit.ToMap ? "지도로 돌아감"
-				: exit.Target.Length > 0 ? (exit.AfterScene ? "전투 후 " : "") + "「" + TextConverter.ForDisplay(SegmentName(exit.Target)) + "」로 이어짐"
+			where = exit.ToTitle ? KoreanStoryText.Get(KoreanStoryMessage.ReturnTitle)
+				: exit.ToMap ? KoreanStoryText.Get(KoreanStoryMessage.BackToMap)
+				: exit.Target.Length > 0 ? KoreanStoryText.Get(exit.AfterScene ? KoreanStoryMessage.ContinueAfterBattle : KoreanStoryMessage.ContinueScript, TextConverter.ForDisplay(SegmentName(exit.Target)))
 				: "";
 		}
 		else
@@ -566,14 +566,14 @@ public static class StoryScripts
 			string title = mission != null ? mission.Title : exit.MainMission;
 			if (korean)
 			{
-				where = (where.Length > 0 ? where + ", " : "") + "주요 이야기 「" + TextConverter.ForDisplay(title) + "」로 진행";
+				where = (where.Length > 0 ? where + ", " : "") + KoreanStoryText.Get(KoreanStoryMessage.AdvanceMain, TextConverter.ForDisplay(title));
 			}
 			else
 			{
 				where = (where.Length > 0 ? where + "，" : "") + "主线推进到「" + title + "」";
 			}
 		}
-		parts.Add(where.Length > 0 ? where : (korean ? "이 구간에서 계속 진행" : "（这一段里接着往下）"));
+		parts.Add(where.Length > 0 ? where : (korean ? KoreanStoryText.Get(KoreanStoryMessage.ContinueScene) : "（这一段里接着往下）"));
 		return string.Join(" → ", parts.ToArray());
 	}
 }

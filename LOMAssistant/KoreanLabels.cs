@@ -13,6 +13,7 @@ internal static class KoreanLabels
     private static readonly Regex Han = new Regex(@"[一-鿿]");
     private static readonly Dictionary<string, string> Variables = MakeVariables();
     private static readonly Dictionary<string, string> Flags = LoadFlags();
+    private static readonly Dictionary<string, string> Missions = UiQuestNames.Table.ToDictionary(row => row[0], row => row[1], StringComparer.Ordinal);
     internal static Action<string> ReportMissing { get; set; }
     private static readonly HashSet<string> Missing = new HashSet<string>(StringComparer.Ordinal);
     // Place IDs from the game; names checked against its official Korean menu.
@@ -66,6 +67,13 @@ internal static class KoreanLabels
         ? value : KoreanText.Get(KoreanMessage.Flag, id);
 
     internal static bool HasFlag(string id) => Flags.ContainsKey(id ?? "");
+
+    internal static string MissionName(string raw)
+    {
+        raw = (raw ?? "").Trim();
+        if (Missions.TryGetValue(raw, out string exact)) return exact;
+        return string.Join(" - ", raw.Split(new[] { " - " }, StringSplitOptions.None).Select(s => Variable(s.Trim())));
+    }
 
     internal static string Variable(string name)
     {

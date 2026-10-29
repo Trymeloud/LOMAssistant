@@ -28,9 +28,9 @@ public partial class StoryReviewPanel
 		CreditPanel panel = _creditsPlaying ? null : FindCreditPanel();
 		bool wasEnabled = GUI.enabled;
 		GUI.enabled = wasEnabled && panel != null;
-		bool clicked = GUILayout.Button("看片尾动画", _button, GUILayout.Width(TextWidth("看片尾动画", _button, S(160))));
+		bool clicked = GUILayout.Button(StoryUi.Text(KoreanStoryMessage.Credits, "看片尾动画"), _button, GUILayout.Width(TextWidth(StoryUi.Text(KoreanStoryMessage.Credits, "看片尾动画"), _button, S(160))));
 		GUI.enabled = wasEnabled;
-		Hover(GUILayoutUtility.GetLastRect(), panel != null ? "放一遍通关时的片尾字幕动画，按 Esc 结束" : "在剧情场景里才能放（读档进入剧情后再来）");
+		Hover(GUILayoutUtility.GetLastRect(), panel != null ? StoryUi.Text(KoreanStoryMessage.CreditsHint, "放一遍通关时的片尾字幕动画，按 Esc 结束") : StoryUi.Text(KoreanStoryMessage.CreditsUnavailable, "在剧情场景里才能放（读档进入剧情后再来）"));
 		if (clicked && panel != null)
 		{
 			_visible = false;

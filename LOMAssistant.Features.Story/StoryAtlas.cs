@@ -23,14 +23,18 @@ public sealed class StoryMission
 	/// <summary>所属任务组（MissionData），主线为 Main。</summary>
 	public string Series = "";
 	public string SeriesTitle = "";
+	public string FullSeriesTitle = "";
 	public bool Main;
 	/// <summary>游戏数据里没启用、不会在地图上自己触发，只能由别的剧本直接接进来（襄阳行这类）。</summary>
 	public bool Inactive;
 	public string Desc = "";
+	public string FullDesc = "";
 	public string Place = "";
 	/// <summary>触发时间，按旬计；任意时间、每月一次的为 null。</summary>
 	public int? From, To;
 	public string When = "";
+	public bool HasTimeLimit;
+	public int? MonthlyStage;
 	public string StartScript = "";
 	public ConditionResultItem[] Conditions = new ConditionResultItem[0];
 	/// <summary>从开始剧本一路接下去、到回地图或别的任务为止的剧本。</summary>
@@ -55,8 +59,8 @@ public sealed class StoryMission
 				return Desc.Length == 0 && Summary.Length > 16 ? Summary.Substring(0, 16) + "…" : raw;
 			// Developer-authored mission descriptions often join two names with " - ".
 			// Translate each full name BEFORE it is embedded in the combined label.
-			string translated = string.Join(" - ", TextConverter.ToSimplified(raw).Split(new[] { " - " }, StringSplitOptions.None)
-				.Select(part => TextConverter.ForDisplay(part.Trim())).ToArray());
+			if (FullDesc.Length > 0) raw = FullDesc;
+			string translated = KoreanLabels.MissionName(TextConverter.ToSimplified(raw));
 			return Desc.Length == 0 && Summary.Length > 0 && translated.Length > 16 ? translated.Substring(0, 16) + "…" : translated;
 		}
 	}
@@ -123,6 +127,13 @@ public static class StoryAtlas
 	public static bool Ready { get; private set; }
 	public static bool Building => _steps != null;
 	public static string Status { get; private set; } = "";
+	private static string _koreanStatus = "";
+	internal static string DisplayStatus => NativeKorean.Enabled ? _koreanStatus : Status;
+	private static void SetStatus(KoreanStoryMessage key, string legacy, params object[] args)
+	{
+		Status = legacy;
+		_koreanStatus = KoreanStoryText.Get(key, args);
+	}
 	/// <summary>主线现在到哪一步（路线图上的「今」）：每次都读游戏当前的值，不用读剧本时存下的（游戏推进、换存档都要跟着变）。</summary>
 	public static string CurrentMain => MissionManagerData.Instance?.Main?.CurrentKey ?? "";
 	/// <summary>每次生成完加一，面板据此重新排版。</summary>
@@ -206,7 +217,7 @@ public static class StoryAtlas
 		Ready = false;
 		DialogueReady = false;
 		_dialoguePhase = false;
-		Status = "正在读取剧本";
+		SetStatus(KoreanStoryMessage.PreparingScripts, "正在读取剧本");
 		_steps = Build();
 	}
 
@@ -234,7 +245,7 @@ public static class StoryAtlas
 					Ready = true;
 					Version++;
 					Conditions.Clear();
-					Status = "";
+					Status = _koreanStatus = "";
 					// 剧本读完就能用了；台词索引接着在后台整理
 					_dialoguePhase = true;
 					_steps = BuildDialogue();
@@ -245,7 +256,7 @@ public static class StoryAtlas
 		catch (Exception ex)
 		{
 			_steps = null;
-			Status = "生成失败：" + ex.Message;
+			SetStatus(KoreanStoryMessage.BuildFailed, "生成失败：" + ex.Message, ex.Message);
 			FileLogger.LogWarning("[剧情回顾] 生成时间线失败: " + ex);
 		}
 	}
@@ -274,7 +285,7 @@ public static class StoryAtlas
 			Resources.UnloadAsset(asset);
 			if (i % 20 == 0)
 			{
-				Status = $"正在读取剧本 {i}/{assets.Length}";
+				SetStatus(KoreanStoryMessage.ScriptsProgress, $"正在读取剧本 {i}/{assets.Length}", i, assets.Length);
 				yield return null;
 			}
 		}
@@ -282,11 +293,11 @@ public static class StoryAtlas
 		yield return null;
 
 		// 任务
-		Status = "正在整理任务";
+		SetStatus(KoreanStoryMessage.PreparingMissions, "正在整理任务");
 		MissionManagerData data = MissionManagerData.Instance;
 		if (data == null)
 		{
-			Status = "读档进入游戏后再生成";
+			SetStatus(KoreanStoryMessage.LoadBeforeBuild, "读档进入游戏后再生成");
 			yield break;
 		}
 		AddSeries(data.Main, true);
@@ -369,7 +380,7 @@ public static class StoryAtlas
 			}
 			if (++done % 10 == 0)
 			{
-				Status = $"正在整理任务 {done}/{Missions.Count}";
+				SetStatus(KoreanStoryMessage.MissionsProgress, $"正在整理任务 {done}/{Missions.Count}", done, Missions.Count);
 				yield return null;
 			}
 		}
@@ -449,7 +460,7 @@ public static class StoryAtlas
 		}
 
 		// 结局速查：游戏的汗青书（结局）和生死簿（死亡）条目，加上剧本里哪些地方会触发它们
-		Status = "正在整理结局";
+		SetStatus(KoreanStoryMessage.PreparingEndings, "正在整理结局");
 		var byId = new Dictionary<string, StoryEnding>(StringComparer.Ordinal);
 		LibrarySystem library = LibrarySystem.Instance;
 		void AddItems(LibraryItemCollection collection, bool death)
@@ -634,8 +645,10 @@ public static class StoryAtlas
 		}
 		string title = TextConverter.ToSimplified(series.Name ?? "");
 		string desc = TextConverter.ToSimplified(series.GetFieldValue<string>("_desc") ?? "");
+		string fullTitle = title;
 		if (title.Length == 0 || IsCode(title))
 		{
+			fullTitle = desc.Length > 0 ? FirstLine(desc, int.MaxValue) : series.name;
 			title = desc.Length > 0 ? FirstLine(desc, 16) : series.name;
 		}
 		foreach (MissionCheckData check in series.GetFieldValue<MissionCheckData[]>("_missions") ?? new MissionCheckData[0])
@@ -651,8 +664,10 @@ public static class StoryAtlas
 				Key = check.Key,
 				Series = series.name,
 				SeriesTitle = main ? "主线" : title,
+				FullSeriesTitle = main ? "主线" : fullTitle,
 				Main = main,
 				Desc = FirstLine(TextConverter.ToSimplified(check.GetFieldValue<string>("_desc") ?? ""), 30),
+				FullDesc = FirstLine(TextConverter.ToSimplified(check.GetFieldValue<string>("_desc") ?? ""), int.MaxValue),
 				Place = PlaceName(check.Position),
 				StartScript = check.StartScript ?? "",
 				Conditions = check.GetFieldValue<ConditionResultItem[]>("_conditions") ?? new ConditionResultItem[0],
@@ -667,7 +682,8 @@ public static class StoryAtlas
 
 	private static void SetTime(StoryMission mission, MissionCheckData check)
 	{
-		if (!check.GetFieldValue<bool>("_dayCheck"))
+		mission.HasTimeLimit = check.GetFieldValue<bool>("_dayCheck");
+		if (!mission.HasTimeLimit)
 		{
 			mission.When = "任意时间";
 			return;
@@ -686,7 +702,8 @@ public static class StoryAtlas
 				mission.When = DateText(min) + " ～ " + DateText(max);
 				break;
 			default:
-				mission.When = "每月" + StageText((int)check.GetFieldValue<MonthStageType>("_periodStage"));
+				mission.MonthlyStage = (int)check.GetFieldValue<MonthStageType>("_periodStage");
+				mission.When = "每月" + StageText(mission.MonthlyStage.Value);
 				break;
 		}
 	}
@@ -773,6 +790,6 @@ public static class StoryAtlas
 				parts.Add(text);
 			}
 		}
-		return Conditions[mission] = string.Join("\n或 ", parts.ToArray());
+		return Conditions[mission] = string.Join(NativeKorean.Enabled ? "\n" + KoreanText.Get(KoreanMessage.Any).TrimStart() : "\n或 ", parts.ToArray());
 	}
 }

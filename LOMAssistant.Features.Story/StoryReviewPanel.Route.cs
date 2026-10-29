@@ -73,13 +73,13 @@ public partial class StoryReviewPanel
 		if (GUI.Button(new Rect(bx, r.y, S(40), S(36)), "－", _button)) _routeZoom = Mathf.Max(0.6f, _routeZoom - 0.1f);
 		GUI.Label(new Rect(bx + S(44), r.y, S(60), S(36)), Mathf.RoundToInt(_routeZoom * 100) + "%", _center);
 		if (GUI.Button(new Rect(bx + S(108), r.y, S(40), S(36)), "＋", _button)) _routeZoom = Mathf.Min(1.6f, _routeZoom + 0.1f);
-		if (GUI.Button(new Rect(bx + S(160), r.y, TextWidth("当前主线", _button, S(130)), S(36)), "当前主线", _button) && _route.Points.TryGetValue(StoryAtlas.CurrentMain, out Vector2 now))
+		if (GUI.Button(new Rect(bx + S(160), r.y, TextWidth(StoryUi.Text(KoreanStoryMessage.CurrentMain, "当前主线"), _button, S(130)), S(36)), StoryUi.Text(KoreanStoryMessage.CurrentMain, "当前主线"), _button) && _route.Points.TryGetValue(StoryAtlas.CurrentMain, out Vector2 now))
 		{
 			_routePicked = StoryAtlas.Find(StoryAtlas.CurrentMain);
 			_routeSide = null;
 			_routeScroll = new Vector2(Mathf.Max(0, now.x - r.width * 0.3f), Mathf.Max(0, now.y - r.height * 0.4f));
 		}
-		if (GUI.Button(new Rect(r.xMax - S(130), r.y, S(130), S(36)), "重新生成", _button))
+		if (GUI.Button(new Rect(r.xMax - S(130), r.y, S(130), S(36)), StoryUi.Text(KoreanStoryMessage.Rebuild, "重新生成"), _button))
 		{
 			_reading.Clear();
 			StoryAtlas.Start();
@@ -244,7 +244,7 @@ public partial class StoryReviewPanel
 		foreach (SideStory side in groups)
 		{
 			float sx = side.Dated ? XOf(layout, side.Missions.Where(m => m.From != null).Min(m => m.From.Value)) - Z(10) : Z(20);
-			float w = pillStyle.CalcSize(new GUIContent(TextConverter.ForDisplay("✓ " + side.Title + (side.Joins.Count > 0 ? " → 主线" : "")))).x + Z(26);
+			float w = pillStyle.CalcSize(new GUIContent(TextConverter.ForDisplay("✓ " + side.Title + (side.Joins.Count > 0 ? " " + StoryUi.Text(KoreanStoryMessage.MainArrow, "→ 主线") : "")))).x + Z(26);
 			int row = rows.FindIndex(end => end <= sx);
 			if (row < 0)
 			{
@@ -269,7 +269,7 @@ public partial class StoryReviewPanel
 		string title = missions[0].SeriesTitle;
 		if (title.Any(c => c >= 128))
 		{
-			return title;
+			return NativeKorean.Enabled ? StoryUi.Name(missions[0].FullSeriesTitle.Length > 0 ? missions[0].FullSeriesTitle : title) : title;
 		}
 		var first = missions.OrderBy(m => m.From ?? int.MaxValue).ThenBy(m => m.Key, StringComparer.Ordinal).ToList();
 		string named = first.Select(m => m.Desc).FirstOrDefault(d => d.Any(c => c >= 128))
@@ -341,13 +341,15 @@ public partial class StoryReviewPanel
 					float end = layout.Columns.Skip(i).Where(c => c.Date / 36 != year).Select(c => c.X - layout.LabelWidth / 2).DefaultIfEmpty(layout.Width).First();
 					Fill(new Rect(cx - layout.LabelWidth / 2, 0, end - cx + layout.LabelWidth / 2, layout.Height), new Color(Ink.r, Ink.g, Ink.b, year % 2 == 0 ? 0.02f : 0.05f));
 					Fill(new Rect(cx - layout.LabelWidth / 2, 0, Z(2), layout.Height), new Color(Ink.r, Ink.g, Ink.b, 0.18f));
-					GUI.Label(new Rect(cx - layout.LabelWidth / 2 + Z(8), Z(6), Z(140), Z(26)), $"<b>第{year + 1}年</b>", name);
+					GUI.Label(new Rect(cx - layout.LabelWidth / 2 + Z(8), Z(6), Z(140), Z(26)), "<b>" + StoryUi.Text(KoreanStoryMessage.Year, "第{0}年", year + 1) + "</b>", name);
 				}
 				Fill(new Rect(cx, Z(56), 1, layout.MainBottom - Z(56)), new Color(Ink.r, Ink.g, Ink.b, 0.07f));
-				GUI.Label(new Rect(cx - Z(40), Z(34), Z(80), Z(20)), $"{d % 36 / 3 + 1}月{StoryAtlas.StageText(d % 3 + 1).Substring(0, 1)}", tiny);
+				GUI.Label(new Rect(cx - Z(40), Z(34), Z(80), Z(20)), NativeKorean.Enabled
+					? KoreanStoryText.Get(KoreanStoryMessage.MonthStage, d % 36 / 3 + 1, KoreanStoryText.Stage(d % 3 + 1).Substring(0, 1))
+					: $"{d % 36 / 3 + 1}月{StoryAtlas.StageText(d % 3 + 1).Substring(0, 1)}", tiny);
 			}
 			Fill(new Rect(0, layout.MainBottom + Z(16), layout.Width, Z(2)), InkLine);
-			GUI.Label(new Rect(view.x + Z(12), layout.MainBottom + Z(24), Z(200), Z(26)), "<b>支线</b>", name);
+			GUI.Label(new Rect(view.x + Z(12), layout.MainBottom + Z(24), Z(200), Z(26)), "<b>" + StoryUi.Text(KoreanStoryMessage.Side, "支线") + "</b>", name);
 			// 连线：这一局走过的两站之间用青色粗线
 			foreach (var (from, to, byDate) in layout.Edges)
 			{
@@ -389,11 +391,11 @@ public partial class StoryReviewPanel
 				{
 					var stamp = new Rect(p.x + Z(9), p.y - Z(30), Z(22), Z(22));
 					Round(stamp, Cinnabar, Z(3));
-					GUI.Label(stamp, "今", new GUIStyle(_seal) { fontSize = Mathf.Max(8, Mathf.RoundToInt(_seal.fontSize * 0.7f * _routeZoom)) });
+					GUI.Label(stamp, StoryUi.Text(KoreanStoryMessage.NowStamp, "今"), new GUIStyle(_seal) { fontSize = Mathf.Max(8, Mathf.RoundToInt(_seal.fontSize * 0.7f * _routeZoom)) });
 				}
 				if (m.Endings > 0)
 				{
-					GUI.Label(new Rect(p.x - Z(34), p.y - Z(22), Z(24), Z(18)), "<color=#A3302A><b>终</b></color>", tiny);
+					GUI.Label(new Rect(p.x - Z(34), p.y - Z(22), Z(24), Z(18)), "<color=#A3302A><b>" + StoryUi.Text(KoreanStoryMessage.EndStamp, "终") + "</b></color>", tiny);
 				}
 				var label = new Rect(p.x - layout.LabelWidth / 2 - Z(20), p.y + Z(13), layout.LabelWidth + Z(40), Z(24));
 				// 结缘路线：设她结缘旗标的站，名字后面用朱砂色标出是哪一步（【认识】【告白·攻略】…）
@@ -428,7 +430,7 @@ public partial class StoryReviewPanel
 				}
 				var tagText = new GUIStyle(name) { alignment = TextAnchor.MiddleCenter, wordWrap = false };
 				// 走完会接到某一站主线的，后面标「→ 主线」
-				string text = (side.Visited ? "<color=#2F6B3A>✓</color> " : "") + side.Title + (side.Joins.Count > 0 ? " <color=#A3302A>→ 主线</color>" : "");
+				string text = (side.Visited ? "<color=#2F6B3A>✓</color> " : "") + side.Title + (side.Joins.Count > 0 ? " <color=#A3302A>" + StoryUi.Text(KoreanStoryMessage.MainArrow, "→ 主线") + "</color>" : "");
 				GUI.Label(new Rect(side.Pill.x + Z(4), side.Pill.y - Z(1), side.Pill.width - Z(4), side.Pill.height), dim ? "<color=#B5AA98>" + side.Title + "</color>" : text, tagText);
 			}
 			if (GUI.Button(side.Pill, GUIContent.none, GUIStyle.none))
@@ -460,20 +462,22 @@ public partial class StoryReviewPanel
 	private void DrawMissionDetail(StoryMission m)
 	{
 		DrawRomanceOnMission(m);
-		GUILayout.Label((m.Main ? "主线" : m.SeriesTitle) + "　" + m.Key, _muted);
+		GUILayout.Label(StoryUi.Series(m) + "　" + m.Key, _muted);
 		GUILayout.Label(m.Title, _heading);
 		if (m.Summary.Length > 0)
 		{
 			GUILayout.Label(m.Summary, _muted);
 		}
 		GUILayout.Space(S(6));
-		GUILayout.Label(m.When + (m.Place.Length > 0 ? "　·　" + m.Place : ""), _label);
-		GUILayout.Label((m.Visited ? "<color=#2F6B3A>✓ 这一局走过</color>" : "这一局没走过") + (m.Read != null ? $"　·　对白读过 {m.Read}%" : "") + (m.Endings > 0 ? $"　·　<color=#A3302A>{m.Endings} 个结局</color>" : ""), _label);
+		GUILayout.Label(StoryUi.When(m) + (m.Place.Length > 0 ? "　·　" + m.Place : ""), _label);
+		GUILayout.Label((m.Visited ? "<color=#2F6B3A>✓ " + StoryUi.Visited(true) + "</color>" : StoryUi.Visited(false))
+			+ (m.Read != null ? "　·　" + StoryUi.Text(KoreanStoryMessage.DialogueReadPercent, "对白读过 {0}%", m.Read) : "")
+			+ (m.Endings > 0 ? "　·　<color=#A3302A>" + StoryUi.Text(KoreanStoryMessage.EndingCount, "{0} 个结局", m.Endings) + "</color>" : ""), _label);
 		if (StoryAtlas.CurrentMain == m.Key)
 		{
-			GUILayout.Label("<color=#A3302A><b>当前主线</b></color>", _label);
+			GUILayout.Label("<color=#A3302A><b>" + StoryUi.Text(KoreanStoryMessage.CurrentMain, "当前主线") + "</b></color>", _label);
 		}
-		if (GUILayout.Button("看剧情图", _primary, GUILayout.Height(S(38))))
+		if (GUILayout.Button(StoryUi.Text(KoreanStoryMessage.OpenFlow, "看剧情图"), _primary, GUILayout.Height(S(38))))
 		{
 			OpenFlow(m);
 		}
@@ -481,7 +485,7 @@ public partial class StoryReviewPanel
 		if (conditions.Length > 0)
 		{
 			GUILayout.Space(S(10));
-			GUILayout.Label("触发条件", _heading);
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.TriggerConditions, "触发条件"), _heading);
 			GUILayout.Label(OnPaper(conditions), _rich);
 		}
 		DrawSections(m);
@@ -491,7 +495,7 @@ public partial class StoryReviewPanel
 		if (before.Count + after.Count > 0)
 		{
 			GUILayout.Space(S(10));
-			GUILayout.Label("前后", _heading);
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.BeforeAfter, "前后"), _heading);
 			foreach (StoryMission x in before)
 			{
 				if (GUILayout.Button("← " + x.Title, _button))
@@ -511,10 +515,10 @@ public partial class StoryReviewPanel
 		if (kept.Count > 0)
 		{
 			GUILayout.Space(S(10));
-			GUILayout.Label("可以从这里重玩", _heading);
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.ReplayHere, "可以从这里重玩"), _heading);
 			foreach (StoryNode node in kept.Take(8))
 			{
-				ReplayButton(node, StoryScripts.SegmentName(node.Script) + "　" + $"第{node.Year}年{node.Month}月", _button);
+				ReplayButton(node, StoryScripts.SegmentName(node.Script) + "　" + StoryUi.Text(KoreanStoryMessage.YearMonth, "第{0}年{1}月", node.Year, node.Month), _button);
 			}
 		}
 	}
@@ -524,7 +528,7 @@ public partial class StoryReviewPanel
 	{
 		GUIStyle line = Middle(_label);
 		float x = r.x;
-		GUI.Label(new Rect(x, r.y, S(90), r.height), "结缘路线", line);
+		GUI.Label(new Rect(x, r.y, S(90), r.height), StoryUi.Text(KoreanStoryMessage.RomanceRoute, "结缘路线"), line);
 		x += S(96);
 		foreach (StoryRomance.Heroine h in StoryRomance.All)
 		{
@@ -554,22 +558,22 @@ public partial class StoryReviewPanel
 		List<StoryRomance.Stop> stops = StoryRomance.StopsOf(h);
 		if (stops == null)
 		{
-			GUILayout.Label("剧本还没整理好", _muted);
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.Preparing, "剧本还没整理好"), _muted);
 			return;
 		}
-		GUILayout.Label("结缘路线", _muted);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.RomanceRoute, "结缘路线"), _muted);
 		GUILayout.Label(StoryRomance.Name(h), _heading);
-		GUILayout.Label(string.Format("好感 {0}", StoryRomance.Affection(h)) + (StoryRomance.IsLover(h) ? "　·　<color=#A3302A><b>心上人</b></color>" : ""), WrapLabel());
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.Affection, "好感 {0}", StoryRomance.Affection(h)) + (StoryRomance.IsLover(h) ? "　·　<color=#A3302A><b>" + StoryUi.Text(KoreanStoryMessage.Lover, "心上人") + "</b></color>" : ""), WrapLabel());
 		GUILayout.Space(S(10));
-		GUILayout.Label("结缘进度（这一局）", _heading);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.RomanceProgress, "结缘进度（这一局）"), _heading);
 		foreach (string flag in h.Steps)
 		{
 			GUILayout.BeginVertical(_card, GUILayout.Width(_routeDetailInner));
-			GUILayout.Label((StoryRomance.StepDone(flag) ? "<color=#2F6B3A><b>✓</b></color> " : "<color=#A3302A>✗</color> ") + StoryRomance.StepName(flag), WrapLabel());
+			GUILayout.Label((StoryRomance.StepDone(flag) ? "<color=#2F6B3A><b>✓</b></color> " : "<color=#A3302A>✗</color> ") + (NativeKorean.Enabled ? KoreanLabels.Flag(flag) : StoryRomance.StepName(flag)), WrapLabel());
 			var where = stops.Where(s => s.Steps.Contains(flag)).ToList();
 			if (where.Count == 0)
 			{
-				GUILayout.Label("剧本里没找到设这一步的地方", WrapSmall());
+				GUILayout.Label(StoryUi.Text(KoreanStoryMessage.StepNotFound, "剧本里没找到设这一步的地方"), WrapSmall());
 			}
 			bool done = StoryRomance.StepDone(flag);
 			foreach (StoryRomance.Stop s in where.Take(4))
@@ -578,13 +582,13 @@ public partial class StoryReviewPanel
 				string conditions = done ? "" : StoryAtlas.ConditionText(s.Mission);
 				if (conditions.Length > 0)
 				{
-					GUILayout.Label("触发条件（这一局的值）：" + OnPaper(conditions), WrapSmall(), GUILayout.Width(_routeDetailInner - S(24)));
+					GUILayout.Label(StoryUi.Text(KoreanStoryMessage.CurrentConditions, "触发条件（这一局的值）：{0}", OnPaper(conditions)), WrapSmall(), GUILayout.Width(_routeDetailInner - S(24)));
 				}
 			}
 			GUILayout.EndVertical();
 		}
 		GUILayout.Space(S(10));
-		GUILayout.Label("加减好感的剧情", _heading);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.AffectionScenes, "加减好感的剧情"), _heading);
 		foreach (StoryRomance.Stop s in stops.Where(s => s.Affection != 0))
 		{
 			RomanceStopButton(s, _routeDetailInner);
@@ -592,7 +596,7 @@ public partial class StoryReviewPanel
 		int elsewhere = StoryRomance.ElsewhereOf(h);
 		if (elsewhere > 0)
 		{
-			GUILayout.Label(string.Format("另有 {0} 处在养成随机事件等不属于任务的剧情里", elsewhere), WrapSmall());
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.ElsewhereCount, "另有 {0} 处在养成随机事件等不属于任务的剧情里", elsewhere), WrapSmall());
 		}
 	}
 
@@ -608,12 +612,12 @@ public partial class StoryReviewPanel
 	}
 
 	// 步骤名拼在一串里，界面翻译整句对不上：先各自换成界面语言
-	private static string StepMarks(StoryRomance.Stop s) => "【" + string.Join("·", s.Steps.Select(f => TextConverter.ForDisplay(StoryRomance.StepKind(f))).ToArray()) + "】";
+	private static string StepMarks(StoryRomance.Stop s) => "【" + string.Join("·", s.Steps.Select(f => NativeKorean.Enabled ? KoreanStoryText.RomanceStep(f) : TextConverter.ForDisplay(StoryRomance.StepKind(f))).ToArray()) + "】";
 
 	// 「　好感 +3　【认识】」
 	private static string RomanceParts(StoryRomance.Stop s)
 	{
-		string text = s.Affection != 0 ? "　" + string.Format("好感 {0}", (s.Affection > 0 ? "+" : "") + s.Affection) : "";
+		string text = s.Affection != 0 ? "　" + StoryUi.Text(KoreanStoryMessage.Affection, "好感 {0}", (s.Affection > 0 ? "+" : "") + s.Affection) : "";
 		return text + (s.Steps.Count > 0 ? "　<color=#A3302A>" + StepMarks(s) + "</color>" : "");
 	}
 
@@ -625,7 +629,7 @@ public partial class StoryReviewPanel
 			return;
 		}
 		string name = StoryRomance.Name(_routeHeroine);
-		if (GUILayout.Button(string.Format("‹ 返回{0}的结缘路线", name), _button))
+		if (GUILayout.Button(StoryUi.Text(KoreanStoryMessage.ReturnRomance, "‹ 返回{0}的结缘路线", name), _button))
 		{
 			_routePicked = null;
 			_routeSide = null;
@@ -633,7 +637,7 @@ public partial class StoryReviewPanel
 			return;
 		}
 		StoryRomance.Stop stop = StoryRomance.StopsOf(_routeHeroine)?.FirstOrDefault(s => s.Mission == m);
-		GUILayout.Label(stop == null ? string.Format("这一站不改{0}的好感，也不设她的结缘旗标", name) : string.Format("和{0}有关：", name) + RomanceParts(stop).TrimStart('　'), WrapSmall(), GUILayout.Width(_routeDetailInner));
+		GUILayout.Label(stop == null ? StoryUi.Text(KoreanStoryMessage.NoRomanceEffect, "这一站不改{0}的好感，也不设她的结缘旗标", name) : StoryUi.Text(KoreanStoryMessage.RelatedPerson, "和{0}有关：", name) + RomanceParts(stop).TrimStart('　'), WrapSmall(), GUILayout.Width(_routeDetailInner));
 		GUILayout.Space(S(6));
 	}
 
@@ -660,7 +664,7 @@ public partial class StoryReviewPanel
 	{
 		EnsureWrapStyles();
 		StoryMission m = s.Mission;
-		string detail = m.When + RomanceParts(s);
+		string detail = StoryUi.When(m) + RomanceParts(s);
 		string text = (m.Visited ? "✓ " : "") + m.Title + "\n<size=" + _small.fontSize + ">" + detail + "</size>";
 		if (GUILayout.Button(text, _wrapButton, GUILayout.Width(width)))
 		{
@@ -676,30 +680,30 @@ public partial class StoryReviewPanel
 
 	private void DrawSideDetail(SideStory side)
 	{
-		if (_routeHeroine != null && GUILayout.Button(string.Format("‹ 返回{0}的结缘路线", StoryRomance.Name(_routeHeroine)), _button))
+		if (_routeHeroine != null && GUILayout.Button(StoryUi.Text(KoreanStoryMessage.ReturnRomance, "‹ 返回{0}的结缘路线", StoryRomance.Name(_routeHeroine)), _button))
 		{
 			_routeSide = null;
 			_routePicked = null;
 			_routeDetailScroll = Vector2.zero;
 			return;
 		}
-		GUILayout.Label("支线", _muted);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.Side, "支线"), _muted);
 		GUILayout.Label(side.Title, _heading);
 		foreach (StoryMission m in side.Joins)
 		{
-			if (GUILayout.Button("走完接到主线「" + m.Title + "」", _button))
+			if (GUILayout.Button(StoryUi.Text(KoreanStoryMessage.ContinueMain, "走完接到主线「{0}」", m.Title), _button))
 			{
 				_routePicked = m;
 				_routeSide = null;
 			}
 		}
-		GUILayout.Label((side.Visited ? "<color=#2F6B3A>✓ 这一局走过</color>" : "这一局没走过") + (side.Read != null ? $"　·　对白读过 {side.Read}%" : ""), _label);
+		GUILayout.Label((side.Visited ? "<color=#2F6B3A>✓ " + StoryUi.Visited(true) + "</color>" : StoryUi.Visited(false)) + (side.Read != null ? "　·　" + StoryUi.Text(KoreanStoryMessage.DialogueReadPercent, "对白读过 {0}%", side.Read) : ""), _label);
 		foreach (StoryMission m in side.Missions.OrderBy(m => m.From ?? int.MaxValue))
 		{
 			GUILayout.Space(S(8));
 			GUILayout.BeginVertical(_card);
-			GUILayout.Label(m.Title + (m.Visited ? "　<color=#2F6B3A>✓ 走过</color>" : ""), _label);
-			GUILayout.Label(m.When + (m.Place.Length > 0 ? "　·　" + m.Place : "") + (m.Read != null ? $"　·　读过 {m.Read}%" : ""), _muted);
+			GUILayout.Label(m.Title + (m.Visited ? "　<color=#2F6B3A>✓ " + StoryUi.Text(KoreanStoryMessage.VisitedShort, "走过") + "</color>" : ""), _label);
+			GUILayout.Label(StoryUi.When(m) + (m.Place.Length > 0 ? "　·　" + m.Place : "") + (m.Read != null ? "　·　" + StoryUi.Text(KoreanStoryMessage.ReadPercent, "读过 {0}%", m.Read) : ""), _muted);
 			string conditions = StoryAtlas.ConditionText(m);
 			if (conditions.Length > 0)
 			{
@@ -709,7 +713,7 @@ public partial class StoryReviewPanel
 			{
 				GUILayout.Label(Cached((m, "entries"), () => string.Join("\n", m.Entries.Select(EntryText).ToArray())), _small);
 			}
-			if (GUILayout.Button("看剧情图", _button))
+			if (GUILayout.Button(StoryUi.Text(KoreanStoryMessage.OpenFlow, "看剧情图"), _button))
 			{
 				OpenFlow(m);
 			}
@@ -720,6 +724,9 @@ public partial class StoryReviewPanel
 	/// <summary>从别的任务接进来的一处：「从「某任务」：选… → 如果…」。</summary>
 	private static string EntryText(StoryEntry e)
 	{
+		if (NativeKorean.Enabled)
+			return OnPaper(KoreanStoryText.Get(KoreanStoryMessage.IncomingFrom, StoryUi.Mission(e.From.Main, e.From.Title))
+				+ (e.Path.Count > 0 ? ": " + string.Join(" → ", e.Path.Select(StoryScripts.Describe)) : ""));
 		string from = (e.From.Main ? "主线" : "支线") + "「" + e.From.Title + "」";
 		return OnPaper("从" + from + "接进来" + (e.Path.Count > 0 ? "：" + string.Join(" → ", e.Path.Select(StoryScripts.Describe).ToArray()) : ""));
 	}
@@ -731,7 +738,7 @@ public partial class StoryReviewPanel
 			return;
 		}
 		GUILayout.Space(S(10));
-		GUILayout.Label("从别处接进来", _heading);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.Incoming, "从别处接进来"), _heading);
 		GUILayout.Label(Cached((m, "entries"), () => string.Join("\n", m.Entries.Select(EntryText).ToArray())), _rich);
 	}
 
@@ -746,12 +753,12 @@ public partial class StoryReviewPanel
 		}
 		HashSet<FlowBox> trunk = Trunk(graph);
 		GUILayout.Space(S(10));
-		GUILayout.Label("小节", _heading);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.Sections, "小节"), _heading);
 		foreach (FlowBox box in boxes.Take(40))
 		{
 			bool main = trunk.Contains(box);
 			string entry = main ? "" : Cached((box, "entry"), () => string.Join("；", graph.Links.Where(l => l.To == box && l.Text.Length > 0).Select(l => l.Text.Replace("\n", " / ")).ToArray()));
-			string head = (main ? "<b>主干</b>　" : "<color=#73644F>岔路</color>　") + Short(box.Title, 18) + (box.Read != null ? $"　<color=#73644F>读过 {box.Read}%</color>" : "");
+			string head = (main ? "<b>" + StoryUi.Text(KoreanStoryMessage.Trunk, "主干") + "</b>　" : "<color=#73644F>" + StoryUi.Text(KoreanStoryMessage.Branch, "岔路") + "</color>　") + Short(box.Title, 18) + (box.Read != null ? "　<color=#73644F>" + StoryUi.Text(KoreanStoryMessage.ReadPercent, "读过 {0}%", box.Read) + "</color>" : "");
 			if (GUILayout.Button(head + (entry.Length > 0 ? "\n<size=" + Mathf.RoundToInt(14 * _scale) + "><color=#73644F>" + entry + "</color></size>" : ""),
 				new GUIStyle(_button) { alignment = TextAnchor.MiddleLeft, wordWrap = true, richText = true }))
 			{
@@ -760,7 +767,7 @@ public partial class StoryReviewPanel
 		}
 		if (boxes.Count > 40)
 		{
-			GUILayout.Label($"……共 {boxes.Count} 段", _muted);
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.SectionCount, "……共 {0} 段", boxes.Count), _muted);
 		}
 	}
 
@@ -804,18 +811,18 @@ public partial class StoryReviewPanel
 		{
 			return;
 		}
-		GUILayout.Label($"旗标里找到 {_flagHits.Count} 面" + (_flagHits.Count > FlagHitsShown ? $"（只列前 {FlagHitsShown} 面，搜得更具体些能缩小范围）" : ""), _heading);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.FlagHits, "旗标里找到 {0} 面", _flagHits.Count) + (_flagHits.Count > FlagHitsShown ? StoryUi.Text(KoreanStoryMessage.FirstFlagsOnly, "（只列前 {0} 面，搜得更具体些能缩小范围）", FlagHitsShown) : ""), _heading);
 		foreach (var (name, note, uses) in _flagHits.Take(FlagHitsShown))
 		{
 			GUILayout.Space(S(6));
-			GUILayout.Label($"<b>{name}</b>" + (note.Length > 0 ? "　" + Short(note, 40) : ""), _label);
+			GUILayout.Label($"<b>{name}</b>" + (NativeKorean.Enabled ? "　" + KoreanLabels.Flag(name) : note.Length > 0 ? "　" + Short(note, 40) : ""), _label);
 			foreach (StoryUse use in uses.OrderBy(u => !u.Changes).ThenBy(u => u.Mission == null).ThenBy(u => u.Mission?.From ?? int.MaxValue).Take(20))
 			{
 				DrawUse(use);
 			}
 			if (uses.Count > 20)
 			{
-				GUILayout.Label($"还有 {uses.Count - 20} 处，到数值页点这面旗标的名字看全部", _muted);
+				GUILayout.Label(StoryUi.Text(KoreanStoryMessage.MoreFlagUses, "还有 {0} 处，到数值页点这面旗标的名字看全部", uses.Count - 20), _muted);
 			}
 		}
 		GUILayout.Space(S(12));
@@ -831,7 +838,7 @@ public partial class StoryReviewPanel
 		DrawFlagSearch(query);
 		if (!StoryAtlas.DialogueReady)
 		{
-			GUILayout.Label("正在整理台词……", _muted);
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.PreparingDialogue, "正在整理台词……"), _muted);
 			return;
 		}
 		if (_searchedFor != query)
@@ -839,11 +846,11 @@ public partial class StoryReviewPanel
 			_searchedFor = query;
 			_searchHits = StoryAtlas.SearchDialogue(query, 60);
 		}
-		GUILayout.Label(_searchHits.Count == 0 ? "台词里没找到" : $"台词里找到 {_searchHits.Count} 处" + (_searchHits.Count >= 60 ? "（只列前 60 处）" : ""), _heading);
+		GUILayout.Label(_searchHits.Count == 0 ? StoryUi.Text(KoreanStoryMessage.NoDialogueHits, "台词里没找到") : StoryUi.Text(KoreanStoryMessage.DialogueHits, "台词里找到 {0} 处", _searchHits.Count) + (_searchHits.Count >= 60 ? StoryUi.Text(KoreanStoryMessage.FirstDialogueOnly, "（只列前 {0} 处）", 60) : ""), _heading);
 		foreach (var (script, snippet) in _searchHits)
 		{
 			StoryAtlas.Owner.TryGetValue(script, out StoryMission m);
-			string where = m != null ? (m.Main ? "主线" : m.SeriesTitle) + "「" + Short(m.Title, 14) + "」" : script;
+			string where = m != null ? StoryUi.Series(m) + "「" + Short(m.Title, 14) + "」" : script;
 			if (GUILayout.Button($"<size={Mathf.RoundToInt(14 * _scale)}><color=#73644F>{where}</color></size>\n{snippet}", new GUIStyle(_button) { alignment = TextAnchor.MiddleLeft, wordWrap = true, richText = true }) && m != null)
 			{
 				OpenFlow(m, script);

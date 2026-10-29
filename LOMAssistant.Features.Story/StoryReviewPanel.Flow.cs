@@ -171,14 +171,14 @@ public partial class StoryReviewPanel
 		foreach (StoryMission m in StoryAtlas.Missions.Where(m => m.StartScript.Length > 0 && (Matches(query, m.Title, m.Key, m.SeriesTitle, m.Place, m.Summary) || _flowDialogueHits.Contains(m)))
 			.OrderBy(m => m.From ?? int.MaxValue).ThenBy(m => m.Main ? 0 : 1).ThenBy(m => m.Key, StringComparer.Ordinal))
 		{
-			string g = m.From != null ? $"第{m.From.Value / 36 + 1}年" : "任意时间 / 每月";
+			string g = m.From != null ? StoryUi.Text(KoreanStoryMessage.Year, "第{0}年", m.From.Value / 36 + 1) : StoryUi.Text(KoreanStoryMessage.AnyMonthly, "任意时间 / 每月");
 			if (g != group)
 			{
 				group = g;
 				GUILayout.Label(g, _muted);
 			}
-			string when = m.From != null ? $"{m.From.Value % 36 / 3 + 1}月{StoryAtlas.StageText(m.From.Value % 3 + 1)}" : m.When;
-			string kind = m.Main ? "主线" : Short(m.SeriesTitle, 10);
+			string when = m.From != null ? (NativeKorean.Enabled ? KoreanStoryText.Get(KoreanStoryMessage.MonthStage, m.From.Value % 36 / 3 + 1, KoreanStoryText.Stage(m.From.Value % 3 + 1)) : $"{m.From.Value % 36 / 3 + 1}月{StoryAtlas.StageText(m.From.Value % 3 + 1)}") : StoryUi.When(m);
+			string kind = m.Main ? StoryUi.Text(KoreanStoryMessage.Main, "主线") : Short(StoryUi.Series(m), 10);
 			var style = new GUIStyle(m == _flowMission ? _primary : _button) { alignment = TextAnchor.MiddleLeft, wordWrap = true, richText = true };
 			string whenColor = m == _flowMission ? "#F3E6D6" : "#73644F";
 			if (GUILayout.Button($"<size={Mathf.RoundToInt(13 * _scale)}><color={whenColor}>{when} · {kind}</color></size>\n{Short(m.Title, 16)}", style))
@@ -211,7 +211,7 @@ public partial class StoryReviewPanel
 			}
 			_flowPickScript = null;
 		}
-		GUI.Label(new Rect(area.x, area.y, area.width, S(36)), $"<b>{_flowMission.Title}</b>　<color=#73644F>{_flowMission.When}{(_flowMission.Place.Length > 0 ? " · " + _flowMission.Place : "")}{(_flow.Cut ? " · 太长，只画了前 " + FlowLimit + " 段" : "")}</color>", _label);
+		GUI.Label(new Rect(area.x, area.y, area.width, S(36)), $"<b>{_flowMission.Title}</b>　<color=#73644F>{StoryUi.When(_flowMission)}{(_flowMission.Place.Length > 0 ? " · " + _flowMission.Place : "")}{(_flow.Cut ? " · " + StoryUi.Text(KoreanStoryMessage.FlowCut, "太长，只画了前 {0} 段", FlowLimit) : "")}</color>", _label);
 		float detailWidth = _flowPicked != null ? Mathf.Min(S(460), area.width * 0.36f) : 0;
 		var canvas = new Rect(area.x, area.y + S(44), area.width - detailWidth - (detailWidth > 0 ? S(12) : 0), area.height - S(44));
 		Fill(canvas, PaperLight);
@@ -252,7 +252,7 @@ public partial class StoryReviewPanel
 
 	/// <summary>线上的短标签：这条路最后一步分岔。</summary>
 	/// <summary>线上的标签：这条路上的每一步分岔，用「→」连起来。</summary>
-	private static string LinkLabel(StoryExit exit) => exit.Path.Count == 0 ? (exit.AfterScene ? "战斗后" : "") : string.Join(" → ", exit.Path.Select(StepLabel).ToArray());
+	private static string LinkLabel(StoryExit exit) => exit.Path.Count == 0 ? (exit.AfterScene ? StoryUi.Text(KoreanStoryMessage.AfterBattle, "战斗后") : "") : string.Join(" → ", exit.Path.Select(StepLabel).ToArray());
 
 	/// <summary>线上的短标签：选项写「选项文字」，掷骰写「掷出 &lt;33」，条件写「如果 小梅好感>=35」。</summary>
 	private static string StepLabel(StoryStep step)
@@ -262,7 +262,7 @@ public partial class StoryReviewPanel
 			case StoryStep.Option:
 				return "「" + StoryScripts.OptionText(step.Key) + "」";
 			case StoryStep.Dice:
-				return (TextConverter.DisplayLanguage == UiText.Korean ? "주사위 판정 " : "掷出 ")
+				return (NativeKorean.Enabled ? KoreanStoryText.Get(KoreanStoryMessage.DiceTag) + " " : "掷出 ")
 					+ (step.Range.Length > 0 ? step.Range : Short(StoryScripts.OptionText(step.Key), 6));
 			default:
 				if (step.Arm == 0)
@@ -277,8 +277,8 @@ public partial class StoryReviewPanel
 				}
 				text = KoreanText.CompactCondition(text);
 				return text.Length > 0
-					? (TextConverter.DisplayLanguage == UiText.Korean ? "조건: " + TextConverter.ForDisplay(text) : "如果 " + text)
-					: (TextConverter.DisplayLanguage == UiText.Korean ? "조건 불명" : "条件不明");
+					? StoryUi.Text(KoreanStoryMessage.IfCondition, "如果 {0}", NativeKorean.Enabled ? TextConverter.ForDisplay(text) : text)
+					: StoryUi.Text(KoreanStoryMessage.UnknownCondition, "条件不明");
 		}
 	}
 
@@ -319,9 +319,9 @@ public partial class StoryReviewPanel
 			}
 			var scripts = chain.Select(StoryScripts.Get).Where(s => s != null).ToList();
 			var tags = new List<string>();
-			if (last != null && last.Menu) tags.Add("选项");
-			if (last != null && last.Dice) tags.Add("掷骰");
-			if (last != null && last.Fight) tags.Add("战斗");
+			if (last != null && last.Menu) tags.Add(StoryUi.Text(KoreanStoryMessage.OptionTag, "选项"));
+			if (last != null && last.Dice) tags.Add(StoryUi.Text(KoreanStoryMessage.DiceTag, "掷骰"));
+			if (last != null && last.Fight) tags.Add(StoryUi.Text(KoreanStoryMessage.BattleTag, "战斗"));
 			var box = new FlowBox
 			{
 				Id = key,
@@ -341,7 +341,7 @@ public partial class StoryReviewPanel
 			{
 				box.Title = chain.Count > 1 ? chain[0] + " … " + key : key;
 			}
-			box.Sub = string.Join("・", tags.ToArray()) + (box.Read != null ? (tags.Count > 0 ? "　" : "") + "读过 " + box.Read + "%" : "");
+			box.Sub = string.Join("・", tags.ToArray()) + (box.Read != null ? (tags.Count > 0 ? "　" : "") + StoryUi.Text(KoreanStoryMessage.ReadPercent, "读过 {0}%", box.Read) : "");
 			foreach (string name in chain)
 			{
 				byScript[name] = box;
@@ -390,7 +390,7 @@ public partial class StoryReviewPanel
 				break;
 			}
 			int layer = graph.Boxes.Max(b => b.Layer) + 1;
-			var map = new FlowBox { Id = "map|" + root, Title = "地图上接着", Terminal = true, Layer = layer };
+			var map = new FlowBox { Id = "map|" + root, Title = StoryUi.Text(KoreanStoryMessage.ContinueOnMap, "地图上接着"), Terminal = true, Layer = layer };
 			graph.Boxes.Add(map);
 			FlowBox next = Box(root, layer + 1);
 			if (next != null)
@@ -415,16 +415,16 @@ public partial class StoryReviewPanel
 					if (exit.ToTitle)
 					{
 						string name = EndingName(from.Last, exit);
-						to = Terminal(from, name.Length > 0 ? "结局：" + Short(name, 9) : "结局", true);
+						to = Terminal(from, name.Length > 0 ? StoryUi.Text(KoreanStoryMessage.EndingNamed, "结局：{0}", Short(name, 9)) : StoryUi.Text(KoreanStoryMessage.Ending, "结局"), true);
 					}
 					else if (exit.MainMission.Length > 0)
 					{
 						StoryMission next = StoryAtlas.Find(exit.MainMission);
-						to = Terminal(from, "主线 → " + (next != null ? Short(next.Title, 10) : exit.MainMission), false);
+						to = Terminal(from, StoryUi.Text(KoreanStoryMessage.NextMission, "主线 → {0}", next != null ? Short(next.Title, 10) : exit.MainMission), false);
 					}
 					else if (exit.ToMap)
 					{
-						to = Terminal(from, "回到地图", false);
+						to = Terminal(from, StoryUi.Text(KoreanStoryMessage.BackToMap, "回到地图"), false);
 					}
 					else if (exit.Target.Length == 0)
 					{
@@ -433,7 +433,7 @@ public partial class StoryReviewPanel
 					else if (otherStarts.Contains(exit.Target))
 					{
 						StoryMission other = StoryAtlas.Missions.FirstOrDefault(m => string.Equals(m.StartScript, exit.Target, StringComparison.OrdinalIgnoreCase));
-						to = Terminal(from, "接到 " + (other != null ? Short(other.Title, 10) : exit.Target), false);
+						to = Terminal(from, StoryUi.Text(KoreanStoryMessage.ContinueTo, "接到 {0}", other != null ? Short(other.Title, 10) : exit.Target), false);
 					}
 					else
 					{
@@ -464,14 +464,14 @@ public partial class StoryReviewPanel
 						continue;
 					}
 					StoryEnding ending = StoryAtlas.Endings.FirstOrDefault(e => e.Death && e.Id == deadId);
-					FlowBox to = Terminal(from, "死亡：" + Short(ending != null ? ending.Title : deadId, 9), true);
+					FlowBox to = Terminal(from, StoryUi.Text(KoreanStoryMessage.DeathNamed, "死亡：{0}", Short(ending != null ? ending.Title : deadId, 9)), true);
 					FlowLink link = graph.Links.Find(l => l.From == from && l.To == to);
 					if (link == null)
 					{
 						link = new FlowLink { From = from, To = to };
 						graph.Links.Add(link);
 					}
-					string label = (path.Count > 0 ? StepLabel(path[path.Count - 1]) + "，" : "") + "决斗输了";
+					string label = (path.Count > 0 ? StepLabel(path[path.Count - 1]) + "，" : "") + StoryUi.Text(KoreanStoryMessage.LostDuel, "决斗输了");
 					if (!link.Labels.Contains(label))
 					{
 						link.Labels.Add(label);
@@ -481,7 +481,7 @@ public partial class StoryReviewPanel
 				foreach (var (path, death, id) in from.Last.Endings.Where(e => e.Death))
 				{
 					StoryEnding ending = StoryAtlas.Endings.FirstOrDefault(e => e.Death && e.Id == id);
-					FlowBox to = Terminal(from, "死亡：" + Short(ending != null ? ending.Title : id, 9), true);
+					FlowBox to = Terminal(from, StoryUi.Text(KoreanStoryMessage.DeathNamed, "死亡：{0}", Short(ending != null ? ending.Title : id, 9)), true);
 					FlowLink link = graph.Links.Find(l => l.From == from && l.To == to);
 					if (link == null)
 					{
@@ -622,7 +622,7 @@ public partial class StoryReviewPanel
 				{
 					var stamp = new Rect(box.Rect.xMax - S(26), box.Rect.y + S(6), S(20), S(20));
 					Round(stamp, Cinnabar, S(3));
-					GUI.Label(stamp, "存", new GUIStyle(_seal) { fontSize = Mathf.Max(8, Mathf.RoundToInt(_seal.fontSize * 0.65f)) });
+					GUI.Label(stamp, StoryUi.Text(KoreanStoryMessage.SaveStamp, "存"), new GUIStyle(_seal) { fontSize = Mathf.Max(8, Mathf.RoundToInt(_seal.fontSize * 0.65f)) });
 				}
 			}
 			if (!box.Terminal && GUI.Button(box.Rect, GUIContent.none, GUIStyle.none))
@@ -660,17 +660,17 @@ public partial class StoryReviewPanel
 		}
 		if (box.Kept != null)
 		{
-			ReplayButton(box.Kept, "从这里重玩", _primary, GUILayout.Height(S(38)));
+			ReplayButton(box.Kept, StoryUi.Text(KoreanStoryMessage.ReplayHere, "从这里重玩"), _primary, GUILayout.Height(S(38)));
 		}
 		if (box.Last == null)
 		{
 			return;
 		}
 		GUILayout.Space(S(10));
-		GUILayout.Label("接下来", _heading);
+		GUILayout.Label(StoryUi.Text(KoreanStoryMessage.Next, "接下来"), _heading);
 		if (box.Last.Exits.Count == 0)
 		{
-			GUILayout.Label("这一段之后没有直接接着的剧本", _muted);
+			GUILayout.Label(StoryUi.Text(KoreanStoryMessage.NoNextScript, "这一段之后没有直接接着的剧本"), _muted);
 		}
 		foreach (StoryExit exit in box.Last.Exits)
 		{

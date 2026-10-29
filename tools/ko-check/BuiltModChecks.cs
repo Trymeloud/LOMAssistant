@@ -36,6 +36,14 @@ internal static class BuiltModChecks
         check(adapter.Methods.Where(m => m.HasBody).SelectMany(m => m.Body.Instructions)
             .Where(i => i.Operand is MethodReference).Select(i => (MethodReference)i.Operand)
             .All(m => !m.DeclaringType.Name.Contains("StatModify") && !m.DeclaringType.Name.Contains("Random")), "Presentation must not mutate game stats or draw random numbers");
+        var storyUi = module.Types.FirstOrDefault(t => t.FullName == "LOMAssistant.Features.Story.StoryUi");
+        if (storyUi != null)
+        {
+            var when = storyUi.Methods.Single(m => m.Name == "When");
+            check(when.Body.Instructions.Any(i => i.Operand is MethodReference m && m.DeclaringType.FullName == "LOMAssistant.KoreanStoryText" && m.Name == "Period"), "Story UI must render mission periods from date data");
+            var missionTitle = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Story.StoryMission").Methods.Single(m => m.Name == "get_Title");
+            check(missionTitle.Body.Instructions.Any(i => i.Operand is MethodReference m && m.DeclaringType.FullName == "LOMAssistant.KoreanLabels" && m.Name == "MissionName"), "Story mission titles must use the complete-name resolver");
+        }
         Console.WriteLine("Built DLL: read-only context hooks, independent hint setting, canonical analysis and flag resource verified");
     }
 }
