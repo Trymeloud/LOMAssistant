@@ -55,11 +55,11 @@ public sealed class LlmProvider
 		new LlmProvider { Name = "Kimi（月之暗面）", BaseUrl = "https://api.moonshot.cn/v1", Model = "kimi-k3.1-pro", KeysPage = "https://platform.moonshot.cn/console/api-keys" },
 		new LlmProvider { Name = "通义千问（阿里云百炼）", BaseUrl = "https://dashscope.aliyuncs.com/compatible-mode/v1", Model = "qwen3.8-flash", DeepModel = "qwen3.8-max", KeysPage = "https://bailian.console.aliyun.com/?apiKey=1" },
 		new LlmProvider { Name = "智谱 GLM", BaseUrl = "https://open.bigmodel.cn/api/paas/v4", Model = "glm-5.3-flash", DeepModel = "glm-5.3", KeysPage = "https://open.bigmodel.cn/usercenter/apikeys" },
-		new LlmProvider { Name = "硅基流动", BaseUrl = "https://api.siliconflow.cn/v1", Model = "deepseek-ai/DeepSeek-V4.1-Flash", KeysPage = "https://cloud.siliconflow.cn/account/ak" },
+		new LlmProvider { Name = "硅基流动", BaseUrl = "https://api.siliconflow.cn/v1", Model = "deepseek-ai/DeepSeek-V4-Flash", DeepModel = "deepseek-ai/DeepSeek-V4-Pro-0813", KeysPage = "https://cloud.siliconflow.cn/account/ak" },
 		new LlmProvider { Name = "OpenRouter", BaseUrl = "https://openrouter.ai/api/v1", Model = "deepseek/deepseek-v4.1-flash", KeysPage = "https://openrouter.ai/keys" },
-		new LlmProvider { Name = "OpenAI", BaseUrl = "https://api.openai.com/v1", Model = "gpt-6-luna", KeysPage = "https://platform.openai.com/api-keys" },
+		new LlmProvider { Name = "OpenAI", BaseUrl = "https://api.openai.com/v1", Model = "gpt-6-luna", DeepModel = "gpt-6-sol", KeysPage = "https://platform.openai.com/api-keys" },
 		new LlmProvider { Name = "Claude（Anthropic）", BaseUrl = "https://api.anthropic.com/v1", Model = "claude-sonnet-5-5", DeepModel = "claude-opus-5-5", KeysPage = "https://console.anthropic.com/settings/keys", Claude = true },
-		new LlmProvider { Name = "Gemini（Google）", BaseUrl = "https://generativelanguage.googleapis.com/v1beta/openai", Model = "gemini-3.8-flash", KeysPage = "https://aistudio.google.com/apikey" },
+		new LlmProvider { Name = "Gemini（Google）", BaseUrl = "https://generativelanguage.googleapis.com/v1beta/openai", Model = "gemini-3.8-flash", DeepModel = "gemini-3.8-flash", KeysPage = "https://aistudio.google.com/apikey" },
 		new LlmProvider { Name = "本地模型（Ollama）", BaseUrl = "http://localhost:11434/v1", Model = "qwen3", NoKey = true },
 		new LlmProvider { Name = "自定义（OpenAI 兼容）", BaseUrl = "", Model = "", Custom = true },
 	};
@@ -577,10 +577,15 @@ public static class LlmClient
 		var body = new JObject { ["model"] = model.Trim(), ["messages"] = list };
 		// OpenAI 官方的新模型（GPT-5 以后）不认 max_tokens，要用 max_completion_tokens；其他兼容接口还是 max_tokens
 		body[url.IndexOf("api.openai.com", StringComparison.OrdinalIgnoreCase) >= 0 ? "max_completion_tokens" : "max_tokens"] = maxTokens;
-		// OpenAI 的 Luna 系列在 Chat Completions 里只有推理强度为 none 时才能调用工具（官方文档写明）
-		if (useTools && model.IndexOf("luna", StringComparison.OrdinalIgnoreCase) >= 0)
+		// OpenAI 的 GPT-6 Luna、Sol 在 Chat Completions 里只有推理强度为 none 时才能调用工具（官方文档写明；6.1 系列要用 Responses API 才能调工具）
+		if (useTools && (model.IndexOf("luna", StringComparison.OrdinalIgnoreCase) >= 0 || model.IndexOf("gpt-6-sol", StringComparison.OrdinalIgnoreCase) >= 0))
 		{
 			body["reasoning_effort"] = "none";
+		}
+		// Gemini 3 系列的思考关不掉，不设时想得太久会超时：平时 low，深度模式 medium
+		if (url.IndexOf("generativelanguage.googleapis.com", StringComparison.OrdinalIgnoreCase) >= 0 && model.IndexOf("gemini-3", StringComparison.OrdinalIgnoreCase) >= 0)
+		{
+			body["reasoning_effort"] = AiChat.Deep ? "medium" : "low";
 		}
 		if (useTools)
 		{
