@@ -77,7 +77,9 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/story-nodes.webp" width="640" alt="Branch saves: recorded story segments by date, replay or delete">
 
-- **Story jump**: pick a scene on the route map or story map and click **Jump here** to start it directly, even one you haven't reached. The flags, story records, quest progress, items, affection and stats in between are filled in from the scripts and the date moves to that scene; at every fork on the way from now to there (options, dice, conditions) you pick which way to take, and the changes along it are filled in. A save-anywhere save is made first, so you can go back with one click or just keep playing. Meant for filling in the story and collecting branches and endings; not recommended for normal play, since some states can't be filled in and later scenes may not match.
+- **Story jump**: pick a scene on the route map or story map and click **Jump here** to play from there, even one you haven't reached yet. Handy for filling in the story or collecting endings on another route. Before the jump you see the choices along the way that affect what comes later; the progress in between is filled in the way you pick, and you can bond with one of the heroines too. A save-anywhere save is made first, so you can always go back. The story in between isn't actually played, so now and then things may not line up; not recommended for normal play.
+
+  <img src="media/story-jump.webp" width="640" alt="Story jump: before jumping it lists the quest, date and changes filled in, lets you bond with someone, and lets you pick each fork on the way">
 
 - **Collection**: records from all playthroughs. Story counts how much of each quest's dialogue you have read; endings, deaths, achievements and ending CGs show their gallery numbers and whether you have them. For anything missing it says where and how to get it. Each entry lists the quests that lead to it; click one to open that quest's story map. On the ending CG page, **Watch the credits** replays the end credits in a story scene; press Esc to stop.
 
