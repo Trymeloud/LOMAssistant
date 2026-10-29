@@ -62,30 +62,91 @@ public partial class StoryReviewPanel
 		GUILayout.Label(string.Format("补 {0} 项变化（其中剧情记录 {1} 条）", plan.Commands.Count, plan.Records), _label);
 		if (plan.Effects.Count > 0)
 		{
-			string effects = Cached(("jump", plan.Picked, plan.Effects.Count, PanelTheme.Dark, LOMAssistant.Config.ConfigManager.ColorOptionDeltas.Value),
+			string effects = Cached(("jump", plan.Commands.Count, string.Join(",", plan.Forks.Select(f => f.Picked.ToString()).ToArray()), plan.Effects.Count, PanelTheme.Dark, LOMAssistant.Config.ConfigManager.ColorOptionDeltas.Value),
 				() => PanelDeltas(string.Join("　", plan.Effects.Distinct().ToArray())));
 			GUILayout.Label(effects, _muted);
 		}
 
-		if (plan.Routes.Count > 1)
+		// 顺便结缘：结缘旗标大多在支线里设，跳转只走主线补不上，在这里直接选一位
+		GUILayout.Space(S(10));
+		GUILayout.Label("顺便结缘", _heading);
+		GUILayout.Label("结缘要的旗标大多在支线剧情里设，跳转补不上。选一位，跳过去时把她的结缘旗标都设上、好感拉到 100、心上人设成她，一路上看结缘的岔口也默认走她那一支。", _muted);
+		GUILayout.BeginHorizontal();
+		// 已经结缘的存档：默认什么都不改，写出现在是和谁
+		StoryRomance.Heroine bonded = StoryRomance.All.FirstOrDefault(x => StoryRomance.StepDone(x.Steps[x.Steps.Length - 1]));
+		string keep = bonded != null ? string.Format("保持现在（已结缘：{0}）", StoryRomance.Name(bonded)) : "保持现在（不结缘）";
+		if (GUILayout.Button(keep, plan.Heroine == null ? _primary : _button, GUILayout.Height(S(34))))
 		{
-			GUILayout.Space(S(10));
-			GUILayout.Label("走哪条路到这里", _heading);
-			GUILayout.Label("任务里有几条路都能走到这一段，选一条，就补那条路上的变化。", _muted);
-			for (int i = 0; i < plan.Routes.Count; i++)
+			plan.Heroine = null;
+			StoryJump.Recompute(plan);
+		}
+		int perRow = 0;
+		foreach (StoryRomance.Heroine h in StoryRomance.All)
+		{
+			if (++perRow == 6)
 			{
-				bool picked = i == plan.Picked;
-				if (GUILayout.Button((picked ? "● " : "○ ") + plan.Routes[i].Label, picked ? _primary : _button))
-				{
-					plan.Picked = i;
-					StoryJump.Recompute(plan);
-				}
+				GUILayout.FlexibleSpace();
+				GUILayout.EndHorizontal();
+				GUILayout.BeginHorizontal();
+				perRow = 1;
+			}
+			// 目标比她结缘那一段还早的不能选，悬停写最早要到什么时候
+			bool bondable = StoryJump.CanBond(plan, h, out string when);
+			bool enabledBefore = GUI.enabled;
+			GUI.enabled = enabledBefore && bondable;
+			if (GUILayout.Button(StoryRomance.Name(h), plan.Heroine == h ? _primary : _button, GUILayout.Height(S(34))))
+			{
+				plan.Heroine = h;
+				StoryJump.Recompute(plan);
+			}
+			GUI.enabled = enabledBefore;
+			if (!bondable)
+			{
+				Hover(GUILayoutUtility.GetLastRect(), string.Format("最早 {0} 才能和她结缘", when));
 			}
 		}
-		else if (plan.Routes.Count == 0)
+		GUILayout.FlexibleSpace();
+		GUILayout.EndHorizontal();
+		if (plan.Heroine != null && !StoryJump.CanBond(plan, plan.Heroine, out _))
+		{
+			plan.Heroine = null;
+			StoryJump.Recompute(plan);
+		}
+		if (plan.Heroine != null && bonded != null && bonded != plan.Heroine)
+		{
+			GUILayout.Label("<color=#A3302A>" + string.Format("已经和{0}结缘：她的结缘旗标不会清掉，等于两位都结缘了，之后的剧情可能对不上", StoryRomance.Name(bonded)) + "</color>", _rich);
+		}
+
+		if (plan.Forks.Any(f => f.Matters) || plan.Minor > 0)
 		{
 			GUILayout.Space(S(10));
-			GUILayout.Label("从任务开头找不到走到这一段的路（可能要从别的任务接进来），任务里的变化没有补。", _muted);
+			GUILayout.Label("一路上的岔路", _heading);
+			GUILayout.Label("下面是会让流程不一样的岔口（去处、主线、旗标、任务进度不同）。每个岔口选一条，就补那条路上的变化；不选按默认（目标任务里走最近的那条，中间的主线走接到下一站的那条）。", _muted);
+			StoryMission shown = null;
+			if (plan.Minor > 0)
+			{
+				GUILayout.Label(string.Format("另有 {0} 处只影响数值、好感或对白的岔路，按默认补", plan.Minor), _muted);
+			}
+			foreach (StoryJump.Fork fork in plan.Forks.Where(f => f.Matters).ToList())
+			{
+				if (fork.Mission != shown)
+				{
+					shown = fork.Mission;
+					GUILayout.Space(S(6));
+					GUILayout.Label("<b>" + shown.Title + "</b>" + (shown == plan.Mission ? "" : shown.Main ? "　<color=#73644F>中间的主线</color>" : "　<color=#73644F>中间的支线</color>"), _rich);
+				}
+				GUILayout.BeginVertical(_card);
+				GUILayout.Label("「" + fork.Segment + "」", _muted);
+				for (int i = 0; i < fork.Options.Count; i++)
+				{
+					bool picked = i == fork.Picked;
+					if (GUILayout.Button((picked ? "● " : "○ ") + fork.Options[i], new GUIStyle(picked ? _primary : _button) { alignment = TextAnchor.MiddleLeft, wordWrap = true }))
+					{
+						StoryJump.Pick(plan, fork.Key, i);
+					}
+				}
+				GUILayout.EndVertical();
+			}
 		}
 
 		if (plan.Notes.Count > 0)

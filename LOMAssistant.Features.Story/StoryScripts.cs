@@ -47,6 +47,8 @@ public sealed class StoryScript
 	public List<string> Records = new List<string>();
 	/// <summary>菜单里的选项（每个 choose 一组），收录节点时列出来。</summary>
 	public List<List<StoryStep>> Menus = new List<List<StoryStep>>();
+	/// <summary>每个菜单出现时所在的分岔（和 Menus 一一对应）：整组菜单放在某个条件分支里的（和她结缘才有的那组），不在那条路上就不会出现。</summary>
+	public List<List<StoryStep>> MenuPaths = new List<List<StoryStep>>();
 	/// <summary>结局（汗青书）、死亡（生死簿）的触发位置：在哪条分岔路上、哪个条目。</summary>
 	public List<(List<StoryStep> Path, bool Death, string Id)> Endings = new List<(List<StoryStep>, bool, string)>();
 	/// <summary>剧本里直接解锁的成就（风云史，AddAchievementLib）：在哪条分岔路上、哪个条目。</summary>
@@ -213,6 +215,7 @@ public static class StoryScripts
 				var options = tables.TryGetValue(m.Groups[2].Value, out var t) ? t : new Dictionary<int, StoryStep>();
 				choices[m.Groups[1].Value] = (StoryStep.Option, options);
 				script.Menu = true;
+				script.MenuPaths.Add(CurrentPath(blocks, choices, switches));
 				script.Menus.Add(options.OrderBy(p => p.Key).Select(p => p.Value).Where(s => s.Key.Length > 0)
 					.Select(s => new StoryStep { Kind = StoryStep.Option, Key = s.Key, Requirement = s.Requirement, Range = s.Range }).ToList());
 				continue;
