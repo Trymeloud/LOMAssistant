@@ -144,6 +144,9 @@ internal static class SwitchRandom
 		try
 		{
 			condition = RichText.Strip(DataHelper.SwitchBranchCondition(name, branch)).Trim();
+			if (NativeKorean.Enabled)
+				condition = System.Text.RegularExpressions.Regex.Replace(condition, @"난수\((-?\d+)~(-?\d+)\) 필요 (<=|>=|<|>|=|!=)(-?\d+) → 현재 -?\d+",
+					m => "난수(" + m.Groups[1].Value + "~" + m.Groups[2].Value + ") " + m.Groups[3].Value + m.Groups[4].Value);
 			// 「随机值_0_100 需<=72 → 当前0」：当前值是定住的数，没有意义，写成「随机数（0～100）≤ 72」
 			condition = System.Text.RegularExpressions.Regex.Replace(condition, @"随机值_(-?\d+)_(-?\d+)\s*需\s*(<=|>=|<|>|=|!=)\s*(-?\d+)\s*→\s*当前\s*-?\d+",
 				m => "随机数（" + m.Groups[1].Value + "～" + m.Groups[2].Value + "）" + (m.Groups[3].Value == "<=" ? "≤" : m.Groups[3].Value == ">=" ? "≥" : m.Groups[3].Value) + " " + m.Groups[4].Value);

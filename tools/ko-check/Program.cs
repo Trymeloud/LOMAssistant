@@ -25,6 +25,8 @@ internal static class Program
     }
     public static void Main(string[] args)
     {
+        NativeChecks.Run(Check, args.Length > 2 ? args[2] : null);
+        if (args.Length > 4) BuiltModChecks.Run(args[4], Check);
         Expect("嘴力 需>=40 且 性情 需<=60", "구력 필요 >=40 그리고 성정 필요 <=60");
         Expect("好感度_三师兄 需>好感度_二师兄", "삼사형 호감도 필요 >이사형 호감도");
         Expect("攻略小师妹 (攻略人數) 需>=2", "공략 인원 필요 >=2");
@@ -180,7 +182,7 @@ internal static class Program
         }
         Console.WriteLine("PASS: " + count + " translation checks");
         if (args.Length > 1) Audit.Run(args[1]);
-        if (args.Length > 3) FlagAudit.Run(args[2], args[3]);
+        if (args.Length > 3 && File.Exists(args[2])) FlagAudit.Run(args[2], args[3]);
     }
 }
 

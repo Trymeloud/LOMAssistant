@@ -14,7 +14,9 @@ public class Action
 
 	public string Content { get; set; }
 
-	public string Description { get; private set; }
+	private readonly string _description;
+	internal string CanonicalDescription => _description;
+	public string Description => NativeKorean.Enabled ? NativeKorean.DescribeAction(Type, Content) : _description;
 
 	public Action(ActionType type, string content, bool isConditional = false, int branchIndex = 0)
 	{
@@ -22,7 +24,7 @@ public class Action
 		Content = content;
 		IsConditional = isConditional;
 		BranchIndex = branchIndex;
-		Description = ParseAction();
+		_description = ParseAction();
 	}
 
 	private string ParseAction()

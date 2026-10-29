@@ -58,6 +58,9 @@ public sealed class StoryScript
 	public List<(List<StoryStep> Path, string Level)> Fights = new List<(List<StoryStep>, string)>();
 	/// <summary>数值变化（属性、好感、旗标、物品），记在发生时所在的分岔下。</summary>
 	public List<(List<StoryStep> Path, string Text)> Effects = new List<(List<StoryStep>, string)>();
+	// Analysis and reverse lookup continue to use canonical Effects above.
+	// Display effects retain the action data so changing UI language cannot change analysis.
+	public List<(List<StoryStep> Path, LOMAssistant.LuaParse.Action Action)> DisplayEffects = new List<(List<StoryStep>, LOMAssistant.LuaParse.Action)>();
 	/// <summary>改旗标、给收物品的原始调用（SetFlag、AddMisc……）和编号、数值，旗标、物品反查用。</summary>
 	public List<(List<StoryStep> Path, string Method, string Id, string Value)> Modifies = new List<(List<StoryStep>, string, string, string)>();
 	/// <summary>剧本里用到的条件检查点（分支判断 Switch、选项条件 Condition），旗标、物品反查用。</summary>
@@ -67,6 +70,9 @@ public sealed class StoryScript
 	public List<string> EffectsOn(StoryExit exit)
 	{
 		// 「旗标暂存」是游戏内部记数用的临时旗标，对玩家没意义，不显示
+		if (NativeKorean.Enabled)
+			return DisplayEffects.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Action.CanonicalDescription.Contains("暂存"))
+				.Select(e => RichText.Strip(e.Action.Description)).Where(t => t.Length > 0).Distinct().ToList();
 		return Effects.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Text.Contains("暂存")).Select(e => e.Text).Distinct().ToList();
 	}
 
@@ -283,10 +289,13 @@ public static class StoryScripts
 				{
 					script.Modifies.Add((CurrentPath(blocks, choices, switches), tracked.Groups[1].Value, tracked.Groups[2].Value, tracked.Groups[3].Value));
 				}
-				string effect = new LOMAssistant.LuaParse.Action(LOMAssistant.LuaParse.ActionType.ModifyAction, t.Value).Description;
+				var action = new LOMAssistant.LuaParse.Action(LOMAssistant.LuaParse.ActionType.ModifyAction, t.Value);
+				string effect = action.CanonicalDescription;
 				if (!string.IsNullOrEmpty(effect))
 				{
-					script.Effects.Add((CurrentPath(blocks, choices, switches), TextConverter.ToSimplified(RichText.Strip(effect))));
+					var path = CurrentPath(blocks, choices, switches);
+					script.Effects.Add((path, TextConverter.ToSimplified(RichText.Strip(effect))));
+					script.DisplayEffects.Add((path, action));
 				}
 			}
 			if ((m = Next.Match(line)).Success)
@@ -498,7 +507,7 @@ public static class StoryScripts
 			{
 				break;
 			}
-			arms.Add(TextConverter.ToSimplified(Regex.Replace(text, @" → 当前[^ ]*", "").Replace(" 需", "").Trim()));
+			arms.Add(TextConverter.ToSimplified(KoreanText.CompactCondition(text)));
 		}
 		return arms;
 	}

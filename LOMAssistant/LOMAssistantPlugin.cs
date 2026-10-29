@@ -102,6 +102,7 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 	{
 		try
 		{
+			TryPatchAll(typeof(StoryContextPatch));
 			if (ConfigManager.EnableOptionInfo.Value)
 			{
 				TryPatchAll(typeof(OptionInfoPatch));

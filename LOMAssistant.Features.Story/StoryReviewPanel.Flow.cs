@@ -275,7 +275,7 @@ public partial class StoryReviewPanel
 				{
 					return StoryScripts.Otherwise(step.Key, false);
 				}
-				text = System.Text.RegularExpressions.Regex.Replace(text, @" → 当前[^ ]*", "").Replace(" 需", "").Trim();
+				text = KoreanText.CompactCondition(text);
 				return text.Length > 0
 					? (TextConverter.DisplayLanguage == UiText.Korean ? "조건: " + TextConverter.ForDisplay(text) : "如果 " + text)
 					: (TextConverter.DisplayLanguage == UiText.Korean ? "조건 불명" : "条件不明");

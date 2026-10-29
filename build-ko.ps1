@@ -26,6 +26,7 @@ $resources = @{
     'LOMAssistant.Features.AnytimeSave/Replay.lua' = 'LOMAssistant.AnytimeSave.Replay.lua'
     'LOMAssistant.Features.AnytimeSave/contract.tsv.gz' = 'LOMAssistant.AnytimeSave.contract.tsv.gz'
     'LOMAssistant/conditions.json.gz' = 'LOMAssistant.conditions.json.gz'
+    'localization/flag-names-ko.tsv' = 'LOMAssistant.flag-names-ko.tsv'
     'CHANGELOG.md' = 'LOMAssistant.CHANGELOG.md'
     'CHANGELOG.ja.md' = 'LOMAssistant.CHANGELOG.ja.md'
     'CHANGELOG.ko.md' = 'LOMAssistant.CHANGELOG.ko.md'
