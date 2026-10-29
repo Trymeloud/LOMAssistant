@@ -59,7 +59,7 @@ Connect a large language model with your own API key to ask about the story and 
 
 ### Story overview (Tab)
 
-- **Now**: every option and dice outcome of the current scene with its result, the branch conditions, whether the following dialogue has been read; the random events here with their odds (pick the next one); your current quests, where to trigger them and what is still missing.
+- **Now**: every option and dice outcome of the current scene with its result, the branch conditions, whether the following dialogue has been read; the random events here with their odds and which you have not seen (pick the next one); your current quests, where to trigger them and what is still missing.
 
   <img src="media/story-now.webp" width="640" alt="Now: this scene's options grouped by choice, stat gains in green and losses in red; current quests">
 
@@ -92,7 +92,7 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/event-picker.webp" width="480" alt="Pick random events: the events that can trigger, their odds and changes">
 
-- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit. Turn on "Map hints: triggerable only" in settings to list only the quests that would trigger now; the rest are only counted.
+- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit. Turn on "Map hints: triggerable only" in settings to list only the quests that would trigger now; the rest are only counted. Inside a building, hover over an option such as chopping wood or training to see the random events it can roll, their odds and which you have not seen; the same goes for moving and peddling in the Go out list.
 - **Item uses** (off by default, may reveal quest names): item descriptions in the bag and shops end with what using the item does and which stories check for it or take it. Setting: "Show item uses".
 - **Branch panel** (off by default, spoilers): lists the conditions of each branch check on the left, met in green and unmet in red.
 

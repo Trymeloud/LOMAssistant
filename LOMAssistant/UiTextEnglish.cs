@@ -360,6 +360,7 @@ public static class UiTextEnglish
 		["不在时间内"] = "Out of time",
 		["时间 {0}"] = "Time {0}",
 		["{0}：{1} 个事件"] = "{0}: {1} events",
+		["{0}：随机事件"] = "{0}: random events",
 		["主线「{0}」"] = "Main 「{0}」",
 		["支线「{0}」"] = "Side 「{0}」",
 		["决斗我方无敌"] = "Invincible in duels",
@@ -691,7 +692,7 @@ public static class UiTextEnglish
 		["存档、提速、界面、热键等其他设置不变"] = "Saves, speed-ups, interface, hotkeys and other settings stay as they are",
 		["关掉选项提示、骰子和随机事件自选、地图提示、直接获胜等辅助和全部作弊，只留随时存档、节点存档、提速这些不影响游戏的功能"] = "Turns off option hints, dice and event picking, map hints, win buttons and every cheat, keeping only save anywhere, branch saves and speed-ups, which don't change the game",
 		["选项后果、骰子自选、地图提示、空过、直接获胜按钮、无限修炼锻造和不花银两打开；分支小窗、旗标提示、随机事件自选和其他作弊关闭"] = "Option results, dice picking, map hints, skip turn, win buttons, unlimited training and forging and free forging are on; the branch panel, flag notices, event picking and other cheats are off",
-		["在「辅助」之上再打开分支小窗、旗标提示、随机事件自选、决斗敌方行动预测、四师兄卖全部物品，以及突破上限、战斗无敌等作弊"] = "On top of 「Assist」: the branch panel, flag notices, event picking, enemy move forecast, the fourth senior selling everything, and cheats such as breaking the stat cap and invincibility",
+		["在「辅助」之上再打开分支小窗、旗标提示、随机事件自选、决斗敌方行动预测、四师兄卖全部物品，以及战斗无敌等作弊"] = "On top of 「Assist」: the branch panel, flag notices, event picking, enemy move forecast, the fourth senior selling everything, and cheats such as invincibility",
 		// 菜单按钮、诊断
 		["直接获胜"] = "Win now",
 		["导出诊断"] = "Export diagnostics",

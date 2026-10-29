@@ -26,10 +26,10 @@ public partial class StoryReviewPanel
 	private int _presetConfirm = -1;
 	private float _presetConfirmUntil;
 
-	// 作弊类：无限修炼锻造、不花银两从「辅助」起打开，其余只有「全开」打开（「决斗敌方不受伤」哪一档都不开）
+	// 作弊类：无限修炼锻造、不花银两从「辅助」起打开，其余只有「全开」打开（「决斗敌方不受伤」「突破属性上限」哪一档都不开）
 	private static (IConfigElement, object)[] Cheats(bool training, bool on) => new (IConfigElement, object)[]
 	{
-		(ConfigManager.BreakStatLimit, on),
+		(ConfigManager.BreakStatLimit, false),
 		(ConfigManager.CheatUnlimitedTraining, training),
 		(ConfigManager.CheatUnlimitedUpgrade, training),
 		(ConfigManager.CheatFreeUpgradeMoney, training),
@@ -94,7 +94,7 @@ public partial class StoryReviewPanel
 		{
 			Name = "全开",
 			Tagline = "建议补全剧情的老玩家选择",
-			Note = "在「辅助」之上再打开分支小窗、旗标提示、随机事件自选、决斗敌方行动预测、四师兄卖全部物品，以及突破上限、战斗无敌等作弊",
+			Note = "在「辅助」之上再打开分支小窗、旗标提示、随机事件自选、决斗敌方行动预测、四师兄卖全部物品，以及战斗无敌等作弊",
 			Values = new (IConfigElement, object)[]
 			{
 				(ConfigManager.ShowBranchChecks, true),

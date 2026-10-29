@@ -10,7 +10,9 @@ using Mortal.Core;
 using Mortal.Free;
 using Mortal.Story;
 using UnityEngine;
+using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace LOMAssistant;
 
@@ -52,7 +54,12 @@ public class MapEventHints : MonoBehaviour
 	{
 		_hovered = __instance;
 		_text = null;
+		FreePositionData data = Traverse.Create(__instance).Field("_positionData").GetValue<FreePositionData>();
+		LastScript = data != null ? data.GetFieldValue<string>("_defaultScript") : LastScript;
 	}
+
+	/// <summary>最后停过的建筑的剧本（点进去以后选项小窗找选项用）。</summary>
+	internal static string LastScript;
 
 	[HarmonyPostfix]
 	[HarmonyPatch(typeof(PositionController), nameof(PositionController.OnPositionExit))]
@@ -420,23 +427,319 @@ public class MapEventHints : MonoBehaviour
 		}
 		if (events.Count > 0)
 		{
-			// 只列现在能抽到的（按概率从高到低），条件不满足的只写个数：后山这类事件多的建筑，全列出来提示太长
-			var rates = events.Select(e => (Data: e, Rate: e.GetRate())).ToList();
-			var possible = rates.Where(r => r.Rate > 0).OrderByDescending(r => r.Rate).ToList();
-			int total = possible.Sum(r => r.Rate);
 			text.Append("\n\n" + RichText.Golden("随机事件"));
-			foreach (var (data, rate) in possible)
-			{
-				string name = RichText.Strip(DataHelper.GetEventName(data));
-				string unread = Unread(PositionEventCache.Instance.ResultScript(data)) ? "　" + RichText.Golden("没看过") : "";
-				text.Append($"\n{name}　{RichText.Green($"{rate * 100f / total:0.#}%")}{unread}");
-			}
-			int blocked = rates.Count - possible.Count;
-			if (blocked > 0)
-			{
-				text.Append($"\n<color=#9A9286>{(possible.Count > 0 ? "另有 " + blocked + " 个条件不满足" : "全部 " + blocked + " 个都条件不满足")}</color>");
-			}
+			AppendEvents(text, events);
 		}
 		return text.ToString();
+	}
+
+	/// <summary>一组随机事件：只列现在能抽到的（按概率从高到低），条件不满足的只写个数（后山这类事件多的建筑，全列出来提示太长）。</summary>
+	internal static void AppendEvents(StringBuilder text, List<PositionEventData> events)
+	{
+		var rates = events.Select(e => (Data: e, Rate: e.GetRate())).ToList();
+		var possible = rates.Where(r => r.Rate > 0).OrderByDescending(r => r.Rate).ToList();
+		int total = possible.Sum(r => r.Rate);
+		foreach (var (data, rate) in possible)
+		{
+			string name = RichText.Strip(DataHelper.GetEventName(data));
+			string unread = Unread(PositionEventCache.Instance.ResultScript(data)) ? "　" + RichText.Golden("没看过") : "";
+			text.Append($"\n{name}　{RichText.Green($"{rate * 100f / total:0.#}%")}{unread}");
+		}
+		int blocked = rates.Count - possible.Count;
+		if (blocked > 0)
+		{
+			text.Append($"\n<color=#9A9286>{(possible.Count > 0 ? "另有 " + blocked + " 个条件不满足" : "全部 " + blocked + " 个都条件不满足")}</color>");
+		}
+	}
+
+	/// <summary>
+	/// 建筑里的一个选项（后山的挑柴、修炼……）会抽哪些事件池：在剧本里找到选项表里写着这个选项的那一项，
+	/// 再取「选了第几项」那一支里调用的事件池（checkpointmanager.Position("…")），按调用顺序，每个池子各抽一次。
+	/// </summary>
+	internal static List<string> OptionPools(string script, string option)
+	{
+		var pools = new List<string>();
+		string text = StoryScripts.Text(script);
+		if (text == null || option.Length == 0)
+		{
+			return pools;
+		}
+		string[] lines = text.Split('\n');
+		string quoted = "\"" + option + "\"";
+		Match item = lines.Where(l => l.Contains(quoted)).Select(l => Regex.Match(l, @"^\s*([A-Za-z0-9_]+)\[(\d+)\]\s*=")).FirstOrDefault(m => m.Success);
+		if (item == null)
+		{
+			return pools;
+		}
+		Match choose = Regex.Match(text, @"local\s+([A-Za-z0-9_]+)\s*=\s*choose\(\s*" + item.Groups[1].Value + @"\s*\)");
+		if (!choose.Success)
+		{
+			return pools;
+		}
+		var head = new Regex(@"^(?:if|elseif)\s+" + choose.Groups[1].Value + @"\s*==\s*" + item.Groups[2].Value + @"\s+then$");
+		// 按 if / elseif / else / end 数层数：这一支从它的 if、elseif 开始，到同一层的下一个 elseif、else 或 end 结束
+		int depth = 0, at = -1;
+		var body = new StringBuilder();
+		foreach (string raw in lines)
+		{
+			string line = raw.Trim();
+			bool opens = (line.StartsWith("if ") && line.EndsWith("then")) || line.EndsWith(" do") || line == "do" || Regex.IsMatch(line, @"\bfunction\b.*\)$");
+			bool sibling = line.StartsWith("elseif ") || line == "else";
+			bool closes = line == "end" || line.StartsWith("end ") || line.StartsWith("end)");
+			if (at >= 0 && ((sibling && depth - 1 == at) || (closes && depth - 1 == at)))
+			{
+				break;
+			}
+			if (at < 0 && head.IsMatch(line))
+			{
+				at = line.StartsWith("if ") ? depth : depth - 1;
+			}
+			else if (at >= 0)
+			{
+				body.Append(raw).Append('\n');
+			}
+			if (opens)
+			{
+				depth++;
+			}
+			else if (closes)
+			{
+				depth--;
+			}
+		}
+		var calls = PoolCall.Matches(body.ToString()).Cast<Match>().ToList();
+		// 外出的「移动」这类选项接着演另一个场所的剧本（door_01_01 闹市……），那个剧本里抽的池子也算上
+		foreach (Match next in Regex.Matches(body.ToString(), @"SetNextScript\(\s*""([A-Za-z0-9_]+)""\s*\)"))
+		{
+			string nextText = StoryScripts.Text(next.Groups[1].Value);
+			if (nextText != null)
+			{
+				calls.AddRange(PoolCall.Matches(nextText).Cast<Match>());
+			}
+		}
+		foreach (Match m in calls)
+		{
+			if (!pools.Contains(m.Groups[1].Value))
+			{
+				pools.Add(m.Groups[1].Value);
+			}
+		}
+		return pools;
+	}
+}
+
+/// <summary>
+/// 点进养成建筑后的选项（后山的挑柴、修练……）和外出的列表（移动去闹市、行商……）：鼠标停在选项上（或用方向键、手柄选中时），旁边列出选这一项会抽的随机事件、
+/// 概率和没看过的，和地图建筑的悬停提示同一种写法。开关跟着「养成地图事件提示」。
+/// </summary>
+internal sealed class PositionOptionHints : MonoBehaviour
+{
+	private static PositionOptionHints _instance;
+
+	// 建筑里的选项（PositionOptionButton）和外出这类列表选项（BreakOptionButton）：都有 _source（选项编号）和 _titleText
+	private MonoBehaviour[] _options = new MonoBehaviour[0];
+	private float _nextScan;
+	private bool _useSelection, _touched;
+	private Vector2 _lastMouse;
+	private MonoBehaviour _pointed;
+	private string _key, _text;
+	private GUIStyle _box;
+	private float _scale = -1f;
+	private int _fontMode = -1;
+
+	public static void Ensure(GameObject host)
+	{
+		if (_instance == null)
+		{
+			_instance = host.GetComponent<PositionOptionHints>() ?? host.AddComponent<PositionOptionHints>();
+		}
+	}
+
+	private void Update()
+	{
+		if (!ConfigManager.EnableMapHints.Value)
+		{
+			_pointed = null;
+			return;
+		}
+		// 游戏的选项卡（MenuToggleButton）鼠标一进整张卡就把按钮设成选中，方向键、手柄也是换选中：看选中的是哪一项，
+		// 和游戏自己的高亮范围一样。菜单打开时游戏会默认选中第一项，动过鼠标或按过方向键以后才显示
+		var mouse = UnityEngine.InputSystem.Mouse.current;
+		if (mouse != null)
+		{
+			Vector2 position = mouse.position.ReadValue();
+			if ((position - _lastMouse).sqrMagnitude > 4f)
+			{
+				_useSelection = false;
+				_touched = true;
+			}
+			_lastMouse = position;
+		}
+		var keyboard = UnityEngine.InputSystem.Keyboard.current;
+		var pad = UnityEngine.InputSystem.Gamepad.current;
+		if ((keyboard != null && (keyboard.upArrowKey.wasPressedThisFrame || keyboard.downArrowKey.wasPressedThisFrame || keyboard.leftArrowKey.wasPressedThisFrame || keyboard.rightArrowKey.wasPressedThisFrame))
+			|| (pad != null && (pad.dpad.ReadValue().sqrMagnitude > 0.25f || pad.leftStick.ReadValue().sqrMagnitude > 0.25f)))
+		{
+			_useSelection = true;
+			_touched = true;
+		}
+		if (Time.unscaledTime >= _nextScan)
+		{
+			_nextScan = Time.unscaledTime + 0.3f;
+			int before = _options.Count(o => o != null && o.isActiveAndEnabled);
+			_options = FindObjectsOfType<PositionOptionButton>().Cast<MonoBehaviour>().Concat(FindObjectsOfType<BreakOptionButton>()).ToArray();
+			int now = _options.Count(o => o.isActiveAndEnabled);
+			if (now != before)
+			{
+				// 换了一个菜单：等动过鼠标、按过方向键再显示
+				_touched = false;
+			}
+		}
+		GameObject selected = EventSystem.current != null ? EventSystem.current.currentSelectedGameObject : null;
+		MonoBehaviour pointed = _touched && selected != null ? _options.FirstOrDefault(o => o != null && o.isActiveAndEnabled && o.gameObject == selected) : null;
+		_pointed = pointed;
+	}
+
+	private static Camera CanvasCamera(Component option)
+	{
+		Canvas canvas = option.GetComponentInParent<Canvas>();
+		return canvas == null || canvas.rootCanvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.rootCanvas.worldCamera;
+	}
+
+	private static IEnumerable<Graphic> Targets(Component option) => option.GetComponentsInChildren<Graphic>().Where(g => g.isActiveAndEnabled && g.raycastTarget);
+
+	/// <summary>整张卡在屏幕上的范围（屏幕坐标，原点左下）。</summary>
+	private static Rect Bounds(Component option)
+	{
+		Camera cam = CanvasCamera(option);
+		var corners = new Vector3[4];
+		float minX = float.MaxValue, minY = float.MaxValue, maxX = float.MinValue, maxY = float.MinValue;
+		foreach (RectTransform rect in Targets(option).Select(g => g.rectTransform).Concat(new[] { (RectTransform)option.transform }))
+		{
+			rect.GetWorldCorners(corners);
+			foreach (Vector3 corner in corners)
+			{
+				Vector2 point = RectTransformUtility.WorldToScreenPoint(cam, corner);
+				minX = Mathf.Min(minX, point.x);
+				minY = Mathf.Min(minY, point.y);
+				maxX = Mathf.Max(maxX, point.x);
+				maxY = Mathf.Max(maxY, point.y);
+			}
+		}
+		return Rect.MinMaxRect(minX, minY, maxX, maxY);
+	}
+
+	private string Describe(MonoBehaviour option)
+	{
+		Text source = Traverse.Create(option).Field("_source").GetValue<Text>();
+		string key = source != null && source.text != null ? source.text.Trim() : "";
+		if (key != _key)
+		{
+			_key = key;
+			_text = null;
+		}
+		if (_text != null)
+		{
+			return _text;
+		}
+		_text = "";
+		// 正在演的就是建筑的剧本；找不到这个选项时再看最后点的建筑
+		List<string> pools = MapEventHints.OptionPools(PlayerStatManagerData.Instance?.CurrentStoryScript, key);
+		if (pools.Count == 0 && MapEventHints.LastScript != null)
+		{
+			pools = MapEventHints.OptionPools(MapEventHints.LastScript, key);
+		}
+		if (pools.Count == 0)
+		{
+			return _text;
+		}
+		Text[] titles = Traverse.Create(option).Field("_titleText").GetValue<Text[]>();
+		string title = titles != null && titles.Length > 0 && titles[0] != null ? TextConverter.ToSimplified(titles[0].text) : "";
+		var text = new StringBuilder("<b>" + (title.Length > 0 ? title + "：" : "") + "随机事件</b>");
+		if (!PositionEventCache.Available)
+		{
+			text.Append("\n<color=#9A9286>进过一次剧情后才能列出（事件表只在剧情场景里读得到）</color>");
+			return _text = text.ToString();
+		}
+		// 一个选项可能接连抽好几个池子（先抽干活的结果，再抽之后的事件），每个池子各算概率，空一行分开
+		bool first = true;
+		foreach (string pool in pools)
+		{
+			List<PositionEventData> events = PositionEventCache.Instance.GetPositionEvents(pool);
+			if (events.Count == 0)
+			{
+				continue;
+			}
+			if (!first)
+			{
+				text.Append('\n');
+			}
+			first = false;
+			MapEventHints.AppendEvents(text, events);
+		}
+		return _text = first ? "" : text.ToString();
+	}
+
+	private void OnGUI()
+	{
+		if (_pointed == null || !ConfigManager.EnableMapHints.Value || UiHider.Active || InputGuard.ModWindowOpen || EventPicker.IsWaiting || Event.current.type != EventType.Repaint)
+		{
+			return;
+		}
+		string note;
+		try
+		{
+			note = Describe(_pointed);
+		}
+		catch (Exception ex)
+		{
+			_text = note = "";
+			FileLogger.LogWarning("[地图事件] 读取选项事件失败: " + ex.Message);
+		}
+		if (note.Length == 0)
+		{
+			return;
+		}
+		float scale = PanelTheme.UiScale;
+		if (scale <= 0f)
+		{
+			return;
+		}
+		if (_box == null || ModFont.NeedsRebuild(scale, _scale, _fontMode))
+		{
+			_scale = scale;
+			_fontMode = ModFont.Mode;
+			_box = PanelTheme.Toast(scale, 19);
+			_box.alignment = TextAnchor.UpperLeft;
+			_box.padding = new RectOffset((int)(14f * scale), (int)(14f * scale), (int)(10f * scale), (int)(10f * scale));
+		}
+		var content = new GUIContent(note);
+		float width = 460f * scale;
+		float height = _box.CalcHeight(content, width);
+		float x, y;
+		if (!_useSelection)
+		{
+			// 鼠标：和地图建筑的提示一样放在鼠标右下，超出屏幕就挪到左边、上边
+			Vector2 at = Event.current.mousePosition;
+			x = at.x + 24f * scale;
+			if (x + width > Screen.width)
+			{
+				x = at.x - width - 16f * scale;
+			}
+			y = Mathf.Clamp(at.y + 16f * scale, 0f, Mathf.Max(0f, Screen.height - height));
+		}
+		else
+		{
+			// 方向键、手柄：放在选中的按钮右边，放不下放左边
+			Rect card = Bounds(_pointed);
+			x = card.xMax + 12f * scale;
+			if (x + width > Screen.width)
+			{
+				x = card.xMin - width - 12f * scale;
+			}
+			y = Mathf.Clamp(Screen.height - card.yMax, 0f, Mathf.Max(0f, Screen.height - height));
+		}
+		x = Mathf.Clamp(x, 0f, Mathf.Max(0f, Screen.width - width));
+		GUI.Box(new Rect(x, y, width, height), content, PanelTheme.Sync(_box));
 	}
 }

@@ -421,7 +421,11 @@ public partial class StoryReviewPanel
 		{
 			bool open = _dropdown == row;
 			int current = Mathf.Clamp(picked, 0, row.Choices.Length - 1);
-			GUILayout.BeginVertical(GUILayout.Width(S(170)));
+			// 只在展开时套一层竖排：竖排里按钮的上下边距会多算一次，收起时直接放，和别的行一样高
+			if (open)
+			{
+				GUILayout.BeginVertical(GUILayout.Width(S(170)));
+			}
 			if (GUILayout.Button(row.Choices[current] + (open ? "  ▲" : "  ▼"), open ? _primary : _button, GUILayout.Width(S(170)), Ctl()))
 			{
 				_dropdown = open ? null : row;
@@ -443,8 +447,8 @@ public partial class StoryReviewPanel
 						_dropdown = null;
 					}
 				}
+				GUILayout.EndVertical();
 			}
-			GUILayout.EndVertical();
 		}
 		else if (row.Choices != null && value is int choice)
 		{

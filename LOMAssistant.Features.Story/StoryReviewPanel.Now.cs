@@ -19,6 +19,8 @@ public partial class StoryReviewPanel
 		public PositionEventData Data;
 		public string Name = "", Desc = "";
 		public int Rate, Percent;
+		/// <summary>这个事件的剧情一句都没读过（和随机事件小窗的「没看过」一样）。</summary>
+		public bool Unread;
 	}
 
 	private sealed class NowMission
@@ -134,7 +136,7 @@ public partial class StoryReviewPanel
 			{
 				GUILayout.BeginVertical(_card);
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(ev.Name + "　" + (ev.Rate > 0 ? $"<color=#2F6B3A>{ev.Percent}%</color>" : "<color=#A3302A>条件不满足</color>"), _rich);
+				GUILayout.Label(ev.Name + "　" + (ev.Rate > 0 ? $"<color=#2F6B3A>{ev.Percent}%</color>" : "<color=#A3302A>条件不满足</color>") + (ev.Unread ? "　<color=#A3302A>没看过</color>" : ""), _rich);
 				GUILayout.FlexibleSpace();
 				if (ev.Rate > 0)
 				{
@@ -261,7 +263,8 @@ public partial class StoryReviewPanel
 							Name = TextConverter.ToSimplified(PositionEventCache.Instance.GetPositionEventName(data)),
 							Desc = OnPaper(TextConverter.ToSimplified(PositionEventCache.Instance.GetPositionEventDesc(data)).Trim()),
 							Rate = rate,
-							Percent = rate > 0 ? Mathf.RoundToInt(rate * 100f / total) : 0
+							Percent = rate > 0 ? Mathf.RoundToInt(rate * 100f / total) : 0,
+							Unread = MapEventHints.Unread(PositionEventCache.Instance.ResultScript(data))
 						});
 					}
 				}
