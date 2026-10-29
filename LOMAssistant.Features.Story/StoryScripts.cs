@@ -63,6 +63,12 @@ public sealed class StoryScript
 	/// <summary>剧本里用到的条件检查点（分支判断 Switch、选项条件 Condition），旗标、物品反查用。</summary>
 	public List<(List<StoryStep> Path, string Checkpoint, bool Switch)> Checks = new List<(List<StoryStep>, string, bool)>();
 
+	/// <summary>
+	/// 跳转补进度用：改状态的调用（旗标、剧情记录、主线支线任务、物品、好感、数值），记在发生时所在的分岔下，按剧本顺序。
+	/// Args 是括号里的参数（字符串去掉引号）。
+	/// </summary>
+	public List<(List<StoryStep> Path, string Method, string[] Args)> Commands = new List<(List<StoryStep>, string, string[])>();
+
 	/// <summary>走这个去处一路上会有的变化。</summary>
 	public List<string> EffectsOn(StoryExit exit)
 	{
@@ -95,6 +101,8 @@ public static class StoryScripts
 	private static readonly Regex SetCharacter = new Regex(@"^setcharacter\(characters\.Get\(""(\w+)""\)");
 	private static readonly Regex AddStory = new Regex(@"AddStory\(""([^""]+)""\)");
 	private static readonly Regex Modify = new Regex(@"statmodifymanager\.(?!GetDisplayTime|AddStory|Mission|IsTrigger|ResetTalkFlag)\w+\(.*?\)");
+	private static readonly Regex Command = new Regex(@"statmodifymanager\.(SetFlag|AddFlag|AddStory|Mission|IsTriggerSubMission|AddBook|RemoveBook|AddMisc|RemoveMisc|AddSpecial|RemoveSpecial|Character|SetCharacter|Player|SetPlayer)\(([^()]*)\)");
+	private static readonly Regex CommandArg = new Regex(@"""([^""]*)""|(-?\d+)");
 	private static readonly Regex Tracked = new Regex(@"^statmodifymanager\.(SetFlag|AddFlag|AddBook|RemoveBook|AddMisc|RemoveMisc|AddSpecial|RemoveSpecial|Character)\(""(\w+)""(?:, *(-?\d+))?");
 
 	/// <summary>读过的全部剧本（生成时间线时一口气读进来的）。</summary>
@@ -275,6 +283,11 @@ public static class StoryScripts
 			foreach (Match t in AddStory.Matches(line))
 			{
 				script.Records.Add(t.Groups[1].Value);
+			}
+			foreach (Match c in Command.Matches(line))
+			{
+				string[] args = CommandArg.Matches(c.Groups[2].Value).Cast<Match>().Select(x => x.Groups[1].Success ? x.Groups[1].Value : x.Groups[2].Value).ToArray();
+				script.Commands.Add((CurrentPath(blocks, choices, switches), c.Groups[1].Value, args));
 			}
 			foreach (Match t in Modify.Matches(line))
 			{

@@ -22,6 +22,22 @@ public partial class StoryReviewPanel
 		/// <summary>走出本任务的去处（回地图、主线推进、结局、别的任务），没有剧本。</summary>
 		public bool Terminal;
 		public bool Ending;
+		/// <summary>这一段最后一个剧本的每个去处，方块里一行一个：选项、掷骰、条件、接着；To 为 null 的是选了还留在本段、之后合回来的选项。</summary>
+		public readonly List<FlowWay> Ways = new List<FlowWay>();
+		/// <summary>方块里第一行去处的纵坐标（行高 RowHeight），排版时算。</summary>
+		public float RowsTop;
+	}
+
+	/// <summary>方块里的一行去处。</summary>
+	private sealed class FlowWay
+	{
+		public FlowBox To;
+		/// <summary>行里显示的短说明；Full 是完整的条件和选项（悬停时看）。</summary>
+		public string Short = "";
+		public readonly List<string> Full = new List<string>();
+		public string Effects = "";
+		public readonly List<StoryExit> Exits = new List<StoryExit>();
+		public bool Back;
 	}
 
 	private sealed class FlowLink
@@ -44,6 +60,11 @@ public partial class StoryReviewPanel
 	}
 
 	private const int FlowLimit = 160;
+
+	// 方块里去处那一行的文字：左对齐、超出截掉（悬停看完整的）
+	private GUIStyle _flowRow, _flowRowMuted;
+	private float _flowRowScale;
+	private bool _flowRowDark;
 
 	private StoryMission _flowMission;
 	private FlowGraph _flow;
@@ -452,6 +473,20 @@ public partial class StoryReviewPanel
 					{
 						link.Labels.Add(label);
 					}
+					AddWay(from, to, ShortLabel(exit), label, exit, link.Back);
+				}
+				// 选了还留在本段、之后合回来的选项：也列成一行，写上它改什么
+				var leaving = new HashSet<string>(from.Last.Exits.SelectMany(x => x.Path).Where(st => st.Kind == StoryStep.Option).Select(st => st.Key));
+				foreach (StoryStep option in from.Last.Menus.SelectMany(m => m).Where(st => st.Kind == StoryStep.Option && !leaving.Contains(st.Key)))
+				{
+					if (from.Ways.Any(w => w.To == null && w.Exits.Count == 0 && w.Full.Contains(option.Key)))
+					{
+						continue;
+					}
+					var stay = new FlowWay { Short = "「" + Short(StoryScripts.OptionText(option.Key), 12) + "」" };
+					stay.Full.Add(option.Key);
+					stay.Effects = string.Join("　", from.Last.Effects.Where(x => x.Path.Any(st => st.Key == option.Key) && !x.Text.Contains("暂存")).Select(x => x.Text).Distinct().ToArray());
+					from.Ways.Add(stay);
 				}
 				// 输了会死的决斗
 				foreach (var (path, level) in from.Last.Fights)
@@ -473,6 +508,7 @@ public partial class StoryReviewPanel
 					{
 						link.Labels.Add(label);
 					}
+					AddWay(from, to, (path.Count > 0 ? StepShort(path[path.Count - 1]) + " · " : "") + "决斗输了", label, null, false);
 				}
 				// 死亡（生死簿）不是「回到标题」，单独画出来
 				foreach (var (path, death, id) in from.Last.Endings.Where(e => e.Death))
@@ -490,52 +526,115 @@ public partial class StoryReviewPanel
 					{
 						link.Labels.Add(label);
 					}
+					AddWay(from, to, path.Count > 0 ? StepShort(path[path.Count - 1]) : "接着", label, null, false);
 				}
+			}
+		}
+
+		// 同一个去处、同一句短说明的合成一行
+		void AddWay(FlowBox from, FlowBox to, string shortText, string full, StoryExit exit, bool back)
+		{
+			FlowWay way = from.Ways.Find(w => w.To == to && w.Short == shortText);
+			if (way == null)
+			{
+				way = new FlowWay { To = to, Short = shortText, Back = back };
+				from.Ways.Add(way);
+			}
+			if (full.Length > 0 && !way.Full.Contains(full))
+			{
+				way.Full.Add(full);
+			}
+			if (exit != null)
+			{
+				way.Exits.Add(exit);
 			}
 		}
 
 		FlowGraph Layout()
 		{
-			// 排版：同一层从上往下排；每条线的标签完整显示（每项一行，太长就换行），标签写在进方块的那段线上方，
-			// 所以每个方块上面按进来的标签留出空间
-			float w = S(230), h = S(62), gapX = S(260), gapY = S(24), labelWidth = gapX - S(60);
-			var labelStyle = new GUIStyle(_tag) { wordWrap = true, alignment = TextAnchor.LowerRight };
-			var reserve = new Dictionary<FlowBox, float>();
-			foreach (FlowLink link in graph.Links.Where(l => !l.Back && l.Labels.Count > 0))
+			foreach (FlowLink link in graph.Links)
 			{
 				link.Text = string.Join("\n", link.Labels.ToArray());
-				link.Height = labelStyle.CalcHeight(new GUIContent(link.Text), labelWidth) + S(4);
-				reserve.TryGetValue(link.To, out float used);
-				link.Lift = used;
-				reserve[link.To] = used + link.Height + S(2);
 			}
-			// 一层一层往右排：同一层里按上一层「父方块」的位置排先后（父方块在上的排上面，同一个父方块下按去处原本的顺序），
-			// 剧情段在前、走出本任务的小方块在后；每个方块尽量和父方块对齐，放不下就往下挪
-			var parents = graph.Links.Where(l => !l.Back).GroupBy(l => l.To).ToDictionary(g => g.Key, g => g.Select(l => l.From).ToList());
-			var order = graph.Links.Select((l, i) => (l, i)).GroupBy(x => x.l.To).ToDictionary(g => g.Key, g => g.Min(x => x.i));
+			// 分列：每一段放在「最长的一条路」走到它的那一列（往回接的线不算），岔开以后再合流的段落排在合流处，不会挤在前面
+			for (int pass = 0; pass < graph.Boxes.Count; pass++)
+			{
+				bool moved = false;
+				foreach (FlowLink link in graph.Links.Where(l => !l.Back))
+				{
+					if (link.To.Layer < link.From.Layer + 1)
+					{
+						link.To.Layer = link.From.Layer + 1;
+						moved = true;
+					}
+				}
+				if (!moved)
+				{
+					break;
+				}
+			}
+			float w = S(290), gapX = S(120), gapY = S(22);
+			// 一列一列往右排：每个方块对着连进来的那几行去处的平均高度放，同一列里按这个高度排先后、互不重叠
+			var incoming = new Dictionary<FlowBox, List<float>>();
 			float bottom = 0;
 			foreach (var layer in graph.Boxes.GroupBy(b => b.Layer).OrderBy(g => g.Key))
 			{
-				float ParentY(FlowBox b) => parents.TryGetValue(b, out var ps) && ps.Count > 0 ? ps.Average(p => p.Rect.center.y) : 0f;
-				var sorted = layer.OrderBy(ParentY).ThenBy(b => b.Terminal ? 1 : 0).ThenBy(b => order.TryGetValue(b, out int i) ? i : int.MaxValue).ToList();
+				float Wanted(FlowBox b) => incoming.TryGetValue(b, out var ys) && ys.Count > 0 ? ys.Average() : 0f;
+				var sorted = layer.OrderBy(Wanted).ThenBy(b => b.Terminal ? 1 : 0).ToList();
 				float y = S(24);
 				int row = 0;
 				foreach (FlowBox b in sorted)
 				{
 					b.Row = row++;
-					float bh = b.Terminal ? h * 0.62f : h;
-					reserve.TryGetValue(b, out float above);
-					y += Mathf.Max(0, above - bh / 2f + S(6));
-					float wanted = layer.Key == 0 ? y : ParentY(b) - bh / 2f;
+					float bh = BoxHeight(b);
+					float wanted = layer.Key == 0 ? y : Wanted(b) - InPort(b, bh);
 					y = Mathf.Max(y, wanted);
-					b.Rect = new Rect(S(24) + layer.Key * (w + gapX), y, b.Terminal ? w * 0.8f : w, bh);
+					b.Rect = new Rect(S(24) + layer.Key * (w + gapX), y, b.Terminal ? w * 0.72f : w, bh);
+					b.RowsTop = b.Rect.y + HeaderHeight;
 					y += bh + gapY;
+					for (int k = 0; k < b.Ways.Count; k++)
+					{
+						FlowWay way = b.Ways[k];
+						if (way.To != null && !way.Back)
+						{
+							if (!incoming.TryGetValue(way.To, out var ys))
+							{
+								incoming[way.To] = ys = new List<float>();
+							}
+							ys.Add(b.RowsTop + (k + 0.5f) * RowHeight);
+						}
+					}
 				}
 				bottom = Mathf.Max(bottom, y);
 			}
 			graph.Width = S(48) + (graph.Boxes.Count == 0 ? 0 : graph.Boxes.Max(b => b.Layer) + 1) * (w + gapX);
 			graph.Height = bottom + S(40);
 			return graph;
+		}
+	}
+
+	private float HeaderHeight => S(60);
+	private float RowHeight => S(28);
+
+	private float BoxHeight(FlowBox b) => b.Terminal ? S(40) : HeaderHeight + Mathf.Max(1, b.Ways.Count) * RowHeight + S(8);
+
+	// 连进来的线接在方块的哪个高度：剧情段接在标题那一行，走出本任务的小方块接在正中
+	private float InPort(FlowBox b, float height) => b.Terminal ? height / 2f : S(22);
+
+	/// <summary>行里的短说明：这条路上每一步分岔，选项写选项文字，掷骰写范围，条件只写个大概（完整的悬停看）。</summary>
+	private static string ShortLabel(StoryExit exit) => exit.Path.Count == 0 ? (exit.AfterScene ? "战斗后" : "接着") : string.Join(" · ", exit.Path.Select(StepShort).ToArray());
+
+	private static string StepShort(StoryStep step)
+	{
+		switch (step.Kind)
+		{
+			case StoryStep.Option:
+				return "「" + Short(StoryScripts.OptionText(step.Key), 12) + "」";
+			case StoryStep.Dice:
+				return "掷出 " + (step.Range.Length > 0 ? step.Range : Short(StoryScripts.OptionText(step.Key), 6));
+			default:
+				string full = StepLabel(step);
+				return full.StartsWith("如果 ") ? "若 " + Short(full.Substring(3), 14) : Short(full, 12);
 		}
 	}
 
@@ -554,35 +653,38 @@ public partial class StoryReviewPanel
 		var view = new Rect(_flowScroll.x, _flowScroll.y, canvas.width, canvas.height);
 		if (e.type == EventType.Repaint)
 		{
-			// 线：先画线，标签在线的末段上，同一个方块进来的多条线标签错开
-			var incoming = new Dictionary<FlowBox, int>();
-			foreach (FlowLink link in graph.Links)
+			// 线：从方块里那一行去处的右边伸出去，在目标方块左边的竖道里拐弯，进目标方块；进同一个方块的几条线各占一条竖道
+			var slots = new Dictionary<FlowBox, int>();
+			foreach (FlowBox box in graph.Boxes)
 			{
-				Rect a = link.From.Rect, b = link.To.Rect;
-				bool hot = _flowPicked != null && (link.From == _flowPicked || link.To == _flowPicked);
-				Color color = hot ? Cinnabar : InkLine;
-				if (link.Back)
+				for (int k = 0; k < box.Ways.Count; k++)
 				{
-					// 往回接的线从下面绕过去
-					float below = Mathf.Max(a.yMax, b.yMax) + S(14);
-					var p1 = new Vector2(a.xMax, a.center.y);
-					Segment(p1, new Vector2(a.xMax + S(14), p1.y), color, S(2), true);
-					Segment(new Vector2(a.xMax + S(14), p1.y), new Vector2(a.xMax + S(14), below), color, S(2), true);
-					Segment(new Vector2(a.xMax + S(14), below), new Vector2(b.center.x, below), color, S(2), true);
-					Segment(new Vector2(b.center.x, below), new Vector2(b.center.x, b.yMax), color, S(2), true);
-					continue;
-				}
-				var from = new Vector2(a.xMax, a.center.y);
-				var to = new Vector2(b.x, b.center.y);
-				float bend = from.x + S(24);
-				Elbow(from, to, color, hot ? S(3) : S(2), false, bend);
-				Fill(new Rect(to.x - S(7), to.y - S(4), S(7), S(8)), color);
-				if (link.Text.Length > 0)
-				{
-					// 标签贴在进方块那段线的上方；同一个方块进来几条线时往上叠
-					float lw = to.x - bend - S(20);
-					var lr = new Rect(to.x - S(12) - lw, to.y - S(4) - link.Lift - link.Height, lw, link.Height);
-					GUI.Label(lr, link.Text, new GUIStyle(_tag) { wordWrap = true, alignment = TextAnchor.LowerRight, normal = { background = null, textColor = hot ? Cinnabar : Ink } });
+					FlowWay way = box.Ways[k];
+					if (way.To == null)
+					{
+						continue;
+					}
+					bool hot = _flowPicked != null && (box == _flowPicked || way.To == _flowPicked);
+					Color color = hot ? Cinnabar : InkLine;
+					float width = hot ? S(3) : S(2);
+					var from = new Vector2(box.Rect.xMax, box.RowsTop + (k + 0.5f) * RowHeight);
+					Rect b = way.To.Rect;
+					if (way.Back)
+					{
+						// 往回接的线从下面绕过去
+						float below = Mathf.Max(box.Rect.yMax, b.yMax) + S(14);
+						Segment(from, new Vector2(from.x + S(14), from.y), color, width, true);
+						Segment(new Vector2(from.x + S(14), from.y), new Vector2(from.x + S(14), below), color, width, true);
+						Segment(new Vector2(from.x + S(14), below), new Vector2(b.center.x, below), color, width, true);
+						Segment(new Vector2(b.center.x, below), new Vector2(b.center.x, b.yMax), color, width, true);
+						continue;
+					}
+					slots.TryGetValue(way.To, out int slot);
+					slots[way.To] = slot + 1;
+					var to = new Vector2(b.x, b.y + InPort(way.To, b.height));
+					float lane = b.x - S(18) - (slot % 8) * S(7);
+					Elbow(from, to, color, width, false, Mathf.Max(from.x + S(10), lane));
+					Fill(new Rect(to.x - S(7), to.y - S(4), S(7), S(8)), color);
 				}
 			}
 		}
@@ -609,18 +711,55 @@ public partial class StoryReviewPanel
 					GUI.Label(box.Rect, box.Ending ? "<b>" + box.Title + "</b>" : box.Title, t);
 					continue;
 				}
-				// 剧情段：宣纸卡片，墨边；底下一条读过多少的进度
+				// 剧情段：宣纸卡片，墨边；标题下一条读过多少的进度，再往下一行一个去处
 				Fill(box.Rect, picked ? Paper : PaperLight);
 				Frame(box.Rect, picked ? Cinnabar : Ink, picked ? S(2) : 1);
-				GUI.Label(new Rect(box.Rect.x + S(12), box.Rect.y + S(8), box.Rect.width - S(20), S(24)), Short(box.Title, 13), _boxTitle);
+				GUI.Label(new Rect(box.Rect.x + S(12), box.Rect.y + S(8), box.Rect.width - S(20), S(24)), Short(box.Title, 15), _boxTitle);
 				GUI.Label(new Rect(box.Rect.x + S(12), box.Rect.y + S(32), box.Rect.width - S(20), S(20)), box.Sub, _boxSmall);
-				ReadBar(new Rect(box.Rect.x + S(12), box.Rect.yMax - S(7), box.Rect.width - S(24), S(3)), box.Read);
+				ReadBar(new Rect(box.Rect.x + S(12), box.RowsTop - S(6), box.Rect.width - S(24), S(3)), box.Read);
+				if (box.Ways.Count == 0)
+				{
+					GUI.Label(new Rect(box.Rect.x + S(12), box.RowsTop, box.Rect.width - S(24), RowHeight), "这一段之后没有直接接着的剧本", _boxSmall);
+				}
+				for (int k = 0; k < box.Ways.Count; k++)
+				{
+					FlowWay way = box.Ways[k];
+					var row = new Rect(box.Rect.x + S(1), box.RowsTop + k * RowHeight, box.Rect.width - S(2), RowHeight);
+					if (k > 0)
+					{
+						Fill(new Rect(row.x + S(10), row.y, row.width - S(20), 1), new Color(InkLine.r, InkLine.g, InkLine.b, InkLine.a * 0.35f));
+					}
+					bool stays = way.To == null;
+					string text = stays ? way.Short + "　<color=#8A7E6E>留在本段</color>" : way.Short;
+					if (_flowRow == null || !Mathf.Approximately(_flowRowScale, _scale) || _flowRowDark != PanelTheme.Dark)
+					{
+						_flowRowScale = _scale;
+						_flowRowDark = PanelTheme.Dark;
+						_flowRow = new GUIStyle(_tag) { alignment = TextAnchor.MiddleLeft, clipping = TextClipping.Clip };
+						_flowRow.normal.background = null;
+						_flowRowMuted = new GUIStyle(_boxSmall) { alignment = TextAnchor.MiddleLeft, clipping = TextClipping.Clip, richText = true };
+					}
+					GUI.Label(new Rect(row.x + S(11), row.y, row.width - S(28), row.height), text, stays ? _flowRowMuted : _flowRow);
+					if (!stays)
+					{
+						bool hot = _flowPicked != null && (box == _flowPicked || way.To == _flowPicked);
+						Fill(new Rect(row.xMax - S(6), row.center.y - S(3), S(6), S(6)), hot ? Cinnabar : Ink);
+					}
+				}
 				if (box.Kept != null)
 				{
 					var stamp = new Rect(box.Rect.xMax - S(26), box.Rect.y + S(6), S(20), S(20));
 					Round(stamp, Cinnabar, S(3));
 					GUI.Label(stamp, "存", new GUIStyle(_seal) { fontSize = Mathf.Max(8, Mathf.RoundToInt(_seal.fontSize * 0.65f)) });
 				}
+			}
+			for (int k = 0; k < box.Ways.Count && !box.Terminal; k++)
+			{
+				FlowWay way = box.Ways[k];
+				var row = new Rect(box.Rect.x, box.RowsTop + k * RowHeight, box.Rect.width, RowHeight);
+				string full = way.Full.Count > 0 && way.To == null ? "「" + StoryScripts.OptionText(way.Full[0]) + "」" : string.Join("\n", way.Full.ToArray());
+				string tip = (full.Length > 0 ? full : way.Short) + (way.To != null && !way.To.Terminal ? "\n→ " + way.To.Title : way.To != null ? "\n→ " + way.To.Title : "\n选了以后还在这一段里，之后合回来") + (way.Effects.Length > 0 ? "\n" + way.Effects : "");
+				Hover(row, tip);
 			}
 			if (!box.Terminal && GUI.Button(box.Rect, GUIContent.none, GUIStyle.none))
 			{
@@ -658,6 +797,10 @@ public partial class StoryReviewPanel
 		if (box.Kept != null)
 		{
 			ReplayButton(box.Kept, "从这里重玩", _primary, GUILayout.Height(S(38)));
+		}
+		if (!box.Terminal && box.Chain.Count > 0)
+		{
+			JumpButton(_flowMission, box.Chain[0]);
 		}
 		if (box.Last == null)
 		{

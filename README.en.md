@@ -63,19 +63,21 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/story-now.webp" width="640" alt="Now: this scene's options grouped by choice, stat gains in green and losses in red; current quests">
 
-- **Route map**: the whole main story laid out on a calendar, branches as separate lanes, side quests below; ticks mark what this playthrough has done. Click a stop for when, where and under which conditions it triggers. Search by quest, place, dialogue or flag (a flag result lists the scenes that change or check it).
+- **Route map**: the whole main story laid out as one line along the calendar; branches split off above and below and come back to it where they rejoin, with the trigger condition on each split; side quests below; ticks mark what this playthrough has done. Click a stop for when, where and under which conditions it triggers. Search by quest, place, dialogue or flag (a flag result lists the scenes that change or check it).
 
   <img src="media/story-route.webp" width="640" alt="Route map: the main story as stops on a calendar, side quests below">
 
 - **Romance routes**: pick a love interest on the route map to light up only her scenes and see each step, whether it is done and where to get it.
 
-- **Story map**: each quest as a flow chart, with the option or condition on every path.
+- **Story map**: each quest as a flow chart. Every scene box lists its ways on (options, dice, conditions) one per row, with a line from that row to the scene it leads to; options that stay in the scene are listed too. Hover a row for the full condition and what it changes.
 
   <img src="media/story-flow.webp" width="640" alt="Story map: options, conditions and destinations between story segments">
 
 - **Branch saves**: progress is recorded when the game autosaves at story save points and at the start of each period; click **Replay from here** to go back and try another path. Separate per save, uses no save slots, synced with Steam Cloud.
 
   <img src="media/story-nodes.webp" width="640" alt="Branch saves: recorded story segments by date, replay or delete">
+
+- **Story jump**: pick a scene on the route map or story map and click **Jump here** to start it directly, even one you haven't reached. The flags, story records, quest progress, items, affection and stats in between are filled in from the scripts and the date moves to that scene; if several ways in the quest lead there, you pick one. A save-anywhere save is made first, so you can go back with one click or just keep playing. Meant for filling in the story and collecting branches and endings; not recommended for normal play, since some states can't be filled in and later scenes may not match.
 
 - **Collection**: records from all playthroughs. Story counts how much of each quest's dialogue you have read; endings, deaths, achievements and ending CGs show their gallery numbers and whether you have them. For anything missing it says where and how to get it. Each entry lists the quests that lead to it; click one to open that quest's story map. On the ending CG page, **Watch the credits** replays the end credits in a story scene; press Esc to stop.
 

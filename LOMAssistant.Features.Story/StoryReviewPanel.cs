@@ -399,6 +399,8 @@ public partial class StoryReviewPanel : MonoBehaviour
 		{
 			case -1: DrawChangelog(body); break;
 			case 0: DrawNow(body); break;
+			case 1 when _jumpPlan != null: DrawJump(body); break;
+			case 2 when _jumpPlan != null: DrawJump(body); break;
 			case 1: DrawRoute(body); break;
 			case 2: DrawFlow(body); break;
 			case 3: DrawNodes(body); break;
