@@ -284,9 +284,15 @@ public partial class StoryReviewPanel
 				});
 			}
 			var active = missions?.ActiveSubMissions;
+			// 留学（崆峒、青城）等主角不在唐门的时候，唐门各处的支线去不了、触发不了，只列不限地点的
+			bool away = (missions?.GetFlag("E11000")?.State ?? 0) == 1;
 			foreach (var pair in DataHelper.GetMissions())
 			{
 				MissionCheckData check = pair.Key;
+				if (away && check.Position != PositionType.無)
+				{
+					continue;
+				}
 				string place = TextConverter.ToSimplified(check.Position.ToString());
 				now.Missions.Add(new NowMission
 				{
