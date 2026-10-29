@@ -244,28 +244,50 @@ public static class StoryAtlas
 		Endings.Clear();
 		Achievements.Clear();
 		Cgs.Clear();
-		// 全部剧本：读一遍，记下大概，文字马上放掉
-		TextAsset[] assets = Resources.LoadAll<TextAsset>("story/chinesetraditional");
-		// 这一步没法拆到多帧里，记下用时（后台提前读时会在这里顿一下）
-		FileLogger.Log($"[剧情回顾] 载入 {assets.Length} 个剧本文件用时 {timer.ElapsedMilliseconds} 毫秒");
+		// 全部剧本：游戏和咖啡伴侣都没更新时直接读上次存的解析结果（后台线程读）；否则读一遍，记下大概，文字马上放掉，解析完存起来
 		var names = new List<string>();
-		for (int i = 0; i < assets.Length; i++)
+		Status = "正在读取剧本";
+		var cached = StoryScriptCache.Load();
+		while (!cached.IsCompleted)
 		{
-			TextAsset asset = assets[i];
-			if (asset == null)
-			{
-				continue;
-			}
-			names.Add(asset.name);
-			StoryScripts.Remember(StoryScripts.Parse(asset.name, asset.text));
-			Resources.UnloadAsset(asset);
-			if (i % 20 == 0)
-			{
-				Status = $"正在读取剧本 {i}/{assets.Length}";
-				yield return null;
-			}
+			yield return null;
 		}
-		assets = null;
+		if (cached.Result != null && cached.Result.Count > 0)
+		{
+			foreach (StoryScript script in cached.Result)
+			{
+				StoryScripts.Remember(script);
+				names.Add(script.Name);
+			}
+			FileLogger.Log($"[剧情回顾] 从缓存读了 {names.Count} 个剧本，用时 {timer.ElapsedMilliseconds} 毫秒");
+		}
+		else
+		{
+			TextAsset[] assets = Resources.LoadAll<TextAsset>("story/chinesetraditional");
+			// 这一步没法拆到多帧里，记下用时（后台提前读时会在这里顿一下）
+			FileLogger.Log($"[剧情回顾] 载入 {assets.Length} 个剧本文件用时 {timer.ElapsedMilliseconds} 毫秒");
+			var parsed = new List<StoryScript>();
+			for (int i = 0; i < assets.Length; i++)
+			{
+				TextAsset asset = assets[i];
+				if (asset == null)
+				{
+					continue;
+				}
+				names.Add(asset.name);
+				StoryScript script = StoryScripts.Parse(asset.name, asset.text);
+				StoryScripts.Remember(script);
+				parsed.Add(script);
+				Resources.UnloadAsset(asset);
+				if (i % 20 == 0)
+				{
+					Status = $"正在读取剧本 {i}/{assets.Length}";
+					yield return null;
+				}
+			}
+			assets = null;
+			StoryScriptCache.Save(parsed);
+		}
 		yield return null;
 
 		// 任务
