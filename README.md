@@ -18,11 +18,11 @@
 
 ## 진행 상태
 
-**현재 배포 버전: [v3.0.6-ko.2 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.6-ko.2).**
+**현재 배포 버전: [v3.0.9-ko.3 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.3).**
 
 개발 브랜치 `korean-native-3.0.9`는 **3.0.9-ko.3**입니다. 원본 v3.0.9 기능과 ko.1·ko.2의 스토리 화면 전환을 포함하며, 이번에는 AI 공략 지시문·인물 설정·도구 설명·조회 안내·대화 요약을 한국어 중심으로 전환했습니다. [적용 안내와 테스트 방법](releases/v3.0.9-ko.3.md), [AI 전환 검증](reports/korean-ai-3.0.9-ko.3.md)을 참고하세요. 기존 이벤트명 문맥 수정과 공식 한국어 대사에 맞춘 AI 인물 말투도 유지합니다.
 
-**이번 버전은 AI 채팅 전환 검증판입니다.** 사용자가 ko.1과 ko.2 적용 후 작동을 확인했으며 ko.3의 실제 플레이·모델 답변은 확인이 필요합니다. 승인된 화면 비율·배치·크기·글꼴·여백 설정을 유지합니다. 모든 동적 자료와 화면을 새 구조로 바꾼 것은 아니며 기존 검수 번역표도 함께 사용합니다. [완료 범위와 남은 작업 순서](reports/korean-migration-remaining.md)에 AI 실사용 확인 → 설정·저장 화면 → F9 전체 설명 → 통합 검수·공개 릴리스 순으로 정리했습니다. 게임 설치 폴더는 빌드 과정에서 변경하지 않습니다.
+**이번 버전은 AI 채팅 전환을 포함한 공개 사전 배포판입니다.** 사용자가 ko.1과 ko.2 적용 후 작동을 확인했으며 ko.3의 실제 플레이·모델 답변은 확인이 필요합니다. 승인된 화면 비율·배치·크기·글꼴·여백 설정을 유지합니다. 모든 동적 자료와 화면을 새 구조로 바꾼 것은 아니며 기존 검수 번역표도 함께 사용합니다. [완료 범위와 남은 작업 순서](reports/korean-migration-remaining.md)에 AI 실사용 확인 → 설정·저장 화면 → F9 전체 설명 → 후속 통합 검수 순으로 정리했습니다. 게임 설치 폴더는 빌드 과정에서 변경하지 않습니다.
 
 ### 한국어 개선판 버전 이력
 
@@ -38,9 +38,9 @@
 | 3.0.6-ko.5 | 공식 한국어 대사를 참고한 아홉 히로인·당포의 말투와 호칭 추적 | 개발판, 로컬 검증 패키지 | [변경 사항](releases/v3.0.6-ko.5.md) |
 | 3.0.9-ko.1 | 원본 3.0.9 대응, 한국어 문구 키·플래그 ID 표·조건/결과 직접 생성, 현재 상황 추적 분리 | 개발판, 로컬 검증 패키지 | [변경 사항](releases/v3.0.9-ko.1.md) |
 | 3.0.9-ko.2 | 진행 경로·흐름도·수집 현황 문구 전환, 전체 임무명 조회, 날짜·진행 상태 직접 생성, 배치 유지 검사 | 개발판, 로컬 검증 패키지 | [변경 사항](releases/v3.0.9-ko.2.md) |
-| 3.0.9-ko.3 | AI 지시문·인물 설정·도구 설명·조회 안내·요약 전환, 한국어 검색과 원본 자료 기반 경로 합산, AI 배치 유지 검사 | 개발판, 로컬 검증 패키지 | [변경 사항](releases/v3.0.9-ko.3.md) |
+| 3.0.9-ko.3 | 원본 3.0.9와 ko.1·ko.2 누적 반영, AI 지시문·인물 설정·도구 설명·조회 안내·요약 전환, 한국어 검색과 원본 자료 기반 경로 합산 | [공개 사전 배포](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.3) | [변경 사항](releases/v3.0.9-ko.3.md) |
 
-현재 개발 소스는 원본 [v3.0.9](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.9), 게임 `release_1.0.6001.0`을 기준으로 합니다. 공개된 ko.2와 개발판은 별도 버전입니다.
+현재 공개판과 개발 소스는 원본 [v3.0.9](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.9), 게임 `release_1.0.6001.0`을 기준으로 합니다. 3.0.9-ko.3은 이전 3.0.6-ko.2 공개판의 후속 버전입니다.
 
 - 내장 스토리 조건의 중국어 잔존 검사: 0건
 - 개발 소스 자동 검사: 8,882건 통과(스토리 문구·날짜·달성/읽음/방문 구분·AI 도구 형식/경로 계산/변경 확인·배치 유지·DLL 검사 포함)
@@ -55,9 +55,9 @@
 
 ## 설치 및 사용
 
-현재 개발 소스로 만드는 검증 패키지는 **원본 3.0.9 기반 모드 DLL 교체 패키지**입니다. BepInEx 6·Newtonsoft.Json과 게임 1.0.6001 환경이 필요하며, 로더와 Newtonsoft.Json은 포함하지 않습니다. 기존 3.0.6 한국어판의 해당 환경에도 DLL과 이벤트명 표를 함께 교체해 적용할 수 있습니다. [개발판 설치 안내](releases/v3.0.9-ko.3.md)의 테스트 항목을 확인하세요. 아래 공개판 다운로드 순서는 3.0.6-ko.2용입니다.
+배포 파일은 **원본 3.0.9 기반 모드 DLL 교체 패키지**입니다. BepInEx 6·Newtonsoft.Json과 게임 1.0.6001 환경이 필요하며, 로더와 Newtonsoft.Json은 포함하지 않습니다. 기존 3.0.6 한국어판의 해당 환경에도 DLL과 이벤트명 표를 함께 교체해 적용할 수 있습니다. [설치 안내](releases/v3.0.9-ko.3.md)의 확인 항목도 참고하세요.
 
-1. [릴리스](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.6-ko.2)에서 `LOMAssistant-3.0.6-ko.2-patch.zip`을 받습니다. GitHub의 `Source code` 압축 파일은 설치용이 아닙니다.
+1. [릴리스](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.3)에서 `LOMAssistant-3.0.9-ko.3-patch.zip`을 받습니다. GitHub의 `Source code` 압축 파일은 설치용이 아닙니다.
 2. 게임을 종료하고 기존 `BepInEx/plugins/LOMAssistant/LOMAssistant.dll`과 `event-names-ko.tsv`가 있으면 게임 폴더 밖에 백업합니다.
 3. ZIP의 `BepInEx` 폴더를 게임 설치 폴더에 덮어씁니다. `LOMAssistant.dll`과 `event-names-ko.tsv`가 같은 폴더에 있어야 합니다.
 4. 게임과 모드의 표시 언어를 한국어로 설정한 뒤 다시 실행합니다. 번역표 수정도 재실행 후 적용됩니다.
