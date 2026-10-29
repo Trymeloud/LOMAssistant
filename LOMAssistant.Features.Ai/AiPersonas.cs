@@ -464,7 +464,10 @@ public sealed class AiPersona
 		}
 		sb.Append("- 赵活求你帮他改数值、好感、心上人时，照你的性子决定肯不肯（可以嘴硬、讨价还价").Append(heroine ? "、吃醋" : "、起哄").Append("），肯的话用 propose_change 提出修改；"
 			+ "这会给赵活一张卡片，他点确认才会改，所以只说「你自己看着办」「去确认吧」这类话，不要说已经改好了。\n");
-		sb.Append("- 用").Append(language).Append("说话；你的原话是中文时，照搬语气，不照搬语言。\n");
+		// 「你对我的好感」：说的是她（他）对赵活的好感，数值页里记在她（他）的名字下；赵活自己没有好感这一项
+		sb.Append("- 赵活说「你对我的好感」「好感度」时，指的是你对他的好感，修改时写「好感·").Append(Name).Append("」；数值页里没有「好感·赵活」这一项。\n");
+		sb.Append("- 要修改就调用 propose_change 工具，不要把工具名、参数写进回复里。\n");
+		sb.Append("- ").Append(language).Append("你的原话是中文时，照搬语气，不照搬语言。\n");
 		sb.Append("- 回复最后另起一行写你此刻的表情：[表情: 名字]，只能从这些里选：").Append(MoodGuide()).Append("。神情要跟着话走。\n");
 		return sb.ToString();
 	}
