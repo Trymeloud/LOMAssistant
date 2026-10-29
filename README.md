@@ -18,9 +18,9 @@
 
 ## 진행 상태
 
-**현재 배포 버전: [v3.0.9-ko.3 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.3).**
+**현재 배포 버전: [v3.0.9-ko.4 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.4).**
 
-개발 브랜치 `korean-native-3.0.9`는 **3.0.9-ko.3**입니다. 원본 v3.0.9 기능과 ko.1·ko.2의 스토리 화면 전환을 포함하며, 이번에는 AI 공략 지시문·인물 설정·도구 설명·조회 안내·대화 요약을 한국어 중심으로 전환했습니다. [적용 안내와 테스트 방법](releases/v3.0.9-ko.3.md), [AI 전환 검증](reports/korean-ai-3.0.9-ko.3.md)을 참고하세요. 기존 이벤트명 문맥 수정과 공식 한국어 대사에 맞춘 AI 인물 말투도 유지합니다.
+개발 브랜치 `korean-native-3.0.9`는 **3.0.9-ko.4**입니다. ko.3까지의 개선을 누적 포함하며, 이번에는 게임의 플래그 변화 팝업에 ID별 한국어 이름을 연결했습니다. [적용 안내](releases/v3.0.9-ko.4.md), [기존 AI 전환 검증](reports/korean-ai-3.0.9-ko.3.md)을 참고하세요. 원본 3.1.0 변경 사항은 아직 포함하지 않습니다.
 
 **이번 버전은 AI 채팅 전환을 포함한 공개 사전 배포판입니다.** 사용자가 ko.1과 ko.2 적용 후 작동을 확인했으며 ko.3의 실제 플레이·모델 답변은 확인이 필요합니다. 승인된 화면 비율·배치·크기·글꼴·여백 설정을 유지합니다. 모든 동적 자료와 화면을 새 구조로 바꾼 것은 아니며 기존 검수 번역표도 함께 사용합니다. [완료 범위와 남은 작업 순서](reports/korean-migration-remaining.md)에 AI 실사용 확인 → 설정·저장 화면 → F9 전체 설명 → 후속 통합 검수 순으로 정리했습니다. 게임 설치 폴더는 빌드 과정에서 변경하지 않습니다.
 
@@ -39,11 +39,12 @@
 | 3.0.9-ko.1 | 원본 3.0.9 대응, 한국어 문구 키·플래그 ID 표·조건/결과 직접 생성, 현재 상황 추적 분리 | 개발판, 로컬 검증 패키지 | [변경 사항](releases/v3.0.9-ko.1.md) |
 | 3.0.9-ko.2 | 진행 경로·흐름도·수집 현황 문구 전환, 전체 임무명 조회, 날짜·진행 상태 직접 생성, 배치 유지 검사 | 개발판, 로컬 검증 패키지 | [변경 사항](releases/v3.0.9-ko.2.md) |
 | 3.0.9-ko.3 | 원본 3.0.9와 ko.1·ko.2 누적 반영, AI 지시문·인물 설정·도구 설명·조회 안내·요약 전환, 한국어 검색과 원본 자료 기반 경로 합산 | [공개 사전 배포](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.3) | [변경 사항](releases/v3.0.9-ko.3.md) |
+| 3.0.9-ko.4 | 게임 플래그 변화 팝업의 번역 누락 수정, ID별 한국어 이름과 이전값·새값 표시 | [공개 사전 배포](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.4) | [변경 사항](releases/v3.0.9-ko.4.md) |
 
-현재 공개판과 개발 소스는 원본 [v3.0.9](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.9), 게임 `release_1.0.6001.0`을 기준으로 합니다. 3.0.9-ko.3은 이전 3.0.6-ko.2 공개판의 후속 버전입니다.
+현재 공개판과 개발 소스는 원본 [v3.0.9](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.9), 게임 `release_1.0.6001.0`을 기준으로 합니다. 3.0.9-ko.4는 이전 공개판의 개선 사항을 누적 포함합니다.
 
 - 내장 스토리 조건의 중국어 잔존 검사: 0건
-- 개발 소스 자동 검사: 8,882건 통과(스토리 문구·날짜·달성/읽음/방문 구분·AI 도구 형식/경로 계산/변경 확인·배치 유지·DLL 검사 포함)
+- 개발 소스 자동 검사: 8,890건 통과(플래그 팝업 문구·DLL 번역 경로·스토리 문구·날짜·달성/읽음/방문 구분·AI 도구 형식/경로 계산/변경 확인·배치 유지 검사 포함)
 - 게임 임무 메타데이터 511개(그룹 211개·단계 300개)의 제목 후보: 중국어 잔여 0건
 - 실제 게임 플래그 표시 조합 5,304건: 실패 0건
 - 현재 게임 실행에서 수집된 조건 5,060건 재검사: 중국어 잔여 0건
@@ -55,9 +56,9 @@
 
 ## 설치 및 사용
 
-배포 파일은 **원본 3.0.9 기반 모드 DLL 교체 패키지**입니다. BepInEx 6·Newtonsoft.Json과 게임 1.0.6001 환경이 필요하며, 로더와 Newtonsoft.Json은 포함하지 않습니다. 기존 3.0.6 한국어판의 해당 환경에도 DLL과 이벤트명 표를 함께 교체해 적용할 수 있습니다. [설치 안내](releases/v3.0.9-ko.3.md)의 확인 항목도 참고하세요.
+배포 파일은 **원본 3.0.9 기반 모드 DLL 교체 패키지**입니다. BepInEx 6·Newtonsoft.Json과 게임 1.0.6001 환경이 필요하며, 로더와 Newtonsoft.Json은 포함하지 않습니다. 기존 3.0.6 한국어판의 해당 환경에도 DLL과 이벤트명 표를 함께 교체해 적용할 수 있습니다. 기존 설치가 정상 작동한다면 원작자의 3.0.9를 다시 받을 필요가 없습니다. [설치 안내](releases/v3.0.9-ko.4.md)의 확인 항목도 참고하세요.
 
-1. [릴리스](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.3)에서 `LOMAssistant-3.0.9-ko.3-patch.zip`을 받습니다. GitHub의 `Source code` 압축 파일은 설치용이 아닙니다.
+1. [릴리스](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.4)에서 `LOMAssistant-3.0.9-ko.4-patch.zip`을 받습니다. GitHub의 `Source code` 압축 파일은 설치용이 아닙니다.
 2. 게임을 종료하고 기존 `BepInEx/plugins/LOMAssistant/LOMAssistant.dll`과 `event-names-ko.tsv`가 있으면 게임 폴더 밖에 백업합니다.
 3. ZIP의 `BepInEx` 폴더를 게임 설치 폴더에 덮어씁니다. `LOMAssistant.dll`과 `event-names-ko.tsv`가 같은 폴더에 있어야 합니다.
 4. 게임과 모드의 표시 언어를 한국어로 설정한 뒤 다시 실행합니다. 번역표 수정도 재실행 후 적용됩니다.
@@ -81,7 +82,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/ko-check/run.ps1 -ModA
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/package-ko.ps1 -Game '게임 설치 경로' -Distribution '원본 배포 파일 경로'
 ```
 
-결과는 `bin/release/<소스 버전>/`에 생성됩니다. 현재 개발 소스의 출력 폴더는 `bin/release/3.0.9-ko.3/`입니다. 빌드·패키징 스크립트는 게임 설치 폴더를 수정하지 않습니다. 패키징에는 커밋된 소스가 필요하며, 빌드에 쓰이지 않는 `reports/`의 미추적 검수 파일은 그대로 둘 수 있습니다.
+결과는 `bin/release/<소스 버전>/`에 생성됩니다. 현재 개발 소스의 출력 폴더는 `bin/release/3.0.9-ko.4/`입니다. 빌드·패키징 스크립트는 게임 설치 폴더를 수정하지 않습니다. 패키징에는 커밋된 소스가 필요하며, 빌드에 쓰이지 않는 `reports/`의 미추적 검수 파일은 그대로 둘 수 있습니다.
 
 ## 원본 프로젝트 및 감사
 

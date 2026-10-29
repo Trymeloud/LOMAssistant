@@ -16,7 +16,7 @@ internal enum KoreanMessage
     SetValue, Affection, Talent, Cohesion, Discard, Quantity, Followup, Flag,
     Duel, Battle, PossibleResults, CertainResults, ConditionalResults, Weight,
     Activation, RateConditions, Location, Period, Conditions, UnlimitedTime,
-    AfterUnlock, ConditionalStory, RandomRange, UnknownLabel, EffectWhen, PlaceEvent,
+    AfterUnlock, ConditionalStory, RandomRange, UnknownLabel, EffectWhen, PlaceEvent, FlagChange,
 }
 
 internal static class KoreanText
@@ -59,6 +59,7 @@ internal static class KoreanText
         [KoreanMessage.Quantity] = "{0} ×{1}",
         [KoreanMessage.Followup] = "조건에 따라: {0}",
         [KoreanMessage.Flag] = "플래그 {0}",
+        [KoreanMessage.FlagChange] = "【플래그】{0}  {1} → {2}",
         [KoreanMessage.Duel] = "결투",
         [KoreanMessage.Battle] = "난전",
         [KoreanMessage.PossibleResults] = "발생 가능한 결과:",

@@ -41,6 +41,10 @@ internal static class NativeChecks
         check(KoreanLabels.Variable("随机值_0_100") == "난수(0~100)", "Random variable range");
         check(KoreanLabels.Variable("嘴力") == "구력", "Reviewed variable name");
         check(KoreanLabels.Flag("NEW_UNKNOWN_FLAG") == "플래그 NEW_UNKNOWN_FLAG", "Unknown flag retains its ID");
+        check(KoreanText.Get(KoreanMessage.FlagChange, "소사매 호감도", 0, 1) == "【플래그】소사매 호감도  0 → 1", "Flag notification label and state order");
+        check(KoreanText.Get(KoreanMessage.FlagChange, "진행 상태", 3, -1) == "【플래그】진행 상태  3 → -1", "Flag notification preserves decreases and negative values");
+        check(KoreanText.Get(KoreanMessage.FlagChange, KoreanLabels.Flag("NEW_UNKNOWN_FLAG"), -1, 0)
+            == "【플래그】플래그 NEW_UNKNOWN_FLAG  -1 → 0", "Unknown notification flag retains ID without untranslated developer prose");
         check(KoreanActionCall.TryParse("statmodifymanager.Player(\"money\", -100, \"\", 1)", out var spend)
             && spend.Method == "Player" && spend.Id == "money" && spend.Value == -100 && spend.HasValue, "Lua negative amount and target");
         check(KoreanActionCall.TryParse("statmodifymanager.SetFlag(\"M50009\", 1)", out var setFlag)

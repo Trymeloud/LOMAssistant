@@ -32,6 +32,17 @@ internal static class BuiltModChecks
             .Select(i => ((MethodReference)i.Operand).Name).ToList();
         check(actionReads.Contains("get_CanonicalDescription") && !actionReads.Contains("get_Description"), "Analysis must not parse Korean presentation strings");
         check(module.Resources.Any(r => r.Name == "LOMAssistant.flag-names-ko.tsv"), "Built DLL lacks the stable flag ID resource");
+        var flagNotify = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Extras.FlagNotifyPatch")
+            .Methods.Single(m => m.Name == "Notify");
+        var noticeCalls = flagNotify.Body.Instructions.Where(i => i.Operand is MethodReference)
+            .Select(i => (MethodReference)i.Operand).ToList();
+        check(noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.NativeKorean" && m.Name == "get_Enabled")
+            && noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.KoreanLabels" && m.Name == "Flag")
+            && noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.KoreanText" && m.Name == "Get"),
+            "Game flag notifications must compose Korean text from flag IDs before display");
+        check(noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.TextConverter" && m.Name == "ForDisplay")
+            && noticeCalls.Any(m => m.Name == "DisplayMessageText"),
+            "Game flag notifications must translate non-Korean text explicitly outside IMGUI");
         var adapter = module.Types.Single(t => t.FullName == "LOMAssistant.NativeKorean");
         check(adapter.Methods.Where(m => m.HasBody).SelectMany(m => m.Body.Instructions)
             .Where(i => i.Operand is MethodReference).Select(i => (MethodReference)i.Operand)
