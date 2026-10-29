@@ -202,6 +202,35 @@ public static class DataHelper
 		return string.Empty;
 	}
 
+	/// <summary>
+	/// Condition 检查点现在满不满足，只读条件、不执行（Execute 会加执行次数）。条件里用到 unstable 里的变量（剧本自己在前面会改的旗标）、
+	/// 找不到检查点时返回 null。
+	/// </summary>
+	public static bool? PeekCondition(string checkpoint, ICollection<string> unstable)
+	{
+		ConditionResultConfig config = ConditionConfig();
+		ConditionResultData data = config != null && config.List != null ? config.List.Find(x => x != null && x.name == checkpoint) : null;
+		List<ConditionResultItem> items = data?.GetFieldValue<List<ConditionResultItem>>("_items");
+		if (items == null)
+		{
+			return null;
+		}
+		foreach (ConditionResultItem item in items)
+		{
+			foreach (StatCompareItem compare in item.GetFieldValue<List<StatCompareItem>>("_items") ?? new List<StatCompareItem>())
+			{
+				foreach (StatGroupVariable variable in new[] { compare.GetFieldValue<StatGroupVariable>("_value1"), compare.GetFieldValue<StatGroupVariable>("_value2") })
+				{
+					if (variable != null && unstable.Any(id => variable.name.Contains(id)))
+					{
+						return null;
+					}
+				}
+			}
+		}
+		return items.Any(item => item.Check());
+	}
+
 	/// <summary>Condition 检查点的条件文字（多组之间是「或」），找不到时返回空。</summary>
 	public static string ParseConditionCheckpoint(string checkpoint)
 	{
