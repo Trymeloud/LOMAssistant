@@ -18,6 +18,13 @@ $arguments += "$root/LOMAssistant/KoreanLabels.cs"
 $arguments += "$root/LOMAssistant/KoreanActionCall.cs"
 $arguments += "$PSScriptRoot/NativeChecks.cs"
 $arguments += "$PSScriptRoot/StoryChecks.cs"
+$arguments += "$PSScriptRoot/AiChecks.cs"
+$arguments += "$root/LOMAssistant.Features.Ai/KoreanAiPrompt.cs"
+$arguments += "$root/LOMAssistant.Features.Ai/KoreanAiMood.cs"
+$arguments += "$root/LOMAssistant.Features.Ai/KoreanAiQuery.cs"
+$json = Join-Path (Split-Path $root -Parent) 'BepInEx/plugins/LOMAssistant/Newtonsoft.Json.dll'
+$arguments += "-r:$json"
+Copy-Item -LiteralPath $json -Destination $output -Force
 $arguments += "$PSScriptRoot/LayoutChecks.cs"
 $arguments += "$PSScriptRoot/BuiltModChecks.cs"
 $cecil = Join-Path (Split-Path $root -Parent) 'BepInEx/core/Mono.Cecil.dll'

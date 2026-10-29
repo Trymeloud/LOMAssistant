@@ -154,7 +154,7 @@ public static class AiSessions
 					sb.Append("**").Append(T("你")).Append("**：").Append(e.Text).Append("\n\n");
 					break;
 				case AiChat.Kind.Assistant:
-					string text = e.Text.Replace("【攻略提示】", "\n\n**" + T("攻略提示") + "**\n\n");
+					string text = KoreanAiPrompt.NormalizeHints(e.Text, "\n\n**" + T("攻略提示") + "**\n\n");
 					sb.Append("**").Append(who).Append("**：").Append(text.Trim()).Append("\n\n");
 					break;
 				case AiChat.Kind.Proposal:

@@ -44,6 +44,15 @@ internal static class BuiltModChecks
             var missionTitle = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Story.StoryMission").Methods.Single(m => m.Name == "get_Title");
             check(missionTitle.Body.Instructions.Any(i => i.Operand is MethodReference m && m.DeclaringType.FullName == "LOMAssistant.KoreanLabels" && m.Name == "MissionName"), "Story mission titles must use the complete-name resolver");
         }
+        var ai = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Ai.AiAnalysis");
+        var aiMethods = ai.Methods.Concat(ai.NestedTypes.SelectMany(t => t.Methods)).Where(m => m.HasBody);
+        var effectReads = aiMethods.SelectMany(m => m.Body.Instructions).Where(i => i.Operand is MethodReference r
+            && r.DeclaringType.FullName == "LOMAssistant.Features.Story.StoryScript").Select(i => ((MethodReference)i.Operand).Name).ToList();
+        check(effectReads.Contains("CanonicalEffectsOn") && !effectReads.Contains("EffectsOn"), "Compiled AI route analysis must use canonical effects");
+        var tools = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Ai.AiKnowledge").Methods.Single(m => m.Name == "get_Tools");
+        check(tools.Body.Instructions.Any(i => i.Operand is MethodReference m && m.DeclaringType.Name == "KoreanAiTools" && m.Name == "Localize"), "Built model tools lack Korean schemas");
+        var persona = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Ai.AiPersona");
+        check(persona.Methods.Single(m => m.Name == "Prompt").Body.Instructions.Any(i => i.Operand is MethodReference m && m.Name == "KoreanPrompt"), "Built persona prompt lacks native Korean path");
         Console.WriteLine("Built DLL: read-only context hooks, independent hint setting, canonical analysis and flag resource verified");
     }
 }

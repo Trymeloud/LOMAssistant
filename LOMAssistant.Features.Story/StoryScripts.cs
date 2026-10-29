@@ -73,8 +73,13 @@ public sealed class StoryScript
 		if (NativeKorean.Enabled)
 			return DisplayEffects.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Action.CanonicalDescription.Contains("暂存"))
 				.Select(e => RichText.Strip(e.Action.Description)).Where(t => t.Length > 0).Distinct().ToList();
-		return Effects.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Text.Contains("暂存")).Select(e => e.Text).Distinct().ToList();
+		return CanonicalEffectsOn(exit);
 	}
+
+	// Numeric analysis must not parse language-dependent presentation text.
+	internal List<string> CanonicalEffectsOn(StoryExit exit) => Effects
+		.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Text.Contains("暂存"))
+		.Select(e => e.Text).Distinct().ToList();
 
 	public bool Branches => Menu || Dice || Fight;
 }

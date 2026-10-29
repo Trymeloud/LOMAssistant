@@ -1,0 +1,99 @@
+
+// Game stand-ins only. The tested schema, Routes, StoryScript effects and
+// Propose/Resolve methods are extracted from the actual mod source above.
+namespace LOMAssistant {
+    static class NativeKorean { public static bool Enabled; }
+    static class RichText { public static string Strip(string t)=>t; }
+    static class TextConverter { public static string ToSimplified(string t)=>t; }
+    static class UiText { public const string Korean="Korean"; public static string Translate(string t,string l)=>t; }
+    static class KoreanLabels { public static string Variable(string t)=>t.Replace("郁竹好感","욱죽 호감도").Replace("心相","심상"); }
+    static class FileLogger { public static void Log(string t) {} public static void LogWarning(string t) {} }
+}
+namespace LOMAssistant.LuaParse { public class Action { public string CanonicalDescription="",Description=""; } }
+namespace LOMAssistant.Features.Story {
+    public class StoryMission { public string Key="",Title="",StartScript=""; }
+    public class StoryEnding { public string Id="",Title=""; }
+    public static class StoryAtlas {
+        public static Dictionary<string,StoryMission> Owner=new Dictionary<string,StoryMission>();
+        public static List<StoryEnding> Endings=new List<StoryEnding>();
+        public static StoryMission Find(string k)=>Owner.Values.FirstOrDefault(m=>m.Key==k);
+    }
+    public static class StoryScripts {
+        public static Dictionary<string,StoryScript> All=new Dictionary<string,StoryScript>();
+        public static StoryScript Get(string n)=>All.TryGetValue(n,out var s)?s:null;
+        public static bool IsPrefix(List<StoryStep> a,List<StoryStep> b)=>a.Count<=b.Count && a.SequenceEqual(b.Take(a.Count));
+        public static string Describe(StoryStep s)=>s.Key;
+    }
+    public static class StoryReviewPanel {
+        public static int Applied;
+        public static List<LOMAssistant.Features.Ai.AiChat.Change> AiResolveChanges(JArray items,List<string> missing)=>new List<LOMAssistant.Features.Ai.AiChat.Change>{new LOMAssistant.Features.Ai.AiChat.Change{Name="심상",From="1",To="10",Apply=()=>Applied++}};
+    }
+}
+namespace LOMAssistant.Features.Ai {
+    public class AiSession { public string Note=""; }
+    public static class AiSessions { public static void Save(AiSession s) {} }
+}
+public static class AiFixtureTests {
+    public static void Run(Action<bool,string> check) {
+        var original=LOMAssistant.Features.Ai.AiKnowledge.CanonicalTools;
+        var snapshot=original.Select(t=>t.Parameters.ToString()).ToArray();
+        var localized=LOMAssistant.Features.Ai.KoreanAiTools.Localize(original);
+        check(localized.Length==15,"All 15 AI tools retained");
+        JToken Structure(JToken t) {
+            var copy=t.DeepClone();
+            if(copy is JObject o) {foreach(var p in o.Properties().ToArray()) {if(p.Name=="description")p.Remove();else p.Value=Structure(p.Value);}}
+            else if(copy is JArray a)for(int i=0;i<a.Count;i++)a[i]=Structure(a[i]);
+            return copy;
+        }
+        bool NoHan(JToken t) {
+            if(t is JObject o)return o.Properties().All(p=>p.Name=="description"?!Regex.IsMatch(p.Value.ToString(),"[一-鿿]"):NoHan(p.Value));
+            return !(t is JArray a)||a.All(NoHan);
+        }
+        for(int i=0;i<original.Length;i++) {
+            check(original[i].Name==localized[i].Name,"Tool protocol name unchanged: "+original[i].Name);
+            check(JToken.DeepEquals(Structure(original[i].Parameters),Structure(localized[i].Parameters)),"Schema keys/types/required unchanged: "+original[i].Name);
+            check(!Regex.IsMatch(localized[i].Description,"[一-鿿]")&&NoHan(localized[i].Parameters),"Native tool descriptions: "+original[i].Name);
+            check(snapshot[i]==original[i].Parameters.ToString(),"Canonical schema not mutated: "+original[i].Name);
+        }
+        var empty=new List<LOMAssistant.Features.Story.StoryStep>();
+        var a=new LOMAssistant.Features.Story.StoryStep{Key="A"};var b=new LOMAssistant.Features.Story.StoryStep{Key="B"};
+        var start=new LOMAssistant.Features.Story.StoryScript();
+        start.Exits.Add(new LOMAssistant.Features.Story.StoryExit{Path=new List<LOMAssistant.Features.Story.StoryStep>{a},Target="left"});
+        start.Exits.Add(new LOMAssistant.Features.Story.StoryExit{Path=new List<LOMAssistant.Features.Story.StoryStep>{b},Target="right"});
+        start.Effects.Add((empty,"心相 +3"));start.Effects.Add((empty,"心相 +3"));
+        start.DisplayEffects.Add((empty,new LOMAssistant.LuaParse.Action{CanonicalDescription="心相 +3",Description="심상 +999"}));
+        var left=new LOMAssistant.Features.Story.StoryScript();var right=new LOMAssistant.Features.Story.StoryScript();
+        left.Exits.Add(new LOMAssistant.Features.Story.StoryExit{ToMap=true});right.Exits.Add(new LOMAssistant.Features.Story.StoryExit{ToTitle=true});
+        left.Effects.Add((empty,"郁竹好感 +7;心相 -2"));right.Effects.Add((empty,"郁竹好感 -5;心相 +10"));
+        LOMAssistant.Features.Story.StoryScripts.All["start"]=start;LOMAssistant.Features.Story.StoryScripts.All["left"]=left;LOMAssistant.Features.Story.StoryScripts.All["right"]=right;
+        LOMAssistant.NativeKorean.Enabled=false;
+        string cn=LOMAssistant.Features.Ai.AiAnalysis.Routes("start","郁竹好感");
+        check(cn.Contains("最多 7")&&cn.Contains("最少 -5"),"Canonical exclusive branch maximum/minimum");
+        LOMAssistant.NativeKorean.Enabled=true;
+        string ko=LOMAssistant.Features.Ai.AiAnalysis.Routes("start","욱죽 호감도");
+        check(ko.Contains("최대 7")&&ko.Contains("최소 -5"),"Korean focus yields same branch maximum/minimum");
+        check(!ko.Contains("999")&&!ko.Contains("호감도 +2"),"Displayed effects and exclusive branches never enter calculation");
+        check(ko.Contains("심상 +1")&&ko.Contains("심상 +13"),"Signed deltas, distinct effects, per-route totals");
+        check(ko.IndexOf("A",StringComparison.Ordinal)<ko.IndexOf("B",StringComparison.Ordinal),"Korean focus sorts original routes");
+        check(!Regex.IsMatch(ko,"[一-鿿]"),"Korean route fixture result has no Chinese");
+        string cleared=LOMAssistant.Features.Ai.AiKnowledge.Clean("심상 필요 >=40 → 현재 -3 그리고 호감도 필요 >=20 → 현재 10");
+        check(!cleared.Contains("현재")&&cleared.Contains(">=40")&&cleared.Contains(">=20"),"Knowledge strips Korean current values but retains requirements");
+        check(LOMAssistant.Features.Ai.AiKnowledge.CanonicalClean("心相 需>=40 → 当前3")=="心相 需>=40","Canonical current-value stripping retained");
+        var cards=new List<LOMAssistant.Features.Ai.AiChat.Entry>();
+        var method=typeof(LOMAssistant.Features.Ai.AiChat).GetMethod("Propose",System.Reflection.BindingFlags.Static|System.Reflection.BindingFlags.NonPublic);
+        string message=(string)method.Invoke(null,new object[]{new JObject{["changes"]=new JArray()},cards});
+        check(cards.Count==1&&LOMAssistant.Features.Story.StoryReviewPanel.Applied==0&&message.Contains("확인해야"),"Proposing only creates pending card; never applies");
+        var session=new LOMAssistant.Features.Ai.AiSession();
+        LOMAssistant.Features.Ai.AiChat.Resolve(session,cards[0],false);
+        check(LOMAssistant.Features.Story.StoryReviewPanel.Applied==0&&session.Note.Contains("거절"),"Declining never changes game");
+        LOMAssistant.Features.Ai.AiChat.Resolve(session,cards[0],true);
+        check(LOMAssistant.Features.Story.StoryReviewPanel.Applied==0,"Declined card cannot later apply");
+        cards.Clear();method.Invoke(null,new object[]{new JObject(),cards});
+        LOMAssistant.Features.Ai.AiChat.Resolve(session,cards[0],true);
+        LOMAssistant.Features.Ai.AiChat.Resolve(session,cards[0],true);
+        check(LOMAssistant.Features.Story.StoryReviewPanel.Applied==1&&session.Note.Contains("확인"),"Confirm applies exactly once");
+        cards[0].State=LOMAssistant.Features.Ai.AiChat.ProposalState.Pending;cards[0].Changes[0].Apply=null;
+        LOMAssistant.Features.Ai.AiChat.Resolve(session,cards[0],true);
+        check(LOMAssistant.Features.Story.StoryReviewPanel.Applied==1,"Restored card without callback cannot apply");
+    }
+}

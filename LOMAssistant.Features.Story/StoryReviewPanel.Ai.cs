@@ -69,13 +69,13 @@ public partial class StoryReviewPanel
 	{
 		GUILayout.BeginArea(r);
 		_aiSetupScroll = GUILayout.BeginScrollView(_aiSetupScroll);
-		GUILayout.Label("AI 攻略设置", _heading);
-		GUILayout.Label("需要自己的 API Key。Key 只存在这台电脑的配置文件里，只发给下面选的服务商；导出诊断时会隐藏。每次提问，问题和 AI 查到的游戏剧情会发给服务商，按服务商的价格计费。", _muted);
+		GUILayout.Label(AiText.T("AI 攻略设置", "AI 공략 설정"), _heading);
+		GUILayout.Label(AiText.T("需要自己的 API Key。Key 只存在这台电脑的配置文件里，只发给下面选的服务商；导出诊断时会隐藏。每次提问，问题和 AI 查到的游戏剧情会发给服务商，按服务商的价格计费。", "본인의 API 키가 필요합니다. 키는 이 PC의 설정 파일에 보관하고 선택한 제공업체에만 전송하며 진단 내보내기에서는 숨깁니다. 질문과 조회한 게임 내용이 제공업체에 전송되고 해당 업체 요금이 부과됩니다."), _muted);
 		GUILayout.Space(S(8));
 
-		GUILayout.Label("服务商", _label);
+		GUILayout.Label(AiText.T("服务商", "제공업체"), _label);
 		int current = ConfigManager.AiProvider.Value;
-		string[] names = LlmProvider.All.Select(p => p.Name).ToArray();
+		string[] names = LlmProvider.All.Select(p => AiText.Provider(p.Name)).ToArray();
 		int picked = Pick(names, current, 3, r.width - S(30));
 		if (picked != current)
 		{
@@ -90,11 +90,11 @@ public partial class StoryReviewPanel
 		GUILayout.Space(S(8));
 
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("API 地址", _label, GUILayout.Width(S(120)), Ctl());
+		GUILayout.Label(AiText.T("API 地址", "API 주소"), _label, GUILayout.Width(S(120)), Ctl());
 		Assign(ConfigManager.AiBaseUrl, GUILayout.TextField(ConfigManager.AiBaseUrl.Value, 200, _field, Ctl()));
 		GUILayout.EndHorizontal();
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("模型", _label, GUILayout.Width(S(120)), Ctl());
+		GUILayout.Label(AiText.T("模型", "모델"), _label, GUILayout.Width(S(120)), Ctl());
 		Assign(ConfigManager.AiModel, GUILayout.TextField(ConfigManager.AiModel.Value, 100, _field, Ctl()));
 		GUILayout.EndHorizontal();
 		if (!provider.NoKey)
@@ -102,36 +102,36 @@ public partial class StoryReviewPanel
 			GUILayout.BeginHorizontal();
 			GUILayout.Label("API Key", _label, GUILayout.Width(S(120)), Ctl());
 			Assign(ConfigManager.AiApiKey, GUILayout.PasswordField(ConfigManager.AiApiKey.Value, '•', 300, _field, Ctl()));
-			if (provider.KeysPage.Length > 0 && GUILayout.Button("去申请 Key", _button, GUILayout.Width(TextWidth("去申请 Key", _button, S(120))), Ctl()))
+			if (provider.KeysPage.Length > 0 && GUILayout.Button(AiText.T("去申请 Key", "API 키 발급"), _button, GUILayout.Width(TextWidth(AiText.T("去申请 Key", "API 키 발급"), _button, S(120))), Ctl()))
 			{
 				Application.OpenURL(provider.KeysPage);
 			}
 			GUILayout.EndHorizontal();
 		}
 		GUILayout.BeginHorizontal();
-		GUILayout.Label("深度模式模型", _label, GUILayout.Width(S(160)), Ctl());
+		GUILayout.Label(AiText.T("深度模式模型", "심층 모드 모델"), _label, GUILayout.Width(S(160)), Ctl());
 		Assign(ConfigManager.AiDeepModel, GUILayout.TextField(ConfigManager.AiDeepModel.Value, 100, _field, Ctl()));
 		GUILayout.EndHorizontal();
-		GUILayout.Label("模型名是建议值，服务商出了新模型可以自己改。要选支持工具调用（function calling）的模型。", _muted);
+		GUILayout.Label(AiText.T("模型名是建议值，服务商出了新模型可以自己改。要选支持工具调用（function calling）的模型。", "모델명은 권장값이며 새 모델이 나오면 직접 바꿀 수 있습니다. 도구 호출(function calling)을 지원해야 합니다."), _muted);
 		GUILayout.Space(S(8));
 
-		GUILayout.Label("剧透程度", _label);
-		int spoiler = Pick(new[] { "想知道什么说什么", "只说当前和走过的", "只给方向提示" }, Mathf.Clamp(ConfigManager.AiSpoiler.Value, 0, 2), 3, r.width - S(30));
+		GUILayout.Label(AiText.T("剧透程度", "스포일러 범위"), _label);
+		int spoiler = Pick(new[] { AiText.T("想知道什么说什么", "제한 없이 설명"), AiText.T("只说当前和走过的", "현재와 지나온 내용만"), AiText.T("只给方向提示", "방향만 안내") }, Mathf.Clamp(ConfigManager.AiSpoiler.Value, 0, 2), 3, r.width - S(30));
 		if (spoiler != ConfigManager.AiSpoiler.Value)
 		{
 			ConfigManager.AiSpoiler.Value = spoiler;
 		}
 		GUILayout.Space(S(8));
-		GUILayout.Label("女主角的攻略提示", _label);
-		int hints = Pick(new[] { "问到攻略时给", "只聊天，不给" }, ConfigManager.AiHints.Value ? 0 : 1, 2, r.width - S(30));
+		GUILayout.Label(AiText.T("女主角的攻略提示", "인물 대화의 공략 힌트"), _label);
+		int hints = Pick(new[] { AiText.T("问到攻略时给", "공략 질문에 표시"), AiText.T("只聊天，不给", "대화만 하기") }, ConfigManager.AiHints.Value ? 0 : 1, 2, r.width - S(30));
 		ConfigManager.AiHints.Value = hints == 0;
 		GUILayout.Space(S(8));
-		GUILayout.Label("调试记录", _label);
-		int debug = Pick(new[] { "不记", "记下发给 AI 的内容" }, ConfigManager.AiDebugLog.Value ? 1 : 0, 2, r.width - S(30));
+		GUILayout.Label(AiText.T("调试记录", "디버그 기록"), _label);
+		int debug = Pick(new[] { AiText.T("不记", "기록 안 함"), AiText.T("记下发给 AI 的内容", "AI에 전송한 내용 기록") }, ConfigManager.AiDebugLog.Value ? 1 : 0, 2, r.width - S(30));
 		ConfigManager.AiDebugLog.Value = debug == 1;
 		if (ConfigManager.AiDebugLog.Value)
 		{
-			GUILayout.Label("写在 Mod 文件夹的 logs/ai_debug.txt，不含 API Key。", _muted);
+			GUILayout.Label(AiText.T("写在 Mod 文件夹的 logs/ai_debug.txt，不含 API Key。", "모드 폴더의 logs/ai_debug.txt에 기록하며 API 키는 포함하지 않습니다."), _muted);
 		}
 		// 测试题：开发用，发布包里没有题目文件，玩家看不到；手动放了 config\LOMAssistant_AI\eval.json 才显示。很费 token，点两下才跑
 		int evalCount = Time.frameCount % 60 == 0 || _aiEvalCount < 0 ? (_aiEvalCount = AiEval.Count) : _aiEvalCount;
@@ -141,7 +141,7 @@ public partial class StoryReviewPanel
 			GUILayout.BeginHorizontal();
 			GUI.enabled = AiChat.Configured && !AiChat.Busy && !AiEval.Running;
 			bool asked = Time.realtimeSinceStartup - _aiEvalAsked < 3f;
-			if (GUILayout.Button(asked ? "确定要跑吗？" : string.Format("跑测试题（{0} 题）", evalCount), asked ? _primary : _button, GUILayout.Width(S(220)), Ctl()))
+			if (GUILayout.Button(asked ? AiText.T("确定要跑吗？", "테스트를 실행할까요?") : string.Format(AiText.T("跑测试题（{0} 题）", "테스트 실행({0}문항)"), evalCount), asked ? _primary : _button, GUILayout.Width(S(220)), Ctl()))
 			{
 				if (asked)
 				{
@@ -154,28 +154,28 @@ public partial class StoryReviewPanel
 				}
 			}
 			GUI.enabled = true;
-			if (AiEval.HasReport && !AiEval.Running && GUILayout.Button("打开结果", _button, GUILayout.Width(S(140)), Ctl()))
+			if (AiEval.HasReport && !AiEval.Running && GUILayout.Button(AiText.T("打开结果", "결과 열기"), _button, GUILayout.Width(S(140)), Ctl()))
 			{
 				Application.OpenURL("file:///" + AiEval.ReportPath.Replace('\\', '/'));
 			}
-			GUILayout.Label(asked ? "每题都要查资料，一次会用掉几十万 token" : AiEval.Status, Middle(_muted), Ctl());
+			GUILayout.Label(asked ? AiText.T("每题都要查资料，一次会用掉几十万 token", "질문마다 자료를 조회하므로 전체 실행 시 수십만 토큰을 사용할 수 있습니다.") : AiEval.Status, Middle(_muted), Ctl());
 			GUILayout.EndHorizontal();
 		}
 		GUILayout.Space(S(12));
 
 		GUILayout.BeginHorizontal();
 		GUI.enabled = !_aiTesting && AiChat.Configured;
-		if (GUILayout.Button(_aiTesting ? "正在测试…" : "测试连接", _button, GUILayout.Width(S(160)), Ctl()))
+		if (GUILayout.Button(_aiTesting ? AiText.T("正在测试…", "테스트 중…") : AiText.T("测试连接", "연결 테스트"), _button, GUILayout.Width(S(160)), Ctl()))
 		{
 			_aiTesting = true;
 			_aiTestStatus = "";
 			StartCoroutine(AiChat.Test(error =>
 			{
 				_aiTesting = false;
-				_aiTestStatus = error.Length == 0 ? "<color=#2F6B3A>连上了</color>" : "<color=#A3302A>" + error + "</color>";
+				_aiTestStatus = error.Length == 0 ? AiText.T("<color=#2F6B3A>连上了</color>", "<color=#2F6B3A>연결됨</color>") : "<color=#A3302A>" + error + "</color>";
 			}));
 		}
-		if (GUILayout.Button("开始提问", _primary, GUILayout.Width(S(160)), Ctl()))
+		if (GUILayout.Button(AiText.T("开始提问", "질문 시작"), _primary, GUILayout.Width(S(160)), Ctl()))
 		{
 			_aiSetup = false;
 		}
@@ -472,7 +472,7 @@ public partial class StoryReviewPanel
 				}
 			});
 			return Steamworks.SteamUtils.ShowGamepadTextInput(Steamworks.EGamepadTextInputMode.k_EGamepadTextInputModeNormal,
-				Steamworks.EGamepadTextInputLineMode.k_EGamepadTextInputLineModeMultipleLines, TextConverter.ForDisplay("问 AI"), 500, existing ?? "");
+				Steamworks.EGamepadTextInputLineMode.k_EGamepadTextInputLineModeMultipleLines, TextConverter.ForDisplay(AiText.T("问 AI", "AI에게 질문")), 500, existing ?? "");
 		}
 		catch (System.Exception ex)
 		{
@@ -491,12 +491,12 @@ public partial class StoryReviewPanel
 		_aiHistoryScroll = GUILayout.BeginScrollView(_aiHistoryScroll);
 		if (sessions.Count == 0)
 		{
-			GUILayout.Label("还没有保存的对话。", _muted);
+			GUILayout.Label(AiText.T("还没有保存的对话。", "저장된 대화가 없습니다."), _muted);
 		}
 		foreach (AiSession s in sessions)
 		{
 			int asked = s.Shown.Count(e => e.Kind == AiChat.Kind.User);
-			string label = s.Updated.ToString("MM-dd HH:mm") + "　" + TextConverter.Verbatim + Escape(s.Title) + "　" + string.Format("（{0} 问）", asked);
+			string label = s.Updated.ToString("MM-dd HH:mm") + "　" + TextConverter.Verbatim + Escape(s.Title) + "　" + string.Format(AiText.T("（{0} 问）", "(질문 {0}개)"), asked);
 			if (GUILayout.Button(label, s == current ? _primary : _button, Ctl()) && !AiChat.Busy)
 			{
 				AiSessions.Select(s);
@@ -773,7 +773,7 @@ public partial class StoryReviewPanel
 			float x = r.x;
 			for (int i = 0; i <= personas.Count; i++)
 			{
-				string label = i == 0 ? "攻略助手" : personas[i - 1].Name;
+				string label = i == 0 ? AiText.T("攻略助手", "공략 도우미") : personas[i - 1].Name;
 				float bw = TextWidth(label, _button, S(60)) + h - S(6);
 				var cell = new Rect(x, r.y, bw, h);
 				if (GUI.Button(cell, "", i == current ? _primary : _button) && !AiChat.Busy)
@@ -788,7 +788,7 @@ public partial class StoryReviewPanel
 					{
 						Fill(icon, i == current ? new Color(1f, 1f, 1f, 0.25f) : Cinnabar);
 					}
-					GUI.Label(icon, "攻", _seal);
+					GUI.Label(icon, AiText.T("攻", "공략"), _seal);
 				}
 				else if (personas[i - 1].IconCrop != null)
 				{
@@ -818,13 +818,13 @@ public partial class StoryReviewPanel
 		else
 		{
 			GUILayout.BeginArea(left, _aiBot);
-			GUILayout.Label("<b>攻略助手</b>", _rich);
+			GUILayout.Label(AiText.T("<b>攻略助手</b>", "<b>공략 도우미</b>"), _rich);
 			GUILayout.Space(S(6));
-			GUILayout.Label("会自己查游戏里的剧情资料再回答：任务怎么触发、选项通向哪里、结局怎么达成、现在该做什么。", _muted);
+			GUILayout.Label(AiText.T("会自己查游戏里的剧情资料再回答：任务怎么触发、选项通向哪里、结局怎么达成、现在该做什么。", "게임 자료를 조회해 임무 발생 조건·선택지 결과·결말 달성 방법·현재 할 일을 안내합니다."), _muted);
 			GUILayout.Space(S(6));
-			GUILayout.Label("选上面的女主角或大师兄，就换成那个人用自己的口吻和你说话。", _muted);
+			GUILayout.Label(AiText.T("选上面的女主角或大师兄，就换成那个人用自己的口吻和你说话。", "위에서 인연 대상 인물이나 대사형을 선택하면 그 인물의 말투로 대화합니다."), _muted);
 			GUILayout.Space(S(6));
-			GUILayout.Label("要改数值、好感时会先给你一张卡片，你确认了才改。", _muted);
+			GUILayout.Label(AiText.T("要改数值、好感时会先给你一张卡片，你确认了才改。", "수치나 호감도를 바꿀 때는 먼저 카드를 표시하고 확인한 뒤 적용합니다."), _muted);
 			GUILayout.EndArea();
 		}
 		r = new Rect(r.x + pw + S(16), r.y, r.width - pw - S(16), r.height);
@@ -833,31 +833,31 @@ public partial class StoryReviewPanel
 		float bh = S(32), bwid = S(110);
 		LlmProvider provider = AiChat.Provider;
 		var deep = new Rect(r.xMax - bwid * 6 - S(30), r.y, bwid, bh);
-		if (GUI.Button(deep, "深度模式", AiChat.Deep ? _primary : _aiSmallButton) && !AiChat.Busy)
+		if (GUI.Button(deep, AiText.T("深度模式", "심층 모드"), AiChat.Deep ? _primary : _aiSmallButton) && !AiChat.Busy)
 		{
 			ConfigManager.AiDeepMode.Value = !ConfigManager.AiDeepMode.Value;
 		}
-		Hover(deep, "换用更强的模型，回答前核对资料：更准，也更贵、更慢");
+		Hover(deep, AiText.T("换用更强的模型，回答前核对资料：更准，也更贵、更慢", "더 강한 모델로 답변 전에 자료를 대조합니다. 정확도가 높아지지만 비용과 시간이 늘어납니다."));
 		bool exported = Time.realtimeSinceStartup - _aiExportedAt < 5f;
-		GUI.Label(new Rect(r.x, r.y, r.width - bwid * 6 - S(42), bh), exported ? string.Format("已导出到桌面：{0}", _aiExportedName) : provider.Name + " · " + AiChat.Model + (AiChat.TokensUsed > 0 ? "　" + string.Format("这次开游戏用了 {0} token", AiChat.TokensUsed) + (AiChat.CachedUsed > 0 ? "　" + string.Format("缓存命中 {0}", AiChat.CachedUsed) : "") : ""), Middle(_muted));
+		GUI.Label(new Rect(r.x, r.y, r.width - bwid * 6 - S(42), bh), exported ? string.Format(AiText.T("已导出到桌面：{0}", "바탕 화면으로 내보냄: {0}"), _aiExportedName) : AiText.Provider(provider.Name) + " · " + AiChat.Model + (AiChat.TokensUsed > 0 ? "　" + string.Format(AiText.T("这次开游戏用了 {0} token", "이번 실행 사용량 {0}토큰"), AiChat.TokensUsed) + (AiChat.CachedUsed > 0 ? "　" + string.Format(AiText.T("缓存命中 {0}", "캐시 적중 {0}"), AiChat.CachedUsed) : "") : ""), Middle(_muted));
 		float bx = r.xMax - bwid * 5 - S(24);
 		GUI.enabled = !AiChat.Busy;
-		if (GUI.Button(new Rect(bx, r.y, bwid, bh), "新对话", _aiSmallButton))
+		if (GUI.Button(new Rect(bx, r.y, bwid, bh), AiText.T("新对话", "새 대화"), _aiSmallButton))
 		{
 			AiChat.NewSession();
 			_aiHistory = false;
 		}
-		if (GUI.Button(new Rect(bx + bwid + S(6), r.y, bwid, bh), "历史对话", _aiHistory ? _primary : _aiSmallButton))
+		if (GUI.Button(new Rect(bx + bwid + S(6), r.y, bwid, bh), AiText.T("历史对话", "지난 대화"), _aiHistory ? _primary : _aiSmallButton))
 		{
 			_aiHistory = !_aiHistory;
 		}
 		GUI.enabled = !AiChat.Busy && AiChat.Shown.Count > 0;
-		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 2, r.y, bwid, bh), "导出对话", _aiSmallButton))
+		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 2, r.y, bwid, bh), AiText.T("导出对话", "대화 내보내기"), _aiSmallButton))
 		{
 			try
 			{
 				AiPersona who = AiPersona.Find(AiChat.PersonaId);
-				string path = AiSessions.Export(AiChat.Session, who != null ? TextConverter.ForDisplay(who.Name) : TextConverter.ForDisplay("攻略助手"));
+				string path = AiSessions.Export(AiChat.Session, who != null ? TextConverter.ForDisplay(who.Name) : TextConverter.ForDisplay(AiText.T("攻略助手", "공략 도우미")));
 				_aiExportedName = System.IO.Path.GetFileName(path);
 				_aiExportedAt = Time.realtimeSinceStartup;
 				GUIUtility.systemCopyBuffer = path;
@@ -868,7 +868,7 @@ public partial class StoryReviewPanel
 			}
 		}
 		bool confirming = Time.realtimeSinceStartup - _aiDeleteAsked < 3f;
-		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 3, r.y, bwid, bh), confirming ? "确定删除？" : "删除这段", confirming ? _primary : _aiSmallButton))
+		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 3, r.y, bwid, bh), confirming ? AiText.T("确定删除？", "삭제할까요?") : AiText.T("删除这段", "이 대화 삭제"), confirming ? _primary : _aiSmallButton))
 		{
 			if (confirming)
 			{
@@ -881,7 +881,7 @@ public partial class StoryReviewPanel
 			}
 		}
 		GUI.enabled = true;
-		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 4, r.y, bwid, bh), "AI 设置", _aiSmallButton))
+		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 4, r.y, bwid, bh), AiText.T("AI 设置", "AI 설정"), _aiSmallButton))
 		{
 			_aiSetup = true;
 		}
@@ -906,7 +906,7 @@ public partial class StoryReviewPanel
 		float bubbleMax = area.width * 0.78f;
 		if (!StoryAtlas.Ready)
 		{
-			GUILayout.Label(StoryAtlas.Status, _muted);
+			GUILayout.Label(StoryAtlas.DisplayStatus, _muted);
 		}
 		var shown = AiChat.Shown;
 		for (int i = 0; i < shown.Count; i++)
@@ -923,12 +923,12 @@ public partial class StoryReviewPanel
 					GUILayout.EndHorizontal();
 					break;
 				case AiChat.Kind.Assistant:
-					GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : "攻略助手", _aiName);
+					GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : AiText.T("攻略助手", "공략 도우미"), _aiName);
 				{
 					// 女主角说的话放气泡；「【攻略提示】」往后是旁白写给玩家的，单独一个淡色框
-					int cut = persona != null ? entry.Text.IndexOf("【攻略提示】", System.StringComparison.Ordinal) : -1;
+					int cut = persona != null ? KoreanAiPrompt.HintIndex(entry.Text) : -1;
 					string words = cut >= 0 ? entry.Text.Substring(0, cut).Trim() : entry.Text;
-					string hint = cut >= 0 ? entry.Text.Substring(cut + "【攻略提示】".Length).Trim() : "";
+					string hint = cut >= 0 ? entry.Text.Substring(cut + KoreanAiPrompt.HintLength(entry.Text, cut)).Trim() : "";
 					if (words.Length > 0)
 					{
 						GUILayout.BeginHorizontal();
@@ -940,7 +940,7 @@ public partial class StoryReviewPanel
 					if (hint.Length > 0)
 					{
 						GUILayout.BeginVertical(_aiHintBox, GUILayout.MaxWidth(area.width - S(30)));
-						GUILayout.Label("<b>攻略提示</b>", _aiHintTitle);
+						GUILayout.Label(AiText.T("<b>攻略提示</b>", "<b>공략 힌트</b>"), _aiHintTitle);
 						float hintWidth = area.width - S(30) - _aiHintBox.margin.left - _aiHintBox.padding.horizontal;
 						GUILayout.Label(Wrap(TextConverter.Verbatim + RichFromMarkdown(hint), _aiHintText, hintWidth - _aiHintText.padding.horizontal), _aiHintText, GUILayout.Width(hintWidth));
 						GUILayout.EndVertical();
@@ -957,7 +957,7 @@ public partial class StoryReviewPanel
 					}
 					bool open = _aiOpenLookups.Contains(entry);
 					bool last = end == shown.Count - 1 && AiChat.Busy;
-					if (!last && GUILayout.Button(string.Format(open ? "▾ 查了 {0} 处资料" : "▸ 查了 {0} 处资料", end - i + 1), _aiFold))
+			if (!last && GUILayout.Button(string.Format(open ? AiText.T("▾ 查了 {0} 处资料", "▾ 자료 {0}곳 조회") : AiText.T("▸ 查了 {0} 处资料", "▸ 자료 {0}곳 조회"), end - i + 1), _aiFold))
 					{
 						if (open)
 						{
@@ -980,7 +980,7 @@ public partial class StoryReviewPanel
 				}
 				case AiChat.Kind.Proposal:
 					GUILayout.BeginVertical(_aiCard, GUILayout.MaxWidth(bubbleMax));
-					GUILayout.Label("<b>修改提议</b>", _aiName);
+					GUILayout.Label(AiText.T("<b>修改提议</b>", "<b>변경 제안</b>"), _aiName);
 					if (entry.Text.Length > 0)
 					{
 						GUILayout.Label(TextConverter.Verbatim + Escape(entry.Text), _muted);
@@ -993,11 +993,11 @@ public partial class StoryReviewPanel
 					{
 						GUILayout.Space(S(4));
 						GUILayout.BeginHorizontal();
-						if (GUILayout.Button("确认修改", _primary, GUILayout.Width(S(140)), Ctl()))
+						if (GUILayout.Button(AiText.T("确认修改", "변경 확인"), _primary, GUILayout.Width(S(140)), Ctl()))
 						{
 							AiChat.Resolve(AiChat.Session, entry, true);
 						}
-						if (GUILayout.Button("不改", _button, GUILayout.Width(S(100)), Ctl()))
+						if (GUILayout.Button(AiText.T("不改", "변경 안 함"), _button, GUILayout.Width(S(100)), Ctl()))
 						{
 							AiChat.Resolve(AiChat.Session, entry, false);
 						}
@@ -1006,7 +1006,7 @@ public partial class StoryReviewPanel
 					}
 					else
 					{
-						GUILayout.Label(entry.State == AiChat.ProposalState.Applied ? "<color=#2F6B3A>已修改</color>" : entry.State == AiChat.ProposalState.Expired ? "已失效（重启游戏前的提议，没有修改）" : "没有修改", _rich);
+						GUILayout.Label(entry.State == AiChat.ProposalState.Applied ? AiText.T("<color=#2F6B3A>已修改</color>", "<color=#2F6B3A>변경됨</color>") : entry.State == AiChat.ProposalState.Expired ? AiText.T("已失效（重启游戏前的提议，没有修改）", "만료됨(게임 재시작 전 제안이며 적용되지 않음)") : AiText.T("没有修改", "변경하지 않음"), _rich);
 					}
 					GUILayout.EndVertical();
 					break;
@@ -1018,9 +1018,9 @@ public partial class StoryReviewPanel
 		if (AiChat.Busy && AiChat.Partial.Length > 0)
 		{
 			// 一边收一边显示
-			GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : "攻略助手", _aiName);
+			GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : AiText.T("攻略助手", "공략 도우미"), _aiName);
 			GUILayout.BeginHorizontal();
-			string partial = Wrap(TextConverter.Verbatim + RichFromMarkdown(AiChat.Partial.Replace("【攻略提示】", "\n" + TextConverter.ForDisplay("攻略提示") + "\n")), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
+			string partial = Wrap(TextConverter.Verbatim + RichFromMarkdown(KoreanAiPrompt.NormalizeHints(AiChat.Partial, "\n" + AiText.T("攻略提示", "공략 힌트") + "\n")), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
 			GUILayout.Label(partial, _aiBot, GUILayout.Width(BubbleWidth(partial, _aiBot, area.width - S(30))));
 			GUILayout.FlexibleSpace();
 			GUILayout.EndHorizontal();
@@ -1034,13 +1034,13 @@ public partial class StoryReviewPanel
 		{
 			// 等回答时点点点轮着动
 			string dots = new string('·', 1 + (int)(Time.realtimeSinceStartup * 2.5f) % 3);
-			GUILayout.Label(string.Format("{0} 正在想{1}", persona != null ? TextConverter.ForDisplay(persona.Name) : "AI", dots), _aiName);
+			GUILayout.Label(string.Format(AiText.T("{0} 正在想{1}", "{0} 생각 중{1}"), persona != null ? TextConverter.ForDisplay(persona.Name) : "AI", dots), _aiName);
 		}
 		// 还没说过话：给几个可以直接点的问题（按界面语言发出去）
 		if (shown.Count == 0 && !AiChat.Busy)
 		{
 			GUILayout.Space(S(12));
-			GUILayout.Label("可以这样问：", _muted);
+			GUILayout.Label(AiText.T("可以这样问：", "이렇게 물어보세요: "), _muted);
 			foreach (string q in persona != null ? HeroineStarters : AssistantStarters)
 			{
 				GUILayout.BeginHorizontal();
@@ -1112,19 +1112,19 @@ public partial class StoryReviewPanel
 			}
 			if (!focused && _aiInput.Length == 0)
 			{
-				GUI.Label(box, "点这里输入问题，回车发送，Shift+回车换行", _aiHint);
+				GUI.Label(box, AiText.T("点这里输入问题，回车发送，Shift+回车换行", "질문 입력 · Enter 전송 · Shift+Enter 줄바꿈"), _aiHint);
 			}
 			DrawAiCaret(box);
 		}
 		var button = new Rect(r.xMax - S(140), r.yMax - inputHeight, S(140), inputHeight);
 		if (AiChat.Busy)
 		{
-			if (GUI.Button(button, "停止", _button))
+			if (GUI.Button(button, AiText.T("停止", "중지"), _button))
 			{
 				AiChat.Stop();
 			}
 		}
-		else if (GUI.Button(button, "发送", _primary) || send)
+		else if (GUI.Button(button, AiText.T("发送", "전송"), _primary) || send)
 		{
 			string question = _aiInput.Trim();
 			if (question.Length > 0)
@@ -1175,17 +1175,17 @@ public partial class StoryReviewPanel
 				}
 				if (string.IsNullOrEmpty(e.Speaker))
 				{
-					return "旁白";
+					return AiText.T("旁白", "해설");
 				}
 				string name = Mortal.Core.LocalizationManager.Instance.LocaleResolver.GetString("Character/" + e.Speaker);
 				name = TextConverter.ToSimplified(RichText.Strip(name ?? "")).Trim();
-				return name.Length > 0 && !name.StartsWith("Character/") ? name : "旁白";
+				return name.Length > 0 && !name.StartsWith("Character/") ? name : AiText.T("旁白", "해설");
 			}
 		}
 		catch
 		{
 		}
-		return "旁白";
+		return AiText.T("旁白", "해설");
 	}
 
 	/// <summary>屏幕上正显示的对白、选项、掷骰：直接读游戏界面上的字。</summary>
@@ -1211,7 +1211,7 @@ public partial class StoryReviewPanel
 					{
 						line = LastSpeaker() + "：" + line;
 					}
-					sb.Append("对白：").Append(line).Append('\n');
+					sb.Append(AiText.T("对白：", "대사: ")).Append(line).Append('\n');
 				}
 			}
 			foreach (Fungus.MenuDialog menu in Object.FindObjectsOfType<Fungus.MenuDialog>())
@@ -1223,7 +1223,7 @@ public partial class StoryReviewPanel
 				var options = menu.GetComponentsInChildren<UnityEngine.UI.Button>().Select(TextsUnder).Where(t => t.Length > 0).ToList();
 				if (options.Count > 0)
 				{
-					sb.Append("正在选的选项：").Append(string.Join(" / ", options.Select(o => "「" + o + "」").ToArray())).Append('\n');
+					sb.Append(AiText.T("正在选的选项：", "현재 선택지: ")).Append(string.Join(" / ", options.Select(o => "「" + o + "」").ToArray())).Append('\n');
 				}
 			}
 			foreach (Mortal.Story.DiceMenuDialog dice in Object.FindObjectsOfType<Mortal.Story.DiceMenuDialog>())
@@ -1234,7 +1234,7 @@ public partial class StoryReviewPanel
 				}
 				string header = TextConverter.ToSimplified(RichText.Strip(HarmonyLib.Traverse.Create(dice).Field("_header").GetValue<string>() ?? "")).Trim();
 				var lines = dice.GetComponentsInChildren<Mortal.Story.DiceOption>().Select(TextsUnder).Where(t => t.Length > 0).ToList();
-				sb.Append("正在掷骰").Append(header.Length > 0 ? "「" + header + "」" : "").Append("，各档：").Append(string.Join(" / ", lines.Select(o => "「" + o + "」").ToArray())).Append('\n');
+				sb.Append(AiText.T("正在掷骰", "현재 주사위 판정")).Append(header.Length > 0 ? "「" + header + "」" : "").Append(AiText.T("，各档：", ", 구간별 결과: ")).Append(string.Join(" / ", lines.Select(o => "「" + o + "」").ToArray())).Append('\n');
 			}
 		}
 		catch (System.Exception ex)
@@ -1243,7 +1243,7 @@ public partial class StoryReviewPanel
 		}
 		if (sb.Length > 0 && (OptionInfoPatch.LastScriptKey ?? "").Length > 0)
 		{
-			sb.Append("这段剧情的剧本：").Append(OptionInfoPatch.LastScriptKey).Append("（用 script 查它，按选项文字对上分岔）\n");
+			sb.Append(AiText.T("这段剧情的剧本：", "현재 이야기의 스크립트: ")).Append(OptionInfoPatch.LastScriptKey).Append(AiText.T("（用 script 查它，按选项文字对上分岔）\n", "(script로 조회하고 선택지 원문으로 분기를 맞추세요.)\n"));
 		}
 		return sb.ToString();
 	}
@@ -1258,7 +1258,7 @@ public partial class StoryReviewPanel
 		PlayerStatManagerData player = PlayerStatManagerData.Instance;
 		if (player == null || items == null)
 		{
-			missing.Add("玩家还没读档进游戏");
+			missing.Add(AiText.T("玩家还没读档进游戏", "아직 저장을 불러오지 않았습니다."));
 			return result;
 		}
 		var sections = BuildStatSections(player);
@@ -1272,16 +1272,17 @@ public partial class StoryReviewPanel
 				continue;
 			}
 			string Clean(string t) => AiKnowledge.Clean(t).Replace(" ", "");
-			string key = Regex.Replace(name.Replace(" ", ""), @"^(?:旗标|设置)[·:：]", "");
+			string key = Regex.Replace(name.Replace(" ", ""), @"^(?:旗标|设置|플래그|설정)[·:：]", "");
 			// 好感：「好感·小梅」「小梅好感」「小梅的好感」
-			string favorOf = Regex.Match(key, @"^(?:好感[·:：]?(.+)|(.+?)的?好感(?:度)?)$") is Match fm && fm.Success ? (fm.Groups[1].Success && fm.Groups[1].Value.Length > 0 ? fm.Groups[1].Value : fm.Groups[2].Value) : null;
+			string favorOf = KoreanAiQuery.AffectionPerson(key);
+			if (favorOf == key) favorOf = null;
 			(string Section, StatRow Row) hit = default;
 			if (favorOf != null)
 			{
 				string who = AiKnowledge.FindHeroine(favorOf) is StoryRomance.Heroine h ? StoryRomance.Name(h) : favorOf;
 				hit = rows.FirstOrDefault(x => x.Section == "好感" && (Clean(x.Row.Name) == who || Clean(x.Row.Name).Contains(who) || who.Contains(Clean(x.Row.Name))));
 			}
-			bool lover = key == "心上人" || key == "爱人" || key == "结缘对象";
+			bool lover = key == "心上人" || key == "爱人" || key == "结缘对象" || key == "마음에둔사람" || key == "연인" || key == "인연대상";
 			if (hit.Row == null && lover)
 			{
 				hit = rows.FirstOrDefault(x => x.Row.Id == "stat:" + (int)GameStatType.愛人);
@@ -1314,7 +1315,7 @@ public partial class StoryReviewPanel
 				}
 				else
 				{
-					missing.Add(name + (problem ?? "（数值页和设置页里都没有这一项）"));
+					missing.Add(name + (problem ?? AiText.T("（数值页和设置页里都没有这一项）", "(수치·설정 화면에 없는 항목)")));
 				}
 				continue;
 			}
@@ -1328,7 +1329,7 @@ public partial class StoryReviewPanel
 				}
 				else
 				{
-					missing.Add(name + "（新值「" + raw + "」不是数字）");
+					missing.Add(name + AiText.T("（新值「", "(새 값 「") + raw + AiText.T("」不是数字）", "」은 숫자가 아닙니다.)"));
 					continue;
 				}
 			}
@@ -1339,7 +1340,7 @@ public partial class StoryReviewPanel
 				: v => v.ToString();
 			result.Add(new AiChat.Change
 			{
-				Name = (hit.Section == "好感" ? "好感·" : "") + label,
+				Name = (hit.Section == "好感" ? AiText.T("好感·", "호감도·") : "") + label,
 				From = show(row.Get()),
 				To = show(value),
 				Apply = () => row.Set(value),
@@ -1359,11 +1360,11 @@ public partial class StoryReviewPanel
 	{
 		if (value is bool b)
 		{
-			return b ? "开" : "关";
+			return b ? AiText.T("开", "켜기") : AiText.T("关", "끄기");
 		}
 		if (row.Choices != null && value is int i && i >= 0 && i < row.Choices.Length)
 		{
-			return row.Choices[i];
+			return AiText.Label(row.Choices[i]);
 		}
 		return System.Convert.ToString(value, System.Globalization.CultureInfo.InvariantCulture);
 	}
@@ -1376,43 +1377,43 @@ public partial class StoryReviewPanel
 		string section = null;
 		foreach (var (title, row) in AiSettings())
 		{
-			string desc = Describe(row.Element.Description);
-			if (q.Length > 0 && !(row.Name + title + desc).Contains(q))
+			string desc = AiText.Label(Describe(row.Element.Description));
+			if (q.Length > 0 && !(AiText.Label(row.Name) + AiText.Label(title) + desc + row.Name + title).Contains(q))
 			{
 				continue;
 			}
 			if (title != section)
 			{
 				section = title;
-				sb.Append("【").Append(title).Append("】\n");
+				sb.Append("【").Append(AiText.Label(title)).Append("】\n");
 			}
-			sb.Append("- ").Append(row.Name).Append("：现在 ").Append(SettingValueText(row, row.Element.BoxedValue));
+			sb.Append("- ").Append(AiText.Label(row.Name)).Append(AiText.T("：现在 ", ": 현재 ")).Append(SettingValueText(row, row.Element.BoxedValue));
 			if (row.Element.ElementType == typeof(bool))
 			{
-				sb.Append("（开 / 关）");
+				sb.Append(AiText.T("（开 / 关）", "(켜기 / 끄기)"));
 			}
 			else if (row.Choices != null)
 			{
-				sb.Append("（可选：").Append(string.Join(" / ", row.Choices)).Append("）");
+				sb.Append(AiText.T("（可选：", "(선택값: ")).Append(string.Join(" / ", row.Choices.Select(AiText.Label).ToArray())).Append("）");
 			}
 			else if (row.Speeds != null)
 			{
-				sb.Append("（可选：").Append(string.Join(" / ", row.Speeds.Select(v => v.ToString(System.Globalization.CultureInfo.InvariantCulture)).ToArray())).Append("）");
+				sb.Append(AiText.T("（可选：", "(선택값: ")).Append(string.Join(" / ", row.Speeds.Select(v => v.ToString(System.Globalization.CultureInfo.InvariantCulture)).ToArray())).Append("）");
 			}
 			else if (row.Max > row.Min)
 			{
-				sb.Append("（").Append(row.Min).Append(" 到 ").Append(row.Max).Append("）");
+				sb.Append("（").Append(row.Min).Append(AiText.T(" 到 ", " ~ ")).Append(row.Max).Append("）");
 			}
-			sb.Append(row.Restart ? "，改后重启游戏生效" : "").Append("。").Append(desc).Append('\n');
+			sb.Append(row.Restart ? AiText.T("，改后重启游戏生效", ", 변경 후 게임 재시작 시 적용") : "").Append("。").Append(desc).Append('\n');
 		}
-		return sb.Length > 0 ? sb.ToString() : "没有「" + query + "」相关的设置项。";
+		return sb.Length > 0 ? sb.ToString() : AiText.T("没有「", "「") + query + AiText.T("」相关的设置项。", "」 관련 설정이 없습니다.");
 	}
 
 	// 设置项的修改提议：按设置页上的名字找，新值按类型读（开关、几选一、数字）
 	private static AiChat.Change AiSettingChange(string key, string raw, out string problem)
 	{
 		problem = null;
-		string Clean(string t) => TextConverter.ToSimplified(t ?? "").Replace(" ", "");
+		string Clean(string t) => AiText.Label(TextConverter.ToSimplified(t ?? "")).Replace(" ", "");
 		var all = AiSettings().ToList();
 		var hit = all.FirstOrDefault(x => Clean(x.Row.Name) == key || x.Row.Element.Name == key);
 		if (hit.Row == null)
@@ -1431,11 +1432,11 @@ public partial class StoryReviewPanel
 		int choice = -1;
 		if (element.ElementType == typeof(bool))
 		{
-			if (v == "开" || v == "打开" || v == "开启" || v == "true" || v == "1" || v == "是" || v == "on")
+			if (v == "开" || v == "打开" || v == "开启" || v == "true" || v == "1" || v == "是" || v == "on" || v == "켜기" || v == "켬" || v == "활성화")
 			{
 				value = true;
 			}
-			else if (v == "关" || v == "关闭" || v == "关掉" || v == "false" || v == "0" || v == "否" || v == "off")
+			else if (v == "关" || v == "关闭" || v == "关掉" || v == "false" || v == "0" || v == "否" || v == "off" || v == "끄기" || v == "끔" || v == "비활성화")
 			{
 				value = false;
 			}
@@ -1462,13 +1463,13 @@ public partial class StoryReviewPanel
 		}
 		if (value == null)
 		{
-			problem = "（设置项「" + row.Name + "」的新值「" + raw + "」看不懂）";
+			problem = AiText.T("（设置项「", "(설정 「") + row.Name + AiText.T("」的新值「", "」의 새 값 「") + raw + AiText.T("」看不懂）", "」을 인식할 수 없습니다.)");
 			return null;
 		}
 		object newValue = value;
 		return new AiChat.Change
 		{
-			Name = "设置·" + row.Name + (row.Restart ? "（重启游戏后生效）" : ""),
+			Name = AiText.T("设置·", "설정·") + row.Name + (row.Restart ? AiText.T("（重启游戏后生效）", "(게임 재시작 후 적용)") : ""),
 			From = SettingValueText(row, element.BoxedValue),
 			To = SettingValueText(row, newValue),
 			Apply = () =>
@@ -1496,14 +1497,14 @@ public partial class StoryReviewPanel
 			title = TextConverter.ToSimplified(RichText.Strip(title)).Replace("\n", " ").Trim();
 			if (title.Length > 0)
 			{
-				sb.Append("地图标题：").Append(title).Append('\n');
+				sb.Append(AiText.T("地图标题：", "지도 제목: ")).Append(title).Append('\n');
 			}
 			var places = Object.FindObjectsOfType<Mortal.Free.PositionController>()
-				.Select(p => TextConverter.ToSimplified(HarmonyLib.Traverse.Create(p).Field("_position").GetValue<PositionType>().ToString()))
-				.Where(n => n.Length > 0 && n != "无").Distinct().ToList();
+				.Select(p => AiText.Label(TextConverter.ToSimplified(HarmonyLib.Traverse.Create(p).Field("_position").GetValue<PositionType>().ToString())))
+				.Where(n => n.Length > 0 && n != AiText.Label("无")).Distinct().ToList();
 			if (places.Count > 0)
 			{
-				sb.Append("这张地图上的场所：").Append(string.Join("、", places.ToArray())).Append("（从场所判断玩家在唐门还是崆峒等地，不要只凭身份猜；任务触发的场所不在这里面，就是不在这张地图上，要先回到那里）\n");
+				sb.Append(AiText.T("这张地图上的场所：", "이 지도의 장소: ")).Append(string.Join("、", places.ToArray())).Append(AiText.T("（从场所判断玩家在唐门还是崆峒等地，不要只凭身份猜；任务触发的场所不在这里面，就是不在这张地图上，要先回到那里）\n", "(장소를 기준으로 당문·공동 등 실제 위치를 판단하고 신분만으로 추측하지 마세요. 임무 발생 장소가 이 목록에 없다면 다른 지도이므로 먼저 그곳으로 돌아가야 합니다.)\n"));
 			}
 		}
 		catch (System.Exception ex)
@@ -1520,11 +1521,11 @@ public partial class StoryReviewPanel
 		string scene = UnityEngine.SceneManagement.SceneManager.GetActiveScene().name;
 		if (player == null || scene == "Title")
 		{
-			return "玩家在标题画面，还没读档进游戏。";
+			return AiText.T("玩家在标题画面，还没读档进游戏。", "제목 화면이며 아직 저장을 불러오지 않았습니다.");
 		}
 		var sb = new StringBuilder();
-		sb.Append("游戏日期：").Append(ReferenceEquals(player.GameTime, null) ? "不明" : StoryAtlas.DateText(player.GameTime)).Append('\n');
-		sb.Append("现在在：").Append(scene == "Story" ? "剧情里" : scene == "Free" ? "养成地图上" : scene == "Combat" || scene == "Battle" ? "战斗中" : scene).Append('\n');
+		sb.Append(AiText.T("游戏日期：", "게임 날짜: ")).Append(ReferenceEquals(player.GameTime, null) ? AiText.T("不明", "알 수 없음") : StoryAtlas.DateText(player.GameTime)).Append('\n');
+		sb.Append(AiText.T("现在在：", "현재 위치: ")).Append(scene == "Story" ? AiText.T("剧情里", "이야기 진행 중") : scene == "Free" ? AiText.T("养成地图上", "활동 지도") : scene == "Combat" || scene == "Battle" ? AiText.T("战斗中", "전투 중") : scene).Append('\n');
 		if (scene == "Free")
 		{
 			sb.Append(MapLocation());
@@ -1532,10 +1533,10 @@ public partial class StoryReviewPanel
 		string story = player.CurrentStoryScript ?? "";
 		if (story.Length > 0)
 		{
-			sb.Append("最近的剧本：").Append(story);
+			sb.Append(AiText.T("最近的剧本：", "최근 스크립트: ")).Append(story);
 			if (StoryAtlas.Owner.TryGetValue(story, out StoryMission owner))
 			{
-				sb.Append("（任务 ").Append(owner.Key).Append("「").Append(AiKnowledge.Clean(owner.Title)).Append("」）");
+				sb.Append(AiText.T("（任务 ", "(임무 ")).Append(owner.Key).Append("「").Append(AiKnowledge.Clean(owner.Title)).Append("」）");
 			}
 			sb.Append('\n');
 		}
@@ -1543,27 +1544,27 @@ public partial class StoryReviewPanel
 		{
 			MissionManagerData missions = MissionManagerData.Instance;
 			bool ready = missions != null && missions.MainMissionStart && missions.MainCheckData == main && !string.IsNullOrEmpty(main.StartScript);
-			sb.Append("主线：").Append(AiKnowledge.Clean(mainTitle).Replace("\n", " ")).Append(ready ? "（条件已满足，去 " + TextConverter.ToSimplified(main.Position.ToString()) + " 就会触发）" : "").Append("：").Append(AiKnowledge.Clean(mainDesc).Replace("\n", " ")).Append('\n');
+			sb.Append(AiText.T("主线：", "주요 임무: ")).Append(AiKnowledge.Clean(mainTitle).Replace("\n", " ")).Append(ready ? AiText.T("（条件已满足，去 ", "(조건 충족, 발생 장소: ") + AiText.Label(TextConverter.ToSimplified(main.Position.ToString())) + AiText.T(" 就会触发）", ")") : "").Append("：").Append(AiKnowledge.Clean(mainDesc).Replace("\n", " ")).Append('\n');
 		}
 		var active = MissionManagerData.Instance?.ActiveSubMissions;
 		var subs = DataHelper.GetMissions();
 		if (subs.Count > 0)
 		{
-			sb.Append("进行中的支线：\n");
+			sb.Append(AiText.T("进行中的支线：\n", "진행 중인 곁가지 임무:\n"));
 			foreach (var pair in subs)
 			{
 				bool ready = active != null && active.Values.Contains(pair.Key) && !string.IsNullOrEmpty(pair.Key.StartScript);
-				string where = TextConverter.ToSimplified(pair.Key.Position.ToString());
-				sb.Append("- ").Append(AiKnowledge.Clean(pair.Value.Item1).Replace("\n", " ")).Append(ready ? "（可以触发）" : "")
-					.Append(where.Length > 0 && where != "无" ? "（在「" + where + "」触发）" : "").Append("：").Append(AiKnowledge.Clean(pair.Value.Item2).Replace("\n", " ")).Append('\n');
+				string where = AiText.Label(TextConverter.ToSimplified(pair.Key.Position.ToString()));
+				sb.Append("- ").Append(AiKnowledge.Clean(pair.Value.Item1).Replace("\n", " ")).Append(ready ? AiText.T("（可以触发）", "(발생 가능)") : "")
+					.Append(where.Length > 0 && where != AiText.Label("无") ? AiText.T("（在「", "(발생 장소 「") + where + AiText.T("」触发）", "」)") : "").Append("：").Append(AiKnowledge.Clean(pair.Value.Item2).Replace("\n", " ")).Append('\n');
 			}
 		}
 		string onScreen = OnScreen();
 		if (onScreen.Length > 0)
 		{
-			sb.Append("【眼前】（屏幕上正显示的，玩家问「这里」「这个选项」「这次掷骰」指的就是它）\n").Append(onScreen);
+			sb.Append(AiText.T("【眼前】（屏幕上正显示的，玩家问「这里」「这个选项」「这次掷骰」指的就是它）\n", "[현재 화면](화면에 표시 중인 내용입니다. '여기'·'이 선택지'·'이번 주사위'는 이 내용을 가리킵니다.)\n")).Append(onScreen);
 		}
-		sb.Append("感情：").Append(AiPersona.RelationText(null)).Append('\n');
+		sb.Append(AiText.T("感情：", "관계: ")).Append(AiPersona.RelationText(null)).Append('\n');
 		var skip = new HashSet<string> { "旗标", "书籍", "物品", "称号", "功法修炼" };
 		foreach (var (title, rows) in BuildStatSections(player))
 		{
@@ -1588,7 +1589,7 @@ public partial class StoryReviewPanel
 			}
 			if (parts.Count > 0)
 			{
-				sb.Append(title).Append("：").Append(string.Join("，", parts.ToArray())).Append('\n');
+				sb.Append(AiText.Label(title)).Append("：").Append(string.Join("，", parts.ToArray())).Append('\n');
 			}
 		}
 		return sb.ToString();

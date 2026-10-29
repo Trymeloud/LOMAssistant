@@ -11,7 +11,7 @@ internal static class LayoutChecks
     // The user confirmed ko.1's layout. Compare its geometry and styles, not its text.
     internal static void Run(string root, Action<bool, string> check)
     {
-        foreach (string name in new[] { "StoryReviewPanel.cs", "StoryReviewPanel.Route.cs", "StoryReviewPanel.Flow.cs", "StoryReviewPanel.Credits.cs" })
+        foreach (string name in new[] { "StoryReviewPanel.cs", "StoryReviewPanel.Route.cs", "StoryReviewPanel.Flow.cs", "StoryReviewPanel.Credits.cs", "StoryReviewPanel.Ai.cs" })
         {
             string file = "LOMAssistant.Features.Story/" + name;
             var start = new ProcessStartInfo("git") { WorkingDirectory = root, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
@@ -37,6 +37,7 @@ internal static class LayoutChecks
     private sealed class RemoveTextWrapper : CSharpSyntaxRewriter
     {
         public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node) => node.Expression.ToString() == "StoryUi.Text"
-            ? Visit(node.ArgumentList.Arguments[1].Expression) : base.VisitInvocationExpression(node);
+            ? Visit(node.ArgumentList.Arguments[1].Expression) : node.Expression.ToString() == "AiText.T"
+            ? Visit(node.ArgumentList.Arguments[0].Expression) : base.VisitInvocationExpression(node);
     }
 }
