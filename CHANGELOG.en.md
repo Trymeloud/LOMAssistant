@@ -2,6 +2,14 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.1.0 (2026-10-28)
+
+- **Random events of building options**: inside a training building, hover over an option such as chopping wood or training (or select it with the arrow keys or a gamepad) to see the random events it can roll, their odds and which you have not seen; the same goes for moving and peddling in the Go out list.
+- **Now tab**: random events here that you have not seen are marked.
+- **"Not seen"**: random events with an outcome that has no dialogue leave nothing in the read log when they happen, so they are no longer always marked "Not seen".
+- **"All on" preset**: no longer turns on "Break stat cap".
+- **Settings**: setting names that did not fit in Japanese, Korean and English are shorter, and names that still don't fit are shown in a smaller font; the "Title screen partner" row is now as tall as the others.
+
 ## 3.0.9 (2026-10-28)
 
 - **Stat presets**: values you change on the Stats tab are recorded; click "Stat presets" to save them as a preset. After loading another save or starting a new game, click Apply to set them all at once; values you didn't change are left alone.
