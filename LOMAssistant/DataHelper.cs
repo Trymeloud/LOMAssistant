@@ -458,7 +458,8 @@ public static class DataHelper
 		return LocalizationManager.Instance.LocaleResolver.GetString(battleTeamStat.GetNameKey());
 	}
 
-	public static string GetEventName(PositionEventData eventData)
+	/// <summary>事件名（开发者备注）。translate：韩语界面换成韩语译名，「P_成功_001」这类按界面语言换结果词；AI 资料用中文原名，传 false。</summary>
+	public static string GetEventName(PositionEventData eventData, bool translate = true)
 	{
 		StoryMappingItem fieldValue = eventData.GetFieldValue<StoryMappingItem>("_config");
 		string text = ((fieldValue != null) ? fieldValue.name : null);
@@ -467,7 +468,8 @@ public static class DataHelper
 		{
 			text = fieldValue2;
 		}
-		return RichText.Golden(TextConverter.ToSimplified(text));
+		string shown = translate ? UiEventNames.Display(text) : null;
+		return RichText.Golden(shown ?? TextConverter.ToSimplified(text));
 	}
 
 	public static string LoadLuaScript(string scriptName)
