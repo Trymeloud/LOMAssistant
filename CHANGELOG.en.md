@@ -2,6 +2,12 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.2.1 (2026-10-29)
+
+- **AI Companion reply language**: follows the language of your latest message, so a question in Traditional Chinese gets a reply in Traditional Chinese; when it can't tell, it uses the UI language.
+- **AI Companion and affection**: in companion chat, "your affection for me" means her (his) affection for Zhao Huo; changes come as a confirm card instead of being written out as text.
+- **Provider presets**: Gemini now uses gemini-3.8-flash with a cap on thinking time to avoid timeouts; OpenAI deep mode uses gpt-6-sol; SiliconFlow uses DeepSeek-V4-Flash, with DeepSeek-V4-Pro for deep mode. Saved model names stay as they are; pick the provider again to get the new ones.
+
 ## 3.2.0 (2026-10-29)
 
 - **Story jump**: pick a scene on the route map or story map and click **Jump here** to play from there, even one you haven't reached yet. Before the jump you see the choices along the way that affect what comes later; the progress in between is filled in the way you pick, and you can bond with one of the heroines too. A save-anywhere save is made first, so you can always go back. Can be turned off under Settings > Story. Not recommended for normal play.
