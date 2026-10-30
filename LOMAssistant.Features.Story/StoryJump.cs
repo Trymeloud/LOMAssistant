@@ -213,15 +213,15 @@ public static class StoryJump
 		plan.ToRounds = plan.Mission.From ?? plan.Between.Where(x => x.From != null).Select(x => x.From).LastOrDefault();
 		if (plan.Unreachable)
 		{
-			plan.Notes.Add("从任务开头找不到走到这一段的路（可能要从别的任务接进来），任务里的变化没有补全");
+			plan.Notes.Add(StoryUi.Text(KoreanStoryMessage.JumpUnreachableNote, "从任务开头找不到走到这一段的路（可能要从别的任务接进来），任务里的变化没有补全"));
 		}
 		if (plan.Unlinked)
 		{
-			plan.Notes.Add("主线从现在这一步接不到目标任务（不在同一条路线上，或要靠别的支线接进来），中间的主线剧情没有补");
+			plan.Notes.Add(StoryUi.Text(KoreanStoryMessage.JumpUnlinkedNote, "主线从现在这一步接不到目标任务（不在同一条路线上，或要靠别的支线接进来），中间的主线剧情没有补"));
 		}
 		if (plan.FromRounds != null && plan.ToRounds != null && plan.ToRounds < plan.FromRounds)
 		{
-			plan.Notes.Add("目标在现在之前，日期会往回调");
+			plan.Notes.Add(StoryUi.Text(KoreanStoryMessage.JumpPastNote, "目标在现在之前，日期会往回调"));
 		}
 	}
 
@@ -299,11 +299,11 @@ public static class StoryJump
 			last = exit;
 			if (exit.Path.Any(st => st.Kind == StoryStep.Dice))
 			{
-				plan.Notes.Add("「" + StoryScripts.SegmentName(s.Name) + "」这一步要靠掷骰，按选的这条路补");
+				plan.Notes.Add(StoryUi.Text(KoreanStoryMessage.JumpDiceNote, "「{0}」这一步要靠掷骰，按选的这条路补", StoryScripts.SegmentName(s.Name)));
 			}
 			if (s.Fight)
 			{
-				plan.Notes.Add("「" + StoryScripts.SegmentName(s.Name) + "」里有战斗，没有真的打，按选的这条路补");
+				plan.Notes.Add(StoryUi.Text(KoreanStoryMessage.JumpBattleNote, "「{0}」里有战斗，没有真的打，按选的这条路补", StoryScripts.SegmentName(s.Name)));
 			}
 			if (target != null && Same(exit.Target, target))
 			{

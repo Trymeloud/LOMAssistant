@@ -32,6 +32,11 @@ internal static class BuiltModChecks
             .Select(i => ((MethodReference)i.Operand).Name).ToList();
         check(actionReads.Contains("get_CanonicalDescription") && !actionReads.Contains("get_Description"), "Analysis must not parse Korean presentation strings");
         check(module.Resources.Any(r => r.Name == "LOMAssistant.flag-names-ko.tsv"), "Built DLL lacks the stable flag ID resource");
+        var jump = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Story.StoryJump");
+        foreach (var spec in new[] { (Name: "Recompute", Count: 3), (Name: "Walk", Count: 2) })
+            check(jump.Methods.Single(m => m.Name == spec.Name).Body.Instructions.Count(i => i.Operand is MethodReference m
+                && m.DeclaringType.FullName == "LOMAssistant.Features.Story.StoryUi" && m.Name == "Text") == spec.Count,
+                "Built jump limitation notes must use Korean message IDs: " + spec.Name);
         var flagNotify = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Extras.FlagNotifyPatch")
             .Methods.Single(m => m.Name == "Notify");
         var noticeCalls = flagNotify.Body.Instructions.Where(i => i.Operand is MethodReference)

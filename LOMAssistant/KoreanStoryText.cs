@@ -25,12 +25,18 @@ internal enum KoreanStoryMessage
     DiceResult, IfCondition, UnknownCondition, Otherwise, OtherwiseOne, OtherwiseAll,
     ReturnTitle, ContinueScript, ContinueAfterBattle, AdvanceMain, ContinueScene,
     PreparingScripts, ScriptsProgress, PreparingMissions, MissionsProgress, LoadBeforeBuild, PreparingEndings, BuildFailed,
+    JumpDiceNote, JumpBattleNote, JumpUnreachableNote, JumpUnlinkedNote, JumpPastNote,
 }
 
 internal static class KoreanStoryText
 {
     internal static readonly IReadOnlyDictionary<KoreanStoryMessage, string> Messages = new Dictionary<KoreanStoryMessage, string>
     {
+        [KoreanStoryMessage.JumpDiceNote] = "「{0}」 구간에는 주사위 판정이 있습니다. 실제로 굴리지 않고 선택한 경로의 변화를 채웁니다.",
+        [KoreanStoryMessage.JumpBattleNote] = "「{0}」 구간에는 전투가 있습니다. 실제로 싸우지 않고 선택한 경로의 변화를 채웁니다.",
+        [KoreanStoryMessage.JumpUnreachableNote] = "임무 시작부터 이 구간까지 이어지는 경로를 찾지 못했습니다. 다른 임무에서 이어지는 구간일 수 있어 임무 안의 변화를 모두 채우지 못했습니다.",
+        [KoreanStoryMessage.JumpUnlinkedNote] = "현재 주요 임무에서 목표 임무로 이어지지 않습니다. 다른 경로나 곁가지 임무에서 이어질 수 있어 중간 주요 이야기를 채우지 못했습니다.",
+        [KoreanStoryMessage.JumpPastNote] = "목표 구간이 현재보다 이전 시점이므로 날짜를 과거로 돌립니다.",
         [KoreanStoryMessage.Main] = "주요 이야기", [KoreanStoryMessage.Side] = "곁가지 이야기",
         [KoreanStoryMessage.CurrentMain] = "현재 주요 이야기", [KoreanStoryMessage.Rebuild] = "다시 생성",
         [KoreanStoryMessage.Search] = "검색", [KoreanStoryMessage.Year] = "{0}년차",

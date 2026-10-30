@@ -23,6 +23,16 @@ internal static class StoryChecks
         check(KoreanStoryText.Date(35) == "1년차 12월 하순", "Year end");
         check(KoreanStoryText.Date(36) == "2년차 1월 상순", "Next year");
         check(KoreanStoryText.Date(107) == "3년차 12월 하순", "Third year end");
+        string jumpTitle = "무림맹을 첫 공격에 무려 백…";
+        check(KoreanStoryText.Get(KoreanStoryMessage.JumpDiceNote, jumpTitle)
+            == "「무림맹을 첫 공격에 무려 백…」 구간에는 주사위 판정이 있습니다. 실제로 굴리지 않고 선택한 경로의 변화를 채웁니다.",
+            "Screenshot regression: dice warning retains the Korean segment title and explains simulated effects");
+        check(KoreanStoryText.Get(KoreanStoryMessage.JumpBattleNote, jumpTitle)
+            == "「무림맹을 첫 공격에 무려 백…」 구간에는 전투가 있습니다. 실제로 싸우지 않고 선택한 경로의 변화를 채웁니다.",
+            "Screenshot regression: battle warning retains the Korean segment title and explains skipped combat");
+        foreach (var note in new[] { KoreanStoryMessage.JumpDiceNote, KoreanStoryMessage.JumpBattleNote,
+            KoreanStoryMessage.JumpUnreachableNote, KoreanStoryMessage.JumpUnlinkedNote, KoreanStoryMessage.JumpPastNote })
+            check(!Regex.IsMatch("· " + KoreanStoryText.Get(note, jumpTitle), "[一-鿿]"), "Every jump limitation note must be native Korean: " + note);
         check(KoreanStoryText.RouteClause("현재 시점 필요 >=1 → 현재 30 그리고 행동력 필요 >=1 → 현재 2 그리고 구력 필요 >=40 → 현재 50", _ => null)
             == "구력>=40", "Route clause omits dates/action counts and retains native comparator");
         check(KoreanStoryText.RouteClause("현재 시점 필요 >=1 → 현재 30\n또는 소사매 호감도 필요 >=60 → 현재 84", _ => null)
