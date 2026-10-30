@@ -59,7 +59,7 @@ public sealed class LlmProvider
 		new LlmProvider { Name = "OpenRouter", BaseUrl = "https://openrouter.ai/api/v1", Model = "deepseek/deepseek-v4.1-flash", KeysPage = "https://openrouter.ai/keys" },
 		new LlmProvider { Name = "OpenAI", BaseUrl = "https://api.openai.com/v1", Model = "gpt-6-luna", DeepModel = "gpt-6-sol", KeysPage = "https://platform.openai.com/api-keys" },
 		new LlmProvider { Name = "Claude（Anthropic）", BaseUrl = "https://api.anthropic.com/v1", Model = "claude-sonnet-5-5", DeepModel = "claude-opus-5-5", KeysPage = "https://console.anthropic.com/settings/keys", Claude = true },
-		new LlmProvider { Name = "Gemini（Google）", BaseUrl = "https://generativelanguage.googleapis.com/v1beta/openai", Model = "gemini-3.8-flash", DeepModel = "gemini-3.8-flash", KeysPage = "https://aistudio.google.com/apikey" },
+		new LlmProvider { Name = "Gemini（Google）", BaseUrl = "https://generativelanguage.googleapis.com/v1beta/openai", Model = "gemini-3.6-flash", DeepModel = "gemini-3.8-flash", KeysPage = "https://aistudio.google.com/apikey" },
 		new LlmProvider { Name = "本地模型（Ollama）", BaseUrl = "http://localhost:11434/v1", Model = "qwen3", NoKey = true },
 		new LlmProvider { Name = "自定义（OpenAI 兼容）", BaseUrl = "", Model = "", Custom = true },
 	};
