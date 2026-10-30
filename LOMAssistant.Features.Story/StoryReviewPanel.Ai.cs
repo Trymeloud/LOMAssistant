@@ -840,7 +840,7 @@ public partial class StoryReviewPanel
 		{
 			DrawAiPortrait(new Rect(left.x, left.y, left.width, left.height - S(56)), persona);
 			var plate = new Rect(left.x + S(30), left.yMax - S(50), left.width - S(60), S(44));
-			GUI.Label(plate, TextConverter.ForDisplay(persona.Name), _aiPlate);
+			GUI.Label(plate, AiText.Display(persona.Name), _aiPlate);
 		}
 		else
 		{
@@ -878,7 +878,7 @@ public partial class StoryReviewPanel
 			try
 			{
 				AiPersona who = AiPersona.Find(AiChat.PersonaId);
-				string path = AiSessions.Export(AiChat.Session, who != null ? TextConverter.ForDisplay(who.Name) : TextConverter.ForDisplay(AiText.T("攻略助手", "공략 도우미")));
+				string path = AiSessions.Export(AiChat.Session, who != null ? AiText.Display(who.Name) : AiText.Display(AiText.T("攻略助手", "공략 도우미")));
 				_aiExportedName = System.IO.Path.GetFileName(path);
 				_aiExportedAt = Time.realtimeSinceStartup;
 				GUIUtility.systemCopyBuffer = path;
@@ -977,10 +977,10 @@ public partial class StoryReviewPanel
 					GUILayout.EndHorizontal();
 					break;
 				case AiChat.Kind.Assistant:
-					GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : AiText.T("攻略助手", "공략 도우미"), _aiName);
+					GUILayout.Label(persona != null ? AiText.Display(persona.Name) : AiText.T("攻略助手", "공략 도우미"), _aiName);
 				{
 					// 女主角说的话放气泡；「【攻略提示】」往后是旁白写给玩家的，单独一个淡色框
-					int cut = persona != null ? KoreanAiPrompt.HintIndex(entry.Text) : -1;
+					int cut = persona != null ? (NativeKorean.Enabled ? KoreanAiPrompt.HintIndex(entry.Text) : entry.Text.IndexOf(KoreanAiPrompt.LegacyHintMarker, System.StringComparison.Ordinal)) : -1;
 					string words = cut >= 0 ? entry.Text.Substring(0, cut).Trim() : entry.Text;
 					string hint = cut >= 0 ? entry.Text.Substring(cut + KoreanAiPrompt.HintLength(entry.Text, cut)).Trim() : "";
 					if (words.Length > 0)
@@ -1072,9 +1072,12 @@ public partial class StoryReviewPanel
 		if (AiChat.Busy && AiChat.Partial.Length > 0)
 		{
 			// 一边收一边显示
-			GUILayout.Label(persona != null ? TextConverter.ForDisplay(persona.Name) : AiText.T("攻略助手", "공략 도우미"), _aiName);
+			GUILayout.Label(persona != null ? AiText.Display(persona.Name) : AiText.T("攻略助手", "공략 도우미"), _aiName);
 			GUILayout.BeginHorizontal();
-			string partial = Wrap(TextConverter.Verbatim + RichFromMarkdown(KoreanAiPrompt.NormalizeHints(AiChat.Partial, "\n" + AiText.T("攻略提示", "공략 힌트") + "\n")), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
+			string hints = NativeKorean.Enabled
+				? KoreanAiPrompt.NormalizeHints(AiChat.Partial, "\n공략 힌트\n")
+				: AiChat.Partial.Replace("【攻略提示】", "\n攻略提示\n");
+			string partial = Wrap(TextConverter.Verbatim + RichFromMarkdown(hints), _aiBot, area.width - S(30) - _aiBot.padding.horizontal);
 			GUILayout.Label(partial, _aiBot, GUILayout.Width(BubbleWidth(partial, _aiBot, area.width - S(30))));
 			GUILayout.FlexibleSpace();
 			GUILayout.EndHorizontal();
@@ -1088,7 +1091,7 @@ public partial class StoryReviewPanel
 		{
 			// 等回答时点点点轮着动
 			string dots = new string('·', 1 + (int)(Time.realtimeSinceStartup * 2.5f) % 3);
-			GUILayout.Label(string.Format(AiText.T("{0} 正在想{1}", "{0} 생각 중{1}"), persona != null ? TextConverter.ForDisplay(persona.Name) : "AI", dots), _aiName);
+			GUILayout.Label(string.Format(AiText.T("{0} 正在想{1}", "{0} 생각 중{1}"), persona != null ? AiText.Display(persona.Name) : "AI", dots), _aiName);
 		}
 		// 还没说过话：给几个可以直接点的问题（按界面语言发出去）
 		if (shown.Count == 0 && !AiChat.Busy)

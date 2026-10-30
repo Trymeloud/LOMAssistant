@@ -15,7 +15,7 @@ internal static class NativeKorean
     internal static bool Enabled => TextConverter.DisplayLanguage == UiText.Korean;
 
     internal static string Text(KoreanMessage key, string legacy, params object[] values) =>
-        Enabled ? KoreanText.Get(key, values) : string.Format(CultureInfo.InvariantCulture, legacy, values);
+        Enabled ? KoreanText.Get(key, values) : string.Format(CultureInfo.CurrentCulture, legacy, values);
 
     internal static string DescribeAction(ActionType type, string content)
     {

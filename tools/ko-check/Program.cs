@@ -28,6 +28,7 @@ internal static class Program
         NativeChecks.Run(Check, args.Length > 2 ? args[2] : null);
         StoryChecks.Run(Check, args.Length > 2 ? args[2] : null);
         if (args.Length > 1) AiChecks.Run(args[1], Check);
+        if (args.Length > 1) NonKoreanChecks.Run(args[1], Check);
         if (args.Length > 1) LayoutChecks.Run(args[1], Check);
         if (args.Length > 4) BuiltModChecks.Run(args[4], Check);
         Expect("嘴力 需>=40 且 性情 需<=60", "구력 필요 >=40 그리고 성정 필요 <=60");

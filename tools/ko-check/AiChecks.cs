@@ -154,7 +154,7 @@ internal static class AiChecks
     {
         string analysis = Members(root, "LOMAssistant.Features.Ai/AiAnalysis.cs", "MaxRoutes", "Numeric", "Route", "Routes", "Copy");
         string script = Members(root, "LOMAssistant.Features.Story/StoryScripts.cs", "StoryStep", "StoryExit", "StoryScript");
-        string schema = Members(root, "LOMAssistant.Features.Ai/AiKnowledge.cs", "CanonicalTools", "Schema", "Current", "Clean", "CanonicalClean");
+        string schema = Members(root, "LOMAssistant.Features.Ai/AiKnowledge.cs", "CanonicalTools", "Schema", "Current", "KoreanCurrent", "Clean", "CanonicalClean");
         string proposal = Members(root, "LOMAssistant.Features.Ai/AiChat.cs", "Kind", "Entry", "ProposalState", "Change", "Propose", "Resolve");
         string transport = Members(root, "LOMAssistant.Features.Ai/LlmClient.cs", "ChatMessage", "ToolCall");
         string requestBody = Members(root, "LOMAssistant.Features.Ai/LlmClient.cs", "OpenAiBody");

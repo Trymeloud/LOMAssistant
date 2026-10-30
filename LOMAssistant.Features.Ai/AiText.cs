@@ -4,6 +4,7 @@ namespace LOMAssistant.Features.Ai;
 internal static class AiText
 {
     internal static string T(string original, string korean) => NativeKorean.Enabled ? korean : original;
+    internal static string Display(string text) => NativeKorean.Enabled ? TextConverter.ForDisplay(text) : text;
     internal static string Label(string text) => NativeKorean.Enabled
         ? UiText.Translate(KoreanLabels.Variable(text), UiText.Korean) : text;
     internal static string Provider(string name) => NativeKorean.Enabled ? name switch

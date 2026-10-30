@@ -28,8 +28,9 @@ public static class AiAnalysis
 		}
 		var sb = new StringBuilder();
 		// 好感：「郁竹」「郁竹好感」「好感·郁竹」
-		string who = KoreanAiQuery.AffectionPerson(q);
-		string person = AiKnowledge.FindHeroine(who) is StoryRomance.Heroine h ? TextConverter.ToSimplified(h.Relation.ToString()) : who;
+		string who = NativeKorean.Enabled ? KoreanAiQuery.AffectionPerson(q) : Regex.Replace(q, @"^好感[·:：]?|的?好感度?$", "");
+		string person = AiKnowledge.FindHeroine(who) is StoryRomance.Heroine h
+			? NativeKorean.Enabled ? TextConverter.ToSimplified(h.Relation.ToString()) : StoryRomance.Name(h) : who;
 		if (NativeKorean.Enabled) person = StoryUsage.RelationNames.FirstOrDefault(n => KoreanAiQuery.Equal(AiText.Label(n), person)) ?? person;
 		List<StoryUse> rel = StoryUsage.Relation(person);
 		if (rel == null)

@@ -114,12 +114,12 @@ public static class AiKnowledge
 				{
 					string q = Arg("query");
 					// 「图鉴奖励」「二周目有什么奖励」「收集多少条加命运」
-					bool awards = System.Text.RegularExpressions.Regex.IsMatch(TextConverter.ToSimplified(q), "奖励|周目|命运|新游戏|보상|회차|운명|새 게임");
+					bool awards = System.Text.RegularExpressions.Regex.IsMatch(TextConverter.ToSimplified(q), "奖励|周目|命运|新游戏" + (NativeKorean.Enabled ? "|보상|회차|운명|새 게임" : ""));
 					if (!awards)
 					{
 						return EndingList(q);
 					}
-					string rest = System.Text.RegularExpressions.Regex.Replace(TextConverter.ToSimplified(q), "奖励|二周目|周目|命运|新游戏\\+?|图鉴|收集|有什么|的|보상|[0-9]+회차|회차|운명|새 게임\\+?|도감|수집|무엇|어떤", "").Trim();
+					string rest = System.Text.RegularExpressions.Regex.Replace(TextConverter.ToSimplified(q), "奖励|二周目|周目|命运|新游戏\\+?|图鉴|收集|有什么|的" + (NativeKorean.Enabled ? "|보상|[0-9]+회차|회차|운명|새 게임\\+?|도감|수집|무엇|어떤" : ""), "").Trim();
 					return AiItems.LibraryAwards() + (rest.Length > 0 ? "\n" + EndingList(rest) : "");
 				}
 				case "heroine": return Heroine(Arg("name"));
@@ -173,10 +173,11 @@ public static class AiKnowledge
 		}
 	}
 
-	private static readonly Regex Current = new Regex(@" ?→ ?(?:当前[^ ，；、。)）\n]*|현재\s*[+-]?\d+)");
+	private static readonly Regex Current = new Regex(@" ?→ ?当前[^ ，；、。)）\n]*");
+	private static readonly Regex KoreanCurrent = new Regex(@" ?→ ?(?:当前[^ ，；、。)）\n]*|현재\s*[+-]?\d+)");
 
 	/// <summary>去掉富文本标记、条件里的当前值，转成简体。</summary>
-	internal static string CanonicalClean(string text) => AiAnalysis.ExplainTime(Current.Replace(TextConverter.ToSimplified(RichText.Strip(text ?? "")), "").Trim());
+	internal static string CanonicalClean(string text) => AiAnalysis.ExplainTime((NativeKorean.Enabled ? KoreanCurrent : Current).Replace(TextConverter.ToSimplified(RichText.Strip(text ?? "")), "").Trim());
 	internal static string Clean(string text) => AiText.Label(CanonicalClean(text));
 
 	private static string PathText(List<StoryStep> path) => path.Count == 0 ? AiText.T("（开头，不经分岔）", "(시작 부분, 분기 없음)") : string.Join(" → ", path.Select(s => Clean(StoryScripts.Describe(s))).ToArray());
@@ -430,7 +431,7 @@ public static class AiKnowledge
 				sb.Append("- ").Append(Clean(e.Title)).Append(e.Death ? AiText.T("（死亡）", "(사망)") : "").Append('\n');
 			}
 		}
-		var duels = ConditionBook.Combats.Where(c => c.Value.Count > 0 && Clean(c.Value[0]).Contains(q)).Take(3).ToList();
+		var duels = ConditionBook.Combats.Where(c => c.Value.Count > 0 && (NativeKorean.Enabled ? Clean(c.Value[0]) : c.Value[0]).Contains(q)).Take(3).ToList();
 		if (duels.Count > 0)
 		{
 			sb.Append(AiText.T("【决斗关卡】\n", "[결투 전투]\n"));

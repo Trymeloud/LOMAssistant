@@ -757,7 +757,7 @@ public static class StoryAtlas
 				string text = LibraryText("Position/Name/" + key, "");
 				if (text.Length > 0)
 				{
-					return TextConverter.ForDisplay(TextConverter.ToSimplified(text));
+					return text;
 				}
 			}
 		}
@@ -765,7 +765,7 @@ public static class StoryAtlas
 		{
 			FileLogger.Log("地点名取不到 " + name + ": " + e.Message);
 		}
-		return TextConverter.ForDisplay(TextConverter.ToSimplified(name));
+		return TextConverter.ToSimplified(name);
 	}
 
 	private static string LibraryText(string key, string fallback)

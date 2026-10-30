@@ -7,7 +7,7 @@ namespace LOMAssistant.Features.Story;
 internal static class StoryUi
 {
     internal static string Text(KoreanStoryMessage key, string legacy, params object[] args) =>
-        NativeKorean.Enabled ? KoreanStoryText.Get(key, args) : string.Format(CultureInfo.InvariantCulture, legacy, args);
+        NativeKorean.Enabled ? KoreanStoryText.Get(key, args) : string.Format(CultureInfo.CurrentCulture, legacy, args);
     internal static string Name(string raw) => NativeKorean.Enabled ? KoreanLabels.MissionName(TextConverter.ToSimplified(raw ?? "")) : raw;
     internal static string Series(StoryMission mission) => !NativeKorean.Enabled ? (mission.Main ? "主线" : mission.SeriesTitle)
         : mission.Main ? KoreanStoryText.Get(KoreanStoryMessage.Main) : Name(mission.FullSeriesTitle.Length > 0 ? mission.FullSeriesTitle : mission.SeriesTitle);

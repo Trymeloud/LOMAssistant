@@ -57,9 +57,9 @@ internal static class BuiltModChecks
             && noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.KoreanLabels" && m.Name == "Flag")
             && noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.KoreanText" && m.Name == "Get"),
             "Game flag notifications must compose Korean text from flag IDs before display");
-        check(noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.TextConverter" && m.Name == "ForDisplay")
+        check(!noticeCalls.Any(m => m.DeclaringType.FullName == "LOMAssistant.TextConverter" && m.Name == "ForDisplay")
             && noticeCalls.Any(m => m.Name == "DisplayMessageText"),
-            "Game flag notifications must translate non-Korean text explicitly outside IMGUI");
+            "Non-Korean game flag notifications must preserve the upstream message payload");
         var adapter = module.Types.Single(t => t.FullName == "LOMAssistant.NativeKorean");
         check(adapter.Methods.Where(m => m.HasBody).SelectMany(m => m.Body.Instructions)
             .Where(i => i.Operand is MethodReference).Select(i => (MethodReference)i.Operand)

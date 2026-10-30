@@ -385,7 +385,7 @@ public static class AiChat
 		{
 			t = t.Substring(0, tag);
 		}
-		return AiReplyLanguage.MoodTag.Replace(t, "").Trim();
+		return (NativeKorean.Enabled ? AiReplyLanguage.MoodTag : MoodTag).Replace(t, "").Trim();
 	}
 
 	// 剧本编号（ch4_9_3_8、S2700_01_03）；女主角口中连任务编号、旗标编号（S2700_01、G11006）也不要
@@ -429,9 +429,18 @@ public static class AiChat
 	}
 
 	// 回复末尾的「[表情: shy]」拿出来，不显示；不在她能用的表情里就用默认
+	private static readonly System.Text.RegularExpressions.Regex MoodTag = new System.Text.RegularExpressions.Regex(@"\[\s*(?:表情|mood)\s*[:：]\s*([A-Za-z_0-9]+)\s*\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 	private static string TakeMood(string answer, AiPersona persona, out string mood)
 	{
-		return AiReplyLanguage.TakeMood(answer, persona.Moods, out mood);
+		if (NativeKorean.Enabled) return AiReplyLanguage.TakeMood(answer, persona.Moods, out mood);
+		mood = persona.Moods[0];
+		System.Text.RegularExpressions.Match m = MoodTag.Match(answer);
+		if (m.Success)
+		{
+			string raw = m.Groups[1].Value.ToLowerInvariant();
+			mood = persona.Moods.Contains(raw) ? raw : persona.Moods.FirstOrDefault(x => x.TrimEnd('1', '2', '3') == raw.TrimEnd('1', '2', '3')) ?? persona.Moods[0];
+		}
+		return MoodTag.Replace(answer, "").Trim();
 	}
 
 	/// <summary>试一下能不能连上：不带工具，问一句很短的话。</summary>

@@ -2,14 +2,57 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text.RegularExpressions;
 using LOMAssistant;
 using LOMAssistant.Features.Ai;
+using LOMAssistant.Features.Story;
 
 namespace LOMAssistant.Tests;
 
 public static partial class AiTests
 {
+	public static void TestKoreanLanguageSwitchIsolation()
+	{
+		try
+		{
+			Language(3);
+			Assert(!ReferenceEquals(AiKnowledge.Tools, AiKnowledge.CanonicalTools), "Korean tool schema was not localized");
+			foreach (int ui in new[] { 1, 2, 4, 5, 3, 1, 4, 2, 5 })
+			{
+				Language(ui);
+				if (ui == 3) continue;
+				Assert(!NativeKorean.Enabled, "Korean presentation enabled for another language");
+				Assert(AiText.T("原文", "한국어") == "原文" && AiText.Label("原文") == "原文"
+					&& AiText.Display("原文") == "原文", "Korean labels leaked after switching language");
+				Assert(NativeKorean.Text(KoreanMessage.BranchDestination, "接到「{0}」", "原文") == "接到「原文」", "Non-Korean branch label changed");
+				Assert(StoryUi.Text(KoreanStoryMessage.BackToMap, "回到地图") == "回到地图", "Non-Korean story fallback changed");
+				Assert(ReferenceEquals(AiKnowledge.Tools, AiKnowledge.CanonicalTools), "Cached Korean tool schema leaked after language switching");
+			}
+		}
+		finally { Language(1); }
+	}
+
+	public static void TestKoreanMoodParserIsolation()
+	{
+		try
+		{
+			var persona = new AiPersona { Moods = new[] { "normal", "laugh1" } };
+			var method = typeof(AiChat).GetMethod("TakeMood", BindingFlags.Static | BindingFlags.NonPublic);
+			foreach (int ui in new[] { 1, 2, 3, 4, 5, 3, 1 })
+			{
+				Language(ui);
+				object[] args = { "대사 [표정: laugh1]", persona, null };
+				string body = (string)method.Invoke(null, args);
+				Assert(body == (ui == 3 ? "대사" : "대사 [표정: laugh1]")
+					&& (string)args[2] == (ui == 3 ? "laugh1" : "normal"), "Korean metadata parsing affected another language");
+				args = new object[] { "原文 [表情: laugh1]", persona, null };
+				Assert((string)method.Invoke(null, args) == "原文" && (string)args[2] == "laugh1", "Original mood syntax stopped working");
+			}
+		}
+		finally { Language(1); }
+	}
+
 	public static void TestKoreanEmbeddedTables()
 	{
 		foreach (var spec in new[] { ("flag-names-ko.tsv", 1069, 2), ("event-names-ko.tsv", 406, 3) })

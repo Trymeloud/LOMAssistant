@@ -630,7 +630,7 @@ public partial class StoryReviewPanel
 
 	/// <summary>行里的短说明：这条路上每一步分岔，选项写选项文字，掷骰写范围，条件只写个大概（完整的悬停看）。</summary>
 	private static string ShortLabel(StoryExit exit) => exit.Path.Count == 0
-		? (exit.AfterScene ? StoryUi.Text(KoreanStoryMessage.AfterBattle, "战斗后") : TextConverter.ForDisplay("接着"))
+		? (exit.AfterScene ? StoryUi.Text(KoreanStoryMessage.AfterBattle, "战斗后") : (NativeKorean.Enabled ? TextConverter.ForDisplay("接着") : "接着"))
 		: string.Join(" · ", exit.Path.Select(StepShort).ToArray());
 
 	private static string StepShort(StoryStep step)

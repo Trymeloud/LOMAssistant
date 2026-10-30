@@ -14,10 +14,13 @@ Included:
 Validation against the official Korean game `release_1.0.6001.0`:
 
 - Full mod build passed (four existing unused-field warnings).
-- Korean regression checks: 9,153 passed, including actual request-body construction, canonical parser/jump comparisons, background cache round-trips, display call sites and upstream layout comparisons.
-- Upstream non-game tests: 9 passed, 0 failed, 2 skipped (installer binary and packaged loader configuration unavailable).
+- Combined regression checks: 37,202 passed, including actual request-body construction, canonical parser/jump comparisons, background cache round-trips, display call sites and upstream layout comparisons.
+- Differential language checks execute upstream source alongside the integration: 27,960 rendering cases and 90 AI prompt cases are identical for Simplified Chinese, Traditional Chinese, Japanese, English and unknown-language fallback, interleaving Korean lookups to check cache isolation. Original Japanese translations in five UI cells are preserved.
+- Upstream non-game tests: 11 passed, 0 failed, 2 skipped (installer binary and packaged loader configuration unavailable). These include actual runtime language switching, tool-schema isolation and Korean/legacy mood-tag parsing.
 - Exported flag display combinations: 5,304 checked, 0 failures. Cached condition strings: 5,060 checked, 0 containing Chinese.
 
 Game assets and game installation files are not distributed or modified by these checks. No external AI API calls were made. Interactive gameplay, actual jump/return, reload behavior and live model output still need user testing. The previously known 47 mixed-language F9 full descriptions remain; this port does not claim to fix every remaining translation gap.
+
+Korean rendering/template expansion, name matching, pre-truncation translation, popup payloads, AI query normalization and mood parsing are gated by the resolved display language. Non-Korean UI tables and rendering order retain upstream behavior. Canonical place names stay unlocalized in the atlas cache to avoid language-switch contamination.
 
 Historical fork release files, fork README, package publisher and fork-specific version numbers are intentionally excluded from the upstream change.

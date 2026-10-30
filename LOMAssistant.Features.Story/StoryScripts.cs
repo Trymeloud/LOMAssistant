@@ -544,7 +544,8 @@ public static class StoryScripts
 			{
 				break;
 			}
-			arms.Add(TextConverter.ToSimplified(KoreanText.CompactCondition(text)));
+			arms.Add(TextConverter.ToSimplified(NativeKorean.Enabled ? KoreanText.CompactCondition(text)
+				: Regex.Replace(text, @" → 当前[^ ]*", "").Replace(" 需", "").Trim()));
 		}
 		return arms;
 	}
@@ -572,7 +573,7 @@ public static class StoryScripts
 		StoryScript s = Get(script);
 		string legend = s == null ? "" : s.Records.Select(Legend).FirstOrDefault(t => t.Length > 0) ?? "";
 		if (legend.Length == 0) return script;
-		string title = TextConverter.ForDisplay(legend);
+		string title = NativeKorean.Enabled ? TextConverter.ForDisplay(legend) : legend;
 		return title.Length > 16 ? title.Substring(0, 16) + "…" : title;
 	}
 

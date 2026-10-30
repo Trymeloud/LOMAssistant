@@ -36,7 +36,12 @@ public static class UiText
 		{
 			lang.Cache.Clear();
 		}
-		string result = ConvertParts(text, lang, 0);
+		// Keep upstream's rendering order for Japanese/English. Korean alone needs
+		// full-sentence matching before rich-text splitting and recursive templates.
+		string result = language == Korean ? ConvertParts(text, lang, 0)
+			: text.IndexOf('<') >= 0
+				? string.Concat(Tags.Split(text).Select(part => Tag.IsMatch(part) ? part : Segment(part, lang)))
+				: Segment(text, lang);
 		lang.Cache[text] = result;
 		return result;
 	}
@@ -111,8 +116,10 @@ public static class UiText
 				if (m.Success)
 				{
 					// 拼进去的部分本身在表里（如「养成」自动存档）也换掉
-					found = string.Format(format, Enumerable.Range(0, 10).Select(i =>
-						(object)ConvertParts(m.Groups["p" + i].Value, lang, depth + 1)).ToArray());
+					found = lang.IsKorean
+						? string.Format(format, Enumerable.Range(0, 10).Select(i =>
+							(object)ConvertParts(m.Groups["p" + i].Value, lang, depth + 1)).ToArray())
+						: string.Format(format, m.Groups.Cast<Group>().Skip(1).Select(g => (object)(lang.Exact.TryGetValue(g.Value, out string part) || lang.Game.TryGetValue(g.Value, out part) ? part : Words(g.Value, lang))).ToArray());
 					break;
 				}
 			}
@@ -128,7 +135,7 @@ public static class UiText
 	// 旗标名：常拼在条件、提示里（「名字 (编号) 需=1」「【旗标】名字  0 → 1」），比日期、界面词先换，免得名字里的字先被换掉。
 	// 三个字以内的（「天道」「投票」「古文」这类）容易撞上别的文字，只在后面紧跟「 (编号)」、「=值」「 值」（选项结果里的
 	// 「设置名字=1」）、两个空格或整段结尾时换。备注末尾常带着 \r、\t、空格（「抢劫\t (M20013)」），中间隔着空白也算
-	private static (Regex, MatchEvaluator) FlagNames(string[][] table)
+	private static (Regex, MatchEvaluator) FlagNames(string[][] table, bool korean = false)
 	{
 		var map = new Dictionary<string, string>();
 		foreach (string[] row in table)
@@ -136,7 +143,8 @@ public static class UiText
 			map[row[0]] = row[1];
 		}
 		string Alternatives(IEnumerable<string> names) => string.Join("|", names.OrderByDescending(n => n.Length).Select(Regex.Escape).ToArray());
-		var regex = new Regex("(?:" + Alternatives(map.Keys.Where(n => n.Length > 3)) + ")|(?:" + Alternatives(map.Keys.Where(n => n.Length <= 3)) + ")(?=\\s*\\(|\\s*[=≥≤≠><]|[〕〉」】]|\\s+[+-]?\\d|\\s{2}|\\s*$)");
+		string boundary = korean ? @"\s*[=≥≤≠><]|[〕〉」】]" : @"\s*=";
+		var regex = new Regex("(?:" + Alternatives(map.Keys.Where(n => n.Length > 3)) + ")|(?:" + Alternatives(map.Keys.Where(n => n.Length <= 3)) + ")(?=\\s*\\(|" + boundary + "|\\s+[+-]?\\d|\\s{2}|\\s*$)");
 		return (regex, m => map[m.Value]);
 	}
 
@@ -191,6 +199,7 @@ public static class UiText
 
 	private class Lang
 	{
+		public readonly bool IsKorean;
 		public readonly Dictionary<string, string> Exact = new Dictionary<string, string>();
 		public readonly List<(Regex, string)> Patterns = new List<(Regex, string)>();
 		public readonly List<(Regex, MatchEvaluator)> Words = new List<(Regex, MatchEvaluator)>();
@@ -201,6 +210,7 @@ public static class UiText
 
 		public Lang(int column)
 		{
+			IsKorean = column == 1;
 			Game = column == 3 ? XUnityTranslations.Load() : new Dictionary<string, string>();
 			if (column == 1)
 			{
@@ -208,7 +218,7 @@ public static class UiText
 				Labels.Add((new Regex("时间_(?=目前时间|第[一二三四五六七八九十0-9]+年)"), _ => ""));
 				Labels.Add((new Regex("时间_(?=[A-Za-z])"), _ => "시점 "));
 				Labels.Add(UiTextKorean.ConditionWords());
-				Labels.Add(FlagNames(UiTextKorean.Flags));
+				Labels.Add(FlagNames(UiTextKorean.Flags, true));
 				Words.AddRange(Labels);
 				Words.Add((new Regex("旗标(?=[A-Za-z0-9_])"), _ => "플래그 "));
 				Words.Add(UiTextKorean.NameWords());
@@ -260,7 +270,8 @@ public static class UiText
 				}
 				if (zh.Contains("{0}"))
 				{
-					string regex = TemplatePattern(zh);
+					string regex = column == 1 ? TemplatePattern(zh)
+						: "^" + Regex.Replace(Regex.Escape(zh), @"\\\{(\d)}", "(.+?)") + "$";
 					Patterns.Add((new Regex(regex), text));
 				}
 				else
@@ -535,7 +546,7 @@ public static class UiText
 		new[] { "显示分支判断", "분기 판정 표시", "分岐判定を表示" },
 		new[] { "显示旗标变化", "플래그 변화 표시", "フラグ変化を表示" },
 		new[] { "随机事件自选", "랜덤 이벤트 선택", "ランダムイベントを選ぶ" },
-		new[] { "锁住的选项一键设置", "잠긴 선택지 조건 충족시키기", "ロック選択肢をワンクリック解除" },
+		new[] { "锁住的选项一键设置", "잠긴 선택지 조건 충족시키기", "ロック選択肢を即解放" },
 		new[] { "选项提示、判定记录", "선택지 정보·판정 기록", "選択肢情報・判定記録" },
 		new[] { "触发剧情检查点:", "조건 판정:", "条件判定:" },
 		new[] { "触发剧情分支检查点:", "분기 판정:", "分岐判定:" },
@@ -559,8 +570,8 @@ public static class UiText
 		new[] { "突破属性上限", "능력치 한계 돌파", "能力値の上限突破" },
 		new[] { "无限修炼", "무한 수련", "修練無制限" },
 		new[] { "无限锻造、炼丹", "단조·연단 무제한", "鍛造・錬丹無制限" },
-		new[] { "锻造、炼丹不花银两", "단조·연단 은자 소모 없음", "鍛造・錬丹で銀両を使わない" },
-		new[] { "开发装备不看剧情条件", "장비 개발 시 스토리 조건 무시", "装備開発でストーリー条件を無視" },
+		new[] { "锻造、炼丹不花银两", "단조·연단 은자 소모 없음", "鍛造・錬丹は銀両不要" },
+		new[] { "开发装备不看剧情条件", "장비 개발 시 스토리 조건 무시", "装備開発の条件を無視" },
 		new[] { "门派贡献门槛（10～50）", "문파 공헌 기준치(10~50)", "門派貢献の基準値（10～50）" },
 		new[] { "弹珠得分倍率", "핀볼 점수 배율", "ピンボール得点倍率" },
 		new[] { "弹珠固定总分（-1=关）", "핀볼 고정 총점 (-1=끔)", "ピンボール点（-1=オフ）" },
@@ -595,7 +606,7 @@ public static class UiText
 		new[] { "支线「{0}」", "곁가지 이야기 「{0}」", "サブ「{0}」" },
 		new[] { "决斗我方无敌", "결투 아군 무적", "決闘で味方無敵" },
 		new[] { "决斗敌方不受伤", "결투 적 피해 없음", "決闘で敵にダメージなし" },
-		new[] { "团战我方不受伤", "단체전 아군 피해 없음", "集団戦で味方ダメージなし" },
+		new[] { "团战我方不受伤", "단체전 아군 피해 없음", "集団戦の味方無敵" },
 		new[] { "团战绝招无冷却", "단체전 절초 쿨타임 없음", "集団戦で奥義クールなし" },
 		new[] { "决斗直接获胜按钮", "결투 즉시 승리 버튼", "決闘の即勝利ボタン" },
 		new[] { "团战直接获胜按钮", "단체전 즉시 승리 버튼", "集団戦の即勝利ボタン" },
@@ -627,7 +638,7 @@ public static class UiText
 		new[] { "开游戏更快", "빠른 게임 시작", "起動を速くする" },
 		new[] { "流程提速", "진행 가속", "進行の高速化" },
 		new[] { "讲经堂解锁显示", "강경당 해금 표시", "講経堂の解放表示" },
-		new[] { "四师兄卖全部物品", "사사형 상점: 모든 아이템", "四師兄が全アイテムを販売" },
+		new[] { "四师兄卖全部物品", "사사형 상점: 모든 아이템", "四師兄が全品販売" },
 		new[] { "数值面板热键", "수치 패널 단축키", "数値パネルのホットキー" },
 		new[] { "写独立日志文件", "별도 로그 파일 기록", "専用ログファイルを書く" },
 		new[] { "检查新版本", "새 버전 확인", "新バージョンを確認" },

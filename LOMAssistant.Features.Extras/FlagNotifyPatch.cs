@@ -80,7 +80,7 @@ public static class FlagNotifyPatch
 			// Game notifications bypass the IMGUI display translation hook.
 			string message = NativeKorean.Enabled
 				? KoreanText.Get(KoreanMessage.FlagChange, KoreanLabels.Flag(id), before, flag.State)
-				: TextConverter.ForDisplay($"【旗标】{label}  {before} → {flag.State}");
+				: $"【旗标】{label}  {before} → {flag.State}";
 			FileLogger.Log($"旗标变化：{id} {label} {before} -> {flag.State}");
 			StoryMainUI ui = StoryMainUI.Instance;
 			if (ui != null && ui.isActiveAndEnabled)
