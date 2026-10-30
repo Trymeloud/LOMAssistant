@@ -357,13 +357,26 @@ public partial class StoryReviewPanel : MonoBehaviour
 		// 题头一行：标题、各页、关闭按钮都在同一条带子里竖直居中；每页按字数定宽，字与字之间的空隙一样大
 		float top = S(10), bandHeight = S(36);
 		GUIStyle title = Middle(_heading);
-		float titleWidth = title.CalcSize(new GUIContent("咖啡伴侣")).x;
+		float titleWidth = title.CalcSize(new GUIContent(TextConverter.ForDisplay("咖啡伴侣"))).x;
 		GUI.Label(new Rect(pad, top, titleWidth, bandHeight), "咖啡伴侣", title);
 		float x = pad + titleWidth + S(48);
+		var close = new Rect(w - pad - S(36), top, S(36), bandHeight);
+		float right = DrawUpdateHint(top, bandHeight, close.x - S(14));
+		// 英文等页名长的语言放不下时，收窄每页两边的留白和页与页的间隔，不和右边的版本号叠在一起
+		float[] widths = Tabs.Select(t => _tabOn.CalcSize(new GUIContent(TextConverter.ForDisplay(t))).x).ToArray();
+		float room = right - S(16) - x, side = S(36), gap = S(8);
+		float extra = room - widths.Sum() - (side + gap) * Tabs.Length;
+		if (extra < 0f)
+		{
+			float shrink = Mathf.Min(-extra / Tabs.Length, side + gap - S(14));
+			side -= shrink * side / (side + gap);
+			gap -= shrink * gap / (side + gap + shrink);
+			x = Mathf.Max(pad + titleWidth + S(20), x + Mathf.Min(0f, room - widths.Sum() - (side + gap) * Tabs.Length));
+		}
 		for (int i = 0; i < Tabs.Length; i++)
 		{
-			float textWidth = _tabOn.CalcSize(new GUIContent(Tabs[i])).x;
-			var tab = new Rect(x, top, textWidth + S(36), bandHeight);
+			float textWidth = widths[i];
+			var tab = new Rect(x, top, textWidth + side, bandHeight);
 			bool on = i == _tab && !_showChangelog;
 			if (GUI.Button(tab, Tabs[i], on ? _tabOn : _tabOff))
 			{
@@ -376,12 +389,10 @@ public partial class StoryReviewPanel : MonoBehaviour
 			}
 			x = tab.xMax + S(8);
 		}
-		var close = new Rect(w - pad - S(36), top, S(36), bandHeight);
 		if (GUI.Button(close, "✕", _tabOff))
 		{
 			_visible = false;
 		}
-		float right = DrawUpdateHint(top, bandHeight, close.x - S(14));
 		if (Time.realtimeSinceStartup < _messageUntil)
 		{
 			if (_redNotice == null || _redNoticeScale != _scale)

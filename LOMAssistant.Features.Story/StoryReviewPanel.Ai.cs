@@ -774,7 +774,7 @@ public partial class StoryReviewPanel
 			for (int i = 0; i <= personas.Count; i++)
 			{
 				string label = i == 0 ? "攻略助手" : personas[i - 1].Name;
-				float bw = TextWidth(label, _button, S(60)) + h - S(6);
+				float bw = widths[i];
 				var cell = new Rect(x, r.y, bw, h);
 				if (GUI.Button(cell, "", i == current ? _primary : _button) && !AiChat.Busy)
 				{
@@ -782,6 +782,22 @@ public partial class StoryReviewPanel
 					_aiHistory = false;
 				}
 				var icon = new Rect(cell.x + S(5), cell.y + S(5), h - S(10), h - S(10));
+			// 英文名比中文长，一排放不下时缩小间隔、按比例收窄每格（宽度本来留了余量，名字不会被截）
+			float[] widths = new float[personas.Count + 1];
+			for (int i = 0; i <= personas.Count; i++)
+			{
+				widths[i] = TextWidth(i == 0 ? "攻略助手" : personas[i - 1].Name, _button, S(60)) + h - S(6);
+			}
+			float gap = S(6), need = widths.Sum() + gap * personas.Count;
+			if (need > r.width)
+			{
+				gap = S(2);
+				float fit = (r.width - gap * personas.Count) / widths.Sum();
+				for (int i = 0; i < widths.Length; i++)
+				{
+					widths[i] *= Mathf.Min(1f, fit);
+				}
+			}
 				if (i == 0)
 				{
 					if (Event.current.type == EventType.Repaint)
@@ -800,7 +816,7 @@ public partial class StoryReviewPanel
 					DrawSprite(icon, LOMAssistant.Features.Extras.SaveBrowser.LoverIcon(personas[i - 1].Lover));
 				}
 				GUI.Label(new Rect(icon.xMax + S(6), cell.y, cell.xMax - icon.xMax - S(10), h), label, i == current ? _aiTabTextOn : _aiTabText);
-				x += bw + S(6);
+				x += bw + gap;
 			}
 			r = new Rect(r.x, r.y + h + S(10), r.width, r.height - h - S(10));
 		}
@@ -1044,7 +1060,8 @@ public partial class StoryReviewPanel
 			foreach (string q in persona != null ? HeroineStarters : AssistantStarters)
 			{
 				GUILayout.BeginHorizontal();
-				if (GUILayout.Button(q, _button, GUILayout.ExpandWidth(false), Ctl()))
+				// 宽度按界面语言量：按中文原文量，英文、韩文会被截掉
+				if (GUILayout.Button(q, _button, GUILayout.Width(TextWidth(q, _button, 0f) + _button.padding.horizontal), Ctl()))
 				{
 					AiChat.Ask(TextConverter.ForDisplay(q));
 				}

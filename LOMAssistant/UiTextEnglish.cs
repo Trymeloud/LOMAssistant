@@ -861,6 +861,8 @@ public static class UiTextEnglish
 		["OptionResultMode"] = "What each dialogue option will do and its unlock conditions: always shown / only when hovered or selected with a gamepad / never.",
 		["LockedStats"] = "Stats locked on the stats tab (recorded when you click a lock): stat names, comma separated. Clear it to unlock all.",
 		["EventRules"] = "「Always」 and 「Never」 for random events (recorded when you click them in the event picker): event ID=1 always, =2 never, semicolon separated. Clear it to remove all.",
+		["唐默铃"] = "Tang Moling",
+		["唐布衣"] = "Tang Buyi",
 		["EnableManualDiceSelection"] = "Click a line on the dice wheel to choose that result.",
 		["EnableLibraryDisplay"] = "Shows everything in the Lecture Hall as unlocked.",
 		["EnableCombatAssist"] = "Adds a 「Win now」 button to the ESC menu in duels.",

@@ -49,7 +49,7 @@ public partial class StoryReviewPanel
 		_hintStyle.hover.textColor = color == InkMuted ? Ink : color;
 		// 宽度按加粗量，选中前后位置不跳（标签也是这样定宽的）
 		_hintStyle.fontStyle = FontStyle.Bold;
-		float width = _hintStyle.CalcSize(new GUIContent(text)).x;
+		float width = _hintStyle.CalcSize(new GUIContent(TextConverter.ForDisplay(text))).x;
 		_hintStyle.fontStyle = _showChangelog ? FontStyle.Bold : FontStyle.Normal;
 		var r = new Rect(right - width, top, width, bandHeight);
 		if (GUI.Button(r, text, _hintStyle))
