@@ -162,7 +162,7 @@ public static class AiChat
 				: History.Concat(new[] { asking }).Concat(turn.Skip(1)).ToList();
 			Partial = "";
 			yield return LlmClient.Complete(provider, ConfigManager.AiBaseUrl.Value, ConfigManager.AiApiKey.Value, Model,
-				system, send, !last || keep, last ? (Deep ? 8000 : Fast ? 3000 : 6000) : Deep ? 4000 : Fast ? 1500 : 2000, r => reply = r, keep, text => Partial = WrongLanguage(text, question) ? "" : Showable(text));
+				system, send, !last || keep, last ? (Deep ? 8000 : Fast ? 3000 : 6000) : Deep ? 4000 : Fast ? 1500 : 2000, r => reply = r, keep, text => Partial = WrongLanguage(text, question, TextConverter.DisplayLanguage) ? "" : Showable(text));
 			Partial = "";
 			if (_stop)
 			{
@@ -236,7 +236,7 @@ public static class AiChat
 			{
 				answer = TextConverter.ToTraditional(answer);
 			}
-			else if (AiPrompts.RewriteRule != null && WrongLanguage(answer, question))
+			else if (AiPrompts.RewriteRule != null && WrongLanguage(answer, question, TextConverter.DisplayLanguage))
 			{
 				FileLogger.Log("[AI] 回答不是界面语言，让它改写一遍");
 				LlmReply rewritten = null;
@@ -467,7 +467,7 @@ public static class AiChat
 	/// 回答是不是用错了语言：界面是英文、韩文时汉字比本国文字多，界面是日文时汉字很多却几乎没有假名。
 	/// 玩家自己用中文问的（问题里有汉字、日文界面下没有假名）不算错。「」里引的原文不计。
 	/// </summary>
-	private static bool WrongLanguage(string answer, string question)
+	internal static bool WrongLanguage(string answer, string question, string language)
 	{
 		string body = System.Text.RegularExpressions.Regex.Replace(answer, "「[^」]*」|\\[表情:[^\\]]*\\]|【[^】]*】", "");
 		int han = 0, kana = 0, hangul = 0, latin = 0, qHan = 0, qKana = 0;
@@ -483,7 +483,7 @@ public static class AiChat
 			if (c >= '一' && c <= '鿿') qHan++;
 			else if (c >= 'ぁ' && c <= 'ヿ') qKana++;
 		}
-		switch (TextConverter.DisplayLanguage)
+		switch (language)
 		{
 			case UiText.English:
 				return qHan == 0 && han > 20 && han * 2 > latin / 5;

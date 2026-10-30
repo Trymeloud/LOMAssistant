@@ -12,6 +12,7 @@ using System.Runtime.Versioning;
 [assembly: AssemblyCopyright("Copyright © 2026")]
 [assembly: AssemblyTrademark("")]
 [assembly: ComVisible(false)]
+[assembly: InternalsVisibleTo("LOMAssistant.Tests")]
 [assembly: Guid("a1b2c3d4-e5f6-7890-abcd-ef1234567890")]
 [assembly: AssemblyFileVersion("3.2.4.0")]
 [assembly: AssemblyVersion("3.2.4.0")]

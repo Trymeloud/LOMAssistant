@@ -179,7 +179,10 @@ public static class ConfigManager
 
 	public static ConfigElement<string> LastSeenVersion;
 
-	private static ConfigFile Config => LOMAssistantPlugin.Instance.Config;
+	private static ConfigFile Config => TestConfig ?? LOMAssistantPlugin.Instance.Config;
+
+	/// <summary>不开游戏跑测试时用的配置文件（tests/）；游戏里一直是空，用插件自己的配置。</summary>
+	internal static ConfigFile TestConfig;
 
 	public static void Init()
 	{

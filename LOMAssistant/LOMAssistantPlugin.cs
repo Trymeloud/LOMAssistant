@@ -42,6 +42,10 @@ public class LOMAssistantPlugin : BaseUnityPlugin
 		Diagnostics.LogPatchSummary(_harmony);
 		StartCoroutine(ConflictDetector.CheckLater(_harmony));
 		StartCoroutine(UpdateInfo.Check());
+		if (SelfTest.Requested)
+		{
+			StartCoroutine(SelfTest.Run());
+		}
 	}
 
 	private void Update()

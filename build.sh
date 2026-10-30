@@ -32,7 +32,7 @@ mkdir -p bin
 	-resource:CHANGELOG.ja.md,LOMAssistant.CHANGELOG.ja.md \
 	-resource:CHANGELOG.ko.md,LOMAssistant.CHANGELOG.ko.md \
 	-resource:bin/BepInEx.dll,LOMAssistant.BepInEx5Shim.dll \
-	$(find . -name '*.cs' -not -path './bin/*' -not -path './Installer/*' -not -path './tools/*')
+	$(find . -name '*.cs' -not -path './bin/*' -not -path './Installer/*' -not -path './tools/*' -not -path './tests/*')
 
 cp bin/LOMAssistant.dll "$P/LOMAssistant.dll"
 echo "Installed to $P/LOMAssistant.dll"
