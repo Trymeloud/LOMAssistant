@@ -2,6 +2,14 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.2.2 (2026-10-30)
+
+- **AI Companion fast mode**: a new **Answers** row above the chat offers Fast, Standard and Deep. Fast looks things up fewer times, uses shorter instructions and keeps the model from thinking long, so free tiers and small local models answer sooner; answers are rougher.
+- **AI Companion options above the chat**: answers, spoilers and the heroines' strategy hints are picked right above the chat; hover an option for what it does.
+- **AI Companion answers in the UI language**: the instructions sent to the model are written separately for each UI language (Simplified and Traditional Chinese, English, Korean, Japanese), and an answer that still comes back in another language is rewritten once. The lookup details follow the UI language too.
+- **Gemini preset**: gemini-3.6-flash for normal answers and gemini-3.8-flash for deep mode. Saved model names stay as they are; pick the provider again to get the new ones.
+- **English and other UIs**: tabs at the top, the character row on the AI page and the suggested questions no longer run long or get cut off; Tang Moling and Tang Buyi now have English names.
+
 ## 3.2.1 (2026-10-29)
 
 - **AI Companion reply language**: follows the language of your latest message, so a question in Traditional Chinese gets a reply in Traditional Chinese; when it can't tell, it uses the UI language.
