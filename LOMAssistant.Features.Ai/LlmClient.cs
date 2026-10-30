@@ -239,7 +239,7 @@ public static class LlmClient
 	}
 
 	// 流式时多久没收到任何数据算卡住
-	private const int StallSeconds = 120;
+	private const int StallSeconds = 300;
 
 	/// <summary>
 	/// 流式接收：服务商发来的是一行行「data: {...}」（Server-Sent Events），每来一块就拼起来，
@@ -582,10 +582,10 @@ public static class LlmClient
 		{
 			body["reasoning_effort"] = "none";
 		}
-		// Gemini 3 系列的思考关不掉，不设时想得太久会超时：平时 low，深度模式 medium
+		// Gemini 3 系列的思考关不掉，不设时想得太久会超时：平时、极速 low，深度模式 medium（3.8-flash 不认 minimal，会报 400）
 		if (url.IndexOf("generativelanguage.googleapis.com", StringComparison.OrdinalIgnoreCase) >= 0 && model.IndexOf("gemini-3", StringComparison.OrdinalIgnoreCase) >= 0)
 		{
-			body["reasoning_effort"] = AiChat.Deep ? "medium" : AiChat.Fast ? "minimal" : "low";
+			body["reasoning_effort"] = AiChat.Deep ? "medium" : "low";
 		}
 		// 极速模式下本地模型（Ollama）不思考：小模型想很久也不会更准，还常卡住
 		if (AiChat.Fast && url.IndexOf(":11434", StringComparison.Ordinal) >= 0)

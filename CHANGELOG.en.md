@@ -2,6 +2,12 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.2.3 (2026-10-30)
+
+- **AI Companion wait time**: the request is only stopped after the provider sends nothing for 5 minutes, so models that think for a long time are no longer cut off before answering.
+- **Gemini error in fast mode**: gemini-3.8-flash returned a 400 error and could not connect in fast mode. Fixed.
+- **Installer**: the Other mods list fills the rest of the left column and grows when the window is taller; on short screens the banner gets shorter to make room for the list.
+
 ## 3.2.2 (2026-10-30)
 
 - **AI Companion fast mode**: a new **Answers** row above the chat offers Fast, Standard and Deep. Fast looks things up fewer times, uses shorter instructions and keeps the model from thinking long, so free tiers and small local models answer sooner; answers are rougher.
