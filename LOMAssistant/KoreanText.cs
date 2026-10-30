@@ -17,12 +17,32 @@ internal enum KoreanMessage
     Duel, Battle, PossibleResults, CertainResults, ConditionalResults, Weight,
     Activation, RateConditions, Location, Period, Conditions, UnlimitedTime,
     AfterUnlock, ConditionalStory, RandomRange, UnknownLabel, EffectWhen, PlaceEvent, FlagChange,
+    BranchDestination, BranchEnding, BranchNumber, WarningLine, ActionModeUnlimitedWarning, ActionModeWarning,
+    EnemyPlanned, EnemyAdaptive, BookStage, BookBonusTitle, CenterBonus, MemoHeading,
+    SkipBusy, SkipLate, HotkeyConflict, FixedHotkeyConflict, GeneralHotkeyConflict,
 }
 
 internal static class KoreanText
 {
     internal static readonly IReadOnlyDictionary<KoreanMessage, string> Messages = new Dictionary<KoreanMessage, string>
     {
+        [KoreanMessage.BranchDestination] = "「{0}」(으)로 이어짐",
+        [KoreanMessage.BranchEnding] = "타이틀로 돌아감 (결말)",
+        [KoreanMessage.BranchNumber] = "{0}번째 분기",
+        [KoreanMessage.WarningLine] = "【주의】{0}",
+        [KoreanMessage.ActionModeUnlimitedWarning] = "행동력이 1 남으면 더 이상 소모되지 않습니다. ESC의 「턴 넘기기」로 이번 순을 끝내세요. ",
+        [KoreanMessage.ActionModeWarning] = "행동력이 「보통」 모드가 아니면 일부 주요·곁가지 이야기가 발생하지 않거나 일찍 발생할 수 있습니다. 모드를 바꾸기 전에 저장하세요.",
+        [KoreanMessage.EnemyPlanned] = "적 예정 행동",
+        [KoreanMessage.EnemyAdaptive] = "대응을 바꿀 수 있음",
+        [KoreanMessage.BookStage] = "{0}단계",
+        [KoreanMessage.BookBonusTitle] = "수련 단계별 능력치 보너스:",
+        [KoreanMessage.CenterBonus] = "{0} 중간 쪽으로 {1}",
+        [KoreanMessage.MemoHeading] = "메모: ",
+        [KoreanMessage.SkipBusy] = "지금은 해야 할 중요한 일이 있어 시간을 허비할 수 없다.",
+        [KoreanMessage.SkipLate] = "지금은 시간이 늦었으니 다음에 하자.",
+        [KoreanMessage.HotkeyConflict] = "「{0}」 모드와 단축키({1})가 겹쳐, 이 모드의 {2} 단축키를 해제했습니다. Tab으로 창을 열거나 설정의 「단축키」에서 다른 키를 지정할 수 있습니다.",
+        [KoreanMessage.FixedHotkeyConflict] = "일러스트 교체 모드의 {0} 단축키는 변경할 수 없습니다. 단축키가 겹쳐 이 모드의 {1} 단축키를 해제했습니다. Tab으로 창을 열거나 설정의 「단축키」에서 다른 키를 지정할 수 있습니다.",
+        [KoreanMessage.GeneralHotkeyConflict] = "「{0}」 모드와 단축키가 겹쳐, 이 모드의 {1} 단축키를 해제했습니다. 설정의 「단축키」에서 다른 키를 지정할 수 있습니다.",
         [KoreanMessage.LoadGame] = "게임을 불러온 뒤 확인할 수 있습니다",
         [KoreanMessage.Refresh] = "새로고침",
         [KoreanMessage.OpenFlow] = "스토리 흐름도에서 보기",
@@ -82,6 +102,37 @@ internal static class KoreanText
 
     internal static string Get(KoreanMessage key, params object[] values) =>
         string.Format(CultureInfo.InvariantCulture, Messages[key], values);
+
+    // Compatibility notices are captured before the game language may be available.
+    // Resolve their presentation at draw time without changing keys or compatibility decisions.
+    internal static string Warning(string detail)
+    {
+        detail ??= "";
+        Match keys = Regex.Match(detail, @"本 Mod 的(.+?)热键已让给它（改成不绑定）");
+        string keyNames = keys.Success ? string.Join(", ", keys.Groups[1].Value.Split('、').Select(n => UiText.Translate(n, UiText.Korean))) : "";
+        if (keys.Success && detail.StartsWith("检测到「剧情随行」", StringComparison.Ordinal))
+            return Get(KoreanMessage.WarningLine, Get(KoreanMessage.HotkeyConflict, "스토리 동행", "F6·F8·F9", keyNames));
+        if (keys.Success && detail.StartsWith("检测到立绘替换 Mod「邪神认知污染ON」", StringComparison.Ordinal))
+            return Get(KoreanMessage.WarningLine, Get(KoreanMessage.FixedHotkeyConflict, "F8·F9", keyNames));
+        Match other = Regex.Match(detail, @"^检测到「(.+?)」的快捷键和本 Mod 撞了，");
+        if (keys.Success && other.Success)
+            return Get(KoreanMessage.WarningLine, Get(KoreanMessage.GeneralHotkeyConflict, other.Groups[1].Value, keyNames));
+        // Preserve whole-notice translations (e.g. Japanese patch compatibility),
+        // then translate the detail separately so the warning prefix cannot hide its sentence.
+        string whole = UiText.Translate("【注意】" + detail, UiText.Korean);
+        if (whole.StartsWith("【주의】", StringComparison.Ordinal)) return whole;
+        return Get(KoreanMessage.WarningLine, UiText.Translate(detail, UiText.Korean));
+    }
+
+    internal static string ActionModeWarning(bool unlimited) =>
+        (unlimited ? Get(KoreanMessage.ActionModeUnlimitedWarning) : "") + Get(KoreanMessage.ActionModeWarning);
+
+    internal static string BookBonusLine(int stage, bool learned, IEnumerable<string> parts) =>
+        (learned ? "✓ " : "") + Get(KoreanMessage.BookStage, stage) + ": " + string.Join(", ", parts);
+
+    internal static string DuelForecast(string action, bool horizontal, bool adaptive) =>
+        Get(KoreanMessage.EnemyPlanned) + (horizontal ? " " : "\n\n") + UiText.Translate(action, UiText.Korean)
+        + (adaptive ? (horizontal ? " · " : "\n\n") + Get(KoreanMessage.EnemyAdaptive) : "");
 
     internal static string Condition(string name, string op, string required, string current = null) =>
         current == null ? Get(KoreanMessage.ConditionOnly, name, op, required)

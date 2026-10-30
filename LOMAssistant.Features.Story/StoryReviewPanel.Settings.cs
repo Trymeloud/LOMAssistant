@@ -283,7 +283,7 @@ public partial class StoryReviewPanel
 		int columns = Mathf.Max(1, (int)((area.width - S(30)) / rowWidth));
 		foreach (string warning in ConflictDetector.Warnings)
 		{
-			GUILayout.Label(Red("【注意】" + warning), _rich);
+			GUILayout.Label(Red(NativeKorean.Enabled ? KoreanText.Warning(warning) : "【注意】" + warning), _rich);
 		}
 		if (string.IsNullOrEmpty(query))
 		{
@@ -311,7 +311,8 @@ public partial class StoryReviewPanel
 			}
 			if (shown.Any(row => row.Element == ConfigManager.ActionMode) && ActionModePatch.Mode != ActionModePatch.Normal)
 			{
-				GUILayout.Label(Red((ActionModePatch.Mode == ActionModePatch.Unlimited ? "行动点剩 1 点后不再消耗，用 ESC「空过」结束本旬。" : "")
+				GUILayout.Label(Red(NativeKorean.Enabled ? KoreanText.ActionModeWarning(ActionModePatch.Mode == ActionModePatch.Unlimited)
+					: (ActionModePatch.Mode == ActionModePatch.Unlimited ? "行动点剩 1 点后不再消耗，用 ESC「空过」结束本旬。" : "")
 					+ "行动点不是「正常」时可能影响剧情触发（部分剧情、支线不触发或提前触发），请谨慎使用，切换前先存档。"), _rich);
 			}
 		}

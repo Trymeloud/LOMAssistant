@@ -45,6 +45,28 @@ internal static class NativeChecks
         check(KoreanText.Get(KoreanMessage.FlagChange, "진행 상태", 3, -1) == "【플래그】진행 상태  3 → -1", "Flag notification preserves decreases and negative values");
         check(KoreanText.Get(KoreanMessage.FlagChange, KoreanLabels.Flag("NEW_UNKNOWN_FLAG"), -1, 0)
             == "【플래그】플래그 NEW_UNKNOWN_FLAG  -1 → 0", "Unknown notification flag retains ID without untranslated developer prose");
+        check(KoreanText.Get(KoreanMessage.BranchDestination, "소사매와 함께 수련…") == "「소사매와 함께 수련…」(으)로 이어짐", "Branch destination preserves the selected segment title");
+        check(KoreanText.Warning("호환성 안내") == "【주의】호환성 안내", "Warning prefix must not hide a translated detail");
+        check(!Regex.IsMatch(KoreanText.Warning("提前拿到会让六月后山事件出 bug，剧情需要时游戏会自己给。"), "[一-鿿]"), "Book warning translates detail before prefix");
+        check(!Regex.IsMatch(KoreanText.Warning("剧情里拿不到、原版商店也不卖，像是没做完的书。"), "[一-鿿]"), "Unfinished book warning");
+        foreach (string prefix in new[] { "检测到「剧情随行」，它的 F6、F8、F9 快捷键和本 Mod 撞了，", "检测到立绘替换 Mod「邪神认知污染ON」，它的 F8、F9 改不了，" })
+        {
+            string notice = KoreanText.Warning(prefix + "本 Mod 的数值页、设置页热键已让给它（改成不绑定）。可以按 Tab 打开窗口再点对应的页，或者在设置页「热键」里另绑别的键。");
+            check(!Regex.IsMatch(notice, "[一-鿿]") && notice.Contains("Tab") && notice.Contains("F8"), "Compatibility warning resolves at display time, including separate hotkey labels");
+        }
+        foreach (bool unlimited in new[] { false, true })
+            check(!Regex.IsMatch(KoreanText.ActionModeWarning(unlimited), "[一-鿿]") && KoreanText.ActionModeWarning(unlimited).Contains("저장"), "Combined action mode warnings must stay Korean");
+        string generalNotice = KoreanText.Warning("检测到「ExampleMod」的快捷键和本 Mod 撞了，本 Mod 的数值页、设置页、存档备注、隐藏界面看 CG、一键快进已读对话、随时存档页、随时存档：存新档、随时存档：读最近的、回退到判定前热键已让给它（改成不绑定）。可以在设置页「热键」里另绑别的键。");
+        check(!Regex.IsMatch(generalNotice, "[一-鿿]") && generalNotice.Contains("ExampleMod"), "Generic hotkey conflict preserves mod identity and translates every yielded feature separately");
+        check(!Regex.IsMatch(KoreanText.Warning(JapanesePatchCompat.NoticeText), "[一-鿿]") && KoreanText.Warning(JapanesePatchCompat.NoticeText).Contains("F7"), "Existing Japanese-patch compatibility notice stays localized");
+        check(KoreanText.BookBonusLine(3, true, new[] { "구력 +1", "심상 -2" }) == "✓ 3단계: 구력 +1, 심상 -2", "Book bonus keeps learned mark, stage, signs and values");
+        check(KoreanText.BookBonusLine(2, false, new[] { "구력 +1" }) == "2단계: 구력 +1", "Unlearned book bonus must not acquire a checkmark");
+        foreach (string action in new[] { "嘴攻", "捅人", "暗器", "备揍", "绝招", "无动作" })
+        foreach (bool horizontal in new[] { false, true })
+        foreach (bool adaptive in new[] { false, true })
+            check(!Regex.IsMatch(KoreanText.DuelForecast(action, horizontal, adaptive), "[一-鿿]"), "Duel forecast action/layout/adaptation: " + action);
+        check(KoreanText.DuelForecast("捅人", true, true) == "적 예정 행동 찌르기 · 대응을 바꿀 수 있음", "Horizontal duel forecast wording");
+        check(KoreanText.Get(KoreanMessage.MemoHeading) + "분기 확인용 저장" == "메모: 분기 확인용 저장", "Memo heading does not absorb the player's text");
         check(KoreanActionCall.TryParse("statmodifymanager.Player(\"money\", -100, \"\", 1)", out var spend)
             && spend.Method == "Player" && spend.Id == "money" && spend.Value == -100 && spend.HasValue, "Lua negative amount and target");
         check(KoreanActionCall.TryParse("statmodifymanager.SetFlag(\"M50009\", 1)", out var setFlag)

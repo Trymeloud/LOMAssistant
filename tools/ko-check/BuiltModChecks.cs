@@ -32,6 +32,17 @@ internal static class BuiltModChecks
             .Select(i => ((MethodReference)i.Operand).Name).ToList();
         check(actionReads.Contains("get_CanonicalDescription") && !actionReads.Contains("get_Description"), "Analysis must not parse Korean presentation strings");
         check(module.Resources.Any(r => r.Name == "LOMAssistant.flag-names-ko.tsv"), "Built DLL lacks the stable flag ID resource");
+        bool Calls(string type, string method, string owner, string called) => module.Types.Single(t => t.FullName == type).Methods.Single(m => m.Name == method)
+            .Body.Instructions.Any(i => i.Operand is MethodReference r && r.DeclaringType.FullName == owner && r.Name == called);
+        check(Calls("LOMAssistant.Features.Story.StoryReviewPanel", "DrawSettings", "LOMAssistant.KoreanText", "Warning")
+            && Calls("LOMAssistant.Features.Story.StoryReviewPanel", "DrawSettings", "LOMAssistant.KoreanText", "ActionModeWarning"), "Settings warning composition must use Korean helpers");
+        check(Calls("LOMAssistant.Features.Story.StoryReviewPanel", "BookBonus", "LOMAssistant.KoreanText", "BookBonusLine")
+            && Calls("LOMAssistant.Features.Story.StoryReviewPanel", "ItemRows", "LOMAssistant.KoreanText", "Warning"), "Book stage and warning helpers must be wired into the built UI");
+        check(Calls("LOMAssistant.Features.Combat.DuelActionForecast", "OnGUI", "LOMAssistant.KoreanText", "DuelForecast"), "Built duel forecast must use Korean composition");
+        check(Calls("LOMAssistant.Features.Story.StoryReviewPanel", "AnytimeContext", "LOMAssistant.NativeKorean", "Text"), "Built quick-save memo must use a native message");
+        var skip = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Extras.SkipActionPatch").Methods.Single(m => m.Name == "OnSkipClick");
+        check(skip.Body.Instructions.Count(i => i.Operand is MethodReference r && r.DeclaringType.FullName == "LOMAssistant.TextConverter" && r.Name == "ForDisplay") == 2,
+            "Both game SayDialog calls must explicitly localize before entering the game UI");
         var jump = module.Types.Single(t => t.FullName == "LOMAssistant.Features.Story.StoryJump");
         foreach (var spec in new[] { (Name: "Recompute", Count: 3), (Name: "Walk", Count: 2) })
             check(jump.Methods.Single(m => m.Name == spec.Name).Body.Instructions.Count(i => i.Operand is MethodReference m

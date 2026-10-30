@@ -332,7 +332,7 @@ public partial class StoryReviewPanel
 		}
 		if (!string.IsNullOrEmpty(s.note))
 		{
-			text.Append("\n\n备注：").Append(s.note);
+			text.Append("\n\n").Append(NativeKorean.Text(KoreanMessage.MemoHeading, "备注：")).Append(s.note);
 		}
 		return text.ToString();
 	}

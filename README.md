@@ -20,7 +20,7 @@
 
 **현재 배포 버전: [v3.0.9-ko.4 (사전 배포)](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.4).**
 
-개발 브랜치 `korean-native-3.2.1`은 **3.2.1-ko.2 통합 검증판**입니다. 원본 3.1.0~3.2.1의 변경과 기존 한국어 개선을 합쳤으며, ko.2에서는 스토리 점프의 「채우지 못하는 것」 설명을 한국어로 직접 생성하도록 수정했습니다. [설치 및 확인 항목](releases/v3.2.1-ko.2.md), [원작 한국어 보완 범위와 통합 보고서](reports/upstream-3.2.1-korean-review.md)를 참고하세요. GitHub 공개 설치판은 위의 3.0.9-ko.4입니다.
+개발 브랜치 `korean-native-3.2.1`은 **3.2.1-ko.3 통합 검증판**입니다. 원본 3.2.1과 기존 개선을 누적 포함하며, 점프 안내에 이어 분기 목적지·결투 가로 표시·비급 보너스·설정 경고·퀵세이브 메모·턴 넘기기 대사의 한국어 누락을 수정했습니다. [설치 및 확인 항목](releases/v3.2.1-ko.3.md), [통합 보고서](reports/upstream-3.2.1-korean-review.md)를 참고하세요. GitHub 공개 설치판은 위의 3.0.9-ko.4입니다.
 
 **이번 버전은 AI 채팅 전환을 포함한 공개 사전 배포판입니다.** 사용자가 ko.1과 ko.2 적용 후 작동을 확인했으며 ko.3의 실제 플레이·모델 답변은 확인이 필요합니다. 승인된 화면 비율·배치·크기·글꼴·여백 설정을 유지합니다. 모든 동적 자료와 화면을 새 구조로 바꾼 것은 아니며 기존 검수 번역표도 함께 사용합니다. [완료 범위와 남은 작업 순서](reports/korean-migration-remaining.md)에 AI 실사용 확인 → 설정·저장 화면 → F9 전체 설명 → 후속 통합 검수 순으로 정리했습니다. 게임 설치 폴더는 빌드 과정에서 변경하지 않습니다.
 
@@ -42,6 +42,7 @@
 | 3.0.9-ko.4 | 게임 플래그 변화 팝업의 번역 누락 수정, ID별 한국어 이름과 이전값·새값 표시 | [공개 사전 배포](https://github.com/Trymeloud/LOMAssistant/releases/tag/v3.0.9-ko.4) | [변경 사항](releases/v3.0.9-ko.4.md) |
 | 3.2.1-ko.1 | 원작 3.2.1 통합, 새 흐름도·진행 경로·스토리 점프·유학 이벤트·AI 수정과 기존 한국어 개선 유지 | 로컬 통합 검증판, GitHub 미배포 | [변경 사항](releases/v3.2.1-ko.1.md) |
 | 3.2.1-ko.2 | 점프의 「채우지 못하는 것」 안내 5종을 한국어로 직접 생성 | 로컬 통합 검증판, GitHub 미배포 | [변경 사항](releases/v3.2.1-ko.2.md) |
+| 3.2.1-ko.3 | 전체 점검에서 확인한 6개 영역의 문구 조합·게임 대사 번역 누락 수정 | 로컬 통합 검증판, GitHub 미배포 | [변경 사항](releases/v3.2.1-ko.3.md) |
 
 현재 공개판은 원본 [v3.0.9](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.0.9), 개발 소스는 [v3.2.1](https://github.com/kevinnie2003/LOMAssistant/releases/tag/v3.2.1) 기반입니다. 공식 한국어 게임 `release_1.0.6001.0` 기준이며 기존 한국어 개선을 누적 포함합니다.
 
@@ -84,7 +85,7 @@ powershell -NoProfile -ExecutionPolicy Bypass -File tools/ko-check/run.ps1 -ModA
 powershell -NoProfile -ExecutionPolicy Bypass -File tools/package-ko.ps1 -Game '게임 설치 경로' -Distribution '원본 배포 파일 경로'
 ```
 
-결과는 `bin/release/<소스 버전>/`에 생성됩니다. 현재 개발 소스의 출력 폴더는 `bin/release/3.2.1-ko.2/`입니다. 빌드·패키징 스크립트는 게임 설치 폴더를 수정하지 않습니다. 패키징에는 커밋된 소스가 필요하며, 빌드에 쓰이지 않는 `reports/`의 미추적 검수 파일은 그대로 둘 수 있습니다.
+결과는 `bin/release/<소스 버전>/`에 생성됩니다. 현재 개발 소스의 출력 폴더는 `bin/release/3.2.1-ko.3/`입니다. 빌드·패키징 스크립트는 게임 설치 폴더를 수정하지 않습니다. 패키징에는 커밋된 소스가 필요하며, 빌드에 쓰이지 않는 `reports/`의 미추적 검수 파일은 그대로 둘 수 있습니다.
 
 ## 원본 프로젝트 및 감사
 

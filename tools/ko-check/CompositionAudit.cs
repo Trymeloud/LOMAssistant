@@ -84,6 +84,31 @@ internal static class CompositionAudit
         {
             string translated = UiText.Translate(input, UiText.Korean);
             string actual = path == "game_SayDialog_bypasses_ForDisplay" ? input : translated;
+            string native = name switch
+            {
+                "settings_warning_prefix" => KoreanText.Warning("호환성 안내"),
+                "settings_action_mode" => KoreanText.ActionModeWarning(true),
+                "settings_action_mode_fixed" => KoreanText.ActionModeWarning(false),
+                "compatibility_notice" => KoreanText.Warning(input),
+                "branch_destination" => KoreanText.Get(KoreanMessage.BranchDestination, "소사매와 함께 수련…"),
+                "branch_combined_destination" => KoreanText.Get(KoreanMessage.BranchDestination, "소사매와 함께 수련…") + "；" + KoreanStoryText.Get(KoreanStoryMessage.BackToMap),
+                "book_warning" => KoreanText.Warning("提前拿到会让六月后山事件出 bug，剧情需要时游戏会自己给。") + "\n공식 한국어 비급 설명",
+                "book_bonus" => "\n" + KoreanText.Get(KoreanMessage.BookBonusTitle) + "\n" + KoreanText.BookBonusLine(3, true, new[] { "구력 +1", KoreanText.Get(KoreanMessage.CenterBonus, "심상", 2) }),
+                "book_bonus_without_checkmark" => "\n" + KoreanText.Get(KoreanMessage.BookBonusTitle) + "\n" + KoreanText.BookBonusLine(3, false, new[] { "구력 +1" }),
+                "duel_vertical" => KoreanText.DuelForecast("捅人", false, false),
+                "duel_horizontal" => KoreanText.DuelForecast("捅人", true, false),
+                "duel_horizontal_adaptive" => KoreanText.DuelForecast("捅人", true, true),
+                "quick_save_memo_tooltip" => "이전 대사\n\n" + KoreanText.Get(KoreanMessage.MemoHeading) + "분기 확인용 저장",
+                "skip_game_dialog_busy" => KoreanText.Get(KoreanMessage.SkipBusy),
+                "skip_game_dialog_late" => KoreanText.Get(KoreanMessage.SkipLate),
+                _ => null,
+            };
+            if (native != null)
+            {
+                actual = native;
+                path = "native_korean_ko3";
+                if (Han.IsMatch(actual)) throw new InvalidOperationException("Fixed display composition regressed: " + name);
+            }
             rows.Add(string.Join("\t", new[] { name, source, input, translated, actual, Han.IsMatch(actual).ToString(), path }.Select(Cell)));
         }
         Probe("settings_warning_prefix", "StoryReviewPanel.Settings.cs:286", "【注意】호환성 안내");
