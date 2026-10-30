@@ -51,6 +51,11 @@ internal static class Program
 			{
 				InstallerForm.ShotArg = args[i + 1]; // 测试用：等联网检查完，把窗口画成图片存到这个文件后退出
 			}
+			else if (args[i] == "--size")
+			{
+				string[] wh = args[i + 1].Split('x');
+				InstallerForm.ShotSize = new Size(int.Parse(wh[0]), int.Parse(wh[1])); // 测试用：窗口按这个大小开，看小屏幕下的样子
+			}
 		}
 		Application.Run(new InstallerForm(game, autoLog));
 	}
@@ -100,7 +105,7 @@ internal class InstallerForm : Form
 	private readonly Label _pathWarning = new Label { AutoSize = true, ForeColor = Color.FromArgb(178, 43, 33), MaximumSize = new Size(560, 0), Margin = new Padding(0, 4, 0, 4), Visible = false };
 	private readonly Label _pluginsHint = new Label { AutoSize = true, ForeColor = Color.FromArgb(120, 110, 98), Text = L("勾选的移到「DisabledMods」，不删除") };
 	private readonly Label _pluginsNone = new Label { AutoSize = true, Text = L("没有发现其他 Mod。"), ForeColor = Color.FromArgb(120, 110, 98) };
-	private readonly CheckedListBox _plugins = new CheckedListBox { Dock = DockStyle.Fill, CheckOnClick = true, IntegralHeight = false, HorizontalScrollbar = true, BorderStyle = BorderStyle.FixedSingle, Height = 110 };
+	private readonly CheckedListBox _plugins = new CheckedListBox { Dock = DockStyle.Fill, CheckOnClick = true, IntegralHeight = false, HorizontalScrollbar = true, BorderStyle = BorderStyle.FixedSingle, MinimumSize = new Size(0, 110) };
 	private readonly TextBox _log = new TextBox { Multiline = true, ReadOnly = true, ScrollBars = ScrollBars.Vertical, Dock = DockStyle.Fill, BorderStyle = BorderStyle.None };
 	private readonly CheckBox _skipLogo = new CheckBox { Text = L("跳过游戏开头 Logo（想恢复就取消勾选再安装一次）"), AutoSize = true, Checked = true, Margin = new Padding(0, 4, 0, 6) };
 	private readonly Button _install = new Button { Text = L("一键安装 / 更新"), Dock = DockStyle.Fill, Height = 46, FlatStyle = FlatStyle.Flat, Cursor = Cursors.Hand };
@@ -117,6 +122,7 @@ internal class InstallerForm : Form
 	private readonly string _autoLog;
 	internal static string DiagLogArg;
 	internal static string ShotArg;
+	internal static Size? ShotSize;
 
 	[System.Runtime.InteropServices.DllImport("user32.dll")]
 	private static extern bool PrintWindow(IntPtr hwnd, IntPtr hdc, uint flags);
@@ -148,6 +154,18 @@ internal class InstallerForm : Form
 			e.Graphics.DrawImage(bannerImage, (banner.Width - w) / 2, (banner.Height - h) / 2, w, h);
 		};
 		banner.Resize += delegate { banner.Invalidate(); };
+		// 窗口矮（小屏幕、笔记本）时 banner 跟着变矮，把高度让给「其他 Mod」列表：左栏除列表外约占 460，列表想要 220，剩下的给 banner（80 到 280）
+		void FitBanner()
+		{
+			float dpi = DeviceDpi / 96f;
+			int height = (int)(Math.Max(80f, Math.Min(280f, ClientSize.Height / dpi - 680f)) * dpi);
+			if (banner.Height != height)
+			{
+				banner.Height = height;
+			}
+		}
+		Resize += delegate { FitBanner(); };
+		Load += delegate { FitBanner(); };
 
 		// 左栏：游戏目录、版本、其他 Mod、安装按钮
 		var left = new TableLayoutPanel { Dock = DockStyle.Fill, ColumnCount = 1, BackColor = Paper, Margin = new Padding(0, 0, 14, 0) };
@@ -174,8 +192,7 @@ internal class InstallerForm : Form
 			Heading(L("其他 Mod")),
 			_pluginsHint,
 			_pluginsNone,
-			_plugins,
-			new Panel { Dock = DockStyle.Fill, Margin = new Padding(0) }, // 把下面的压到底部
+			_plugins, // 占满剩下的高度，窗口拉高列表跟着变高，并把下面的压到底部
 			_skipLogo,
 			_install,
 			buttons,
@@ -183,7 +200,7 @@ internal class InstallerForm : Form
 		left.RowCount = rows.Length;
 		for (int i = 0; i < rows.Length; i++)
 		{
-			left.RowStyles.Add(i == rows.Length - 4 ? new RowStyle(SizeType.Percent, 100f) : new RowStyle(SizeType.AutoSize));
+			left.RowStyles.Add(rows[i] == _plugins ? new RowStyle(SizeType.Percent, 100f) : new RowStyle(SizeType.AutoSize));
 			left.Controls.Add(rows[i], 0, i);
 		}
 
@@ -260,6 +277,11 @@ internal class InstallerForm : Form
 				MinimumSize = new Size(Math.Min(MinimumSize.Width, area.Width), Math.Min(MinimumSize.Height, area.Height));
 				Size = new Size(Math.Min(Width, area.Width), Math.Min(Height, area.Height));
 				Location = area.Location + new Size((area.Width - Width) / 2, (area.Height - Height) / 2);
+			}
+			if (ShotSize != null)
+			{
+				MinimumSize = new Size(0, 0);
+				Size = ShotSize.Value;
 			}
 		};
 		if (_autoLog != null)
