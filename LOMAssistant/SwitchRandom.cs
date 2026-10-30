@@ -47,6 +47,46 @@ internal static class SwitchRandom
 		return null;
 	}
 
+	/// <summary>
+	/// 这个判断现在会走第几支（1 起算，比条件数多 1 的是「以上都不满足」），只读条件、不执行（Execute 会加执行次数、用掉选定的分支）。
+	/// 按次数判断的、条件里带随机值的、用到 unstable 里的变量（剧本自己在前面会改的旗标）的、找不到的返回 null。
+	/// </summary>
+	internal static int? Peek(string name, ICollection<string> unstable)
+	{
+		SwitchResultData data = Find(name);
+		if (data == null || Traverse.Create(data).Field("_useCount").GetValue<bool>() || Arms(data) != null)
+		{
+			return null;
+		}
+		List<ConditionResultItem> items = Traverse.Create(data).Field("_items").GetValue<List<ConditionResultItem>>();
+		if (items == null)
+		{
+			return null;
+		}
+		// 条件里用到剧本自己在前面会改的旗标：现在的值不准
+		foreach (ConditionResultItem item in items)
+		{
+			foreach (StatCompareItem compare in item.GetFieldValue<List<StatCompareItem>>("_items") ?? new List<StatCompareItem>())
+			{
+				foreach (StatGroupVariable variable in new[] { compare.GetFieldValue<StatGroupVariable>("_value1"), compare.GetFieldValue<StatGroupVariable>("_value2") })
+				{
+					if (variable != null && unstable.Any(id => variable.name.Contains(id)))
+					{
+						return null;
+					}
+				}
+			}
+		}
+		for (int i = 0; i < items.Count; i++)
+		{
+			if (items[i].Check())
+			{
+				return i + 1;
+			}
+		}
+		return items.Count + 1;
+	}
+
 	/// <summary>这个判断能走到的各条路（只有条件里带随机值时才算；没有随机值、按次数判断的返回 null）。</summary>
 	internal static List<Arm> Arms(string name)
 	{

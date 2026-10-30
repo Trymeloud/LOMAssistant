@@ -8,14 +8,15 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 
 internal static class LayoutChecks
 {
-    // The user confirmed ko.1's layout. Compare its geometry and styles, not its text.
+    // The user approved upstream 3.2.1's new graphs; the surrounding window keeps ko.1 geometry.
     internal static void Run(string root, Action<bool, string> check)
     {
-        foreach (string name in new[] { "StoryReviewPanel.cs", "StoryReviewPanel.Route.cs", "StoryReviewPanel.Flow.cs", "StoryReviewPanel.Credits.cs", "StoryReviewPanel.Ai.cs" })
+        foreach (string name in new[] { "StoryReviewPanel.cs", "StoryReviewPanel.Route.cs", "StoryReviewPanel.Flow.cs", "StoryReviewPanel.Jump.cs", "StoryReviewPanel.Credits.cs", "StoryReviewPanel.Ai.cs" })
         {
             string file = "LOMAssistant.Features.Story/" + name;
             var start = new ProcessStartInfo("git") { WorkingDirectory = root, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
-            start.ArgumentList.Add("show"); start.ArgumentList.Add("2a7fe65cf132b735de3c1703ab4b5439f1ecaae8:" + file);
+            string revision = name == "StoryReviewPanel.Route.cs" || name == "StoryReviewPanel.Flow.cs" || name == "StoryReviewPanel.Jump.cs" ? "v3.2.1" : "2a7fe65cf132b735de3c1703ab4b5439f1ecaae8";
+            start.ArgumentList.Add("show"); start.ArgumentList.Add(revision + ":" + file);
             using var process = Process.Start(start);
             string baseline = process.StandardOutput.ReadToEnd();
             string error = process.StandardError.ReadToEnd();
@@ -25,7 +26,7 @@ internal static class LayoutChecks
             var after = Geometry(File.ReadAllText(Path.Combine(root, file)));
             check(before.SequenceEqual(after), "Layout/style changed in " + name + ": " + string.Join("; ", before.Except(after).Take(2)));
         }
-        Console.WriteLine("Layout: Rect, GUIStyle, scale, width/height and spacing expressions match user-approved ko.1");
+        Console.WriteLine("Layout: graphs match approved upstream 3.2.1; surrounding window and AI retain ko.1 geometry/styles");
     }
 
     private static string[] Geometry(string source) => CSharpSyntaxTree.ParseText(source).GetRoot().DescendantNodes()

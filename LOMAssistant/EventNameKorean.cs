@@ -69,6 +69,9 @@ internal static class EventNameKorean
         string id = data != null ? data.name : null;
         string text = TextConverter.ToSimplified(original ?? "");
         if (Overrides.TryGet(id, Clean(text), out string korean)) return korean;
+        // Keep contextual overrides first; upstream adds defaults for new labels and P_* results.
+        string upstream = UiEventNames.Display(original);
+        if (upstream != null) return upstream;
         // Small, reviewed defaults; all other original names are exported for manual review.
         // Do not interpret or replace game IDs, random-event probability or selection keys.
         text = text.Replace("排队的", "대기 중인 ")

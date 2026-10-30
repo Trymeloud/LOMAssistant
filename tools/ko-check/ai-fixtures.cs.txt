@@ -4,12 +4,20 @@
 namespace LOMAssistant {
     static class NativeKorean { public static bool Enabled; }
     static class RichText { public static string Strip(string t)=>t; }
-    static class TextConverter { public static string ToSimplified(string t)=>t; }
-    static class UiText { public const string Korean="Korean"; public static string Translate(string t,string l)=>t; }
+    static class TextConverter { public static string DisplayLanguage="Korean"; public static string ToSimplified(string t)=>t; }
+    static class UiText { public const string Korean="Korean",Japanese="Japanese",English="English"; public static string Translate(string t,string l)=>t; }
     static class KoreanLabels { public static string Variable(string t)=>t.Replace("郁竹好感","욱죽 호감도").Replace("心相","심상"); }
     static class FileLogger { public static void Log(string t) {} public static void LogWarning(string t) {} }
 }
-namespace LOMAssistant.LuaParse { public class Action { public string CanonicalDescription="",Description=""; } }
+namespace LOMAssistant.LuaParse {
+    public enum ActionType { ModifyAction }
+    public class Action {
+        public static int ConstructorCalls;
+        public ActionType Type; public string Content="";
+        public string CanonicalDescription="",Description="";
+        public Action() {} public Action(ActionType type,string content) { ConstructorCalls++; Type=type; Content=content; CanonicalDescription=content; Description="한국어 " + content; }
+    }
+}
 namespace LOMAssistant.Features.Story {
     public class StoryMission { public string Key="",Title="",StartScript=""; }
     public class StoryEnding { public string Id="",Title=""; }
@@ -18,10 +26,9 @@ namespace LOMAssistant.Features.Story {
         public static List<StoryEnding> Endings=new List<StoryEnding>();
         public static StoryMission Find(string k)=>Owner.Values.FirstOrDefault(m=>m.Key==k);
     }
-    public static class StoryScripts {
+    public static partial class StoryScripts {
         public static Dictionary<string,StoryScript> All=new Dictionary<string,StoryScript>();
         public static StoryScript Get(string n)=>All.TryGetValue(n,out var s)?s:null;
-        public static bool IsPrefix(List<StoryStep> a,List<StoryStep> b)=>a.Count<=b.Count && a.SequenceEqual(b.Take(a.Count));
         public static string Describe(StoryStep s)=>s.Key;
     }
     public static class StoryReviewPanel {

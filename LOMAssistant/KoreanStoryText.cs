@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace LOMAssistant;
 
@@ -108,6 +109,19 @@ internal static class KoreanStoryText
     internal static string Get(KoreanStoryMessage key, params object[] args) => string.Format(CultureInfo.InvariantCulture, Messages[key], args);
     internal static string Stage(int stage) => Get(stage == 1 ? KoreanStoryMessage.UpperStage : stage == 2 ? KoreanStoryMessage.MiddleStage : KoreanStoryMessage.LowerStage);
     internal static string Date(int rounds) => Get(KoreanStoryMessage.YearMonth, rounds / 36 + 1, rounds % 36 / 3 + 1) + " " + Stage(rounds % 3 + 1);
+    // Native route labels must not feed Korean conditions back through the Chinese prose parser.
+    internal static string RouteClause(string conditions, Func<string, string> flagNote)
+    {
+        string first = Regex.Split(conditions ?? "", @"\n\s*또는\s+")[0].Replace("\r", "").Replace("\n", " ");
+        string clause = first.Split(new[] { " 그리고 " }, StringSplitOptions.None).Select(s => s.Trim())
+            .FirstOrDefault(s => s.Length > 0 && !s.Contains("시점") && !s.Contains("행동력") && !s.Contains("행동 횟수"));
+        if (clause == null) return "";
+        Match flag = Regex.Match(clause, @"^(.+?) \(([A-Za-z0-9_]+)\) 필요 =(\d+)");
+        string note = flag.Success ? flagNote(flag.Groups[2].Value) : null;
+        Match pick = note != null ? Regex.Match(note, @"(?:^|\s)" + flag.Groups[3].Value + @"[.．、:：]\s*([^\s\r\n]+)") : Match.Empty;
+        return pick.Success ? flag.Groups[1].Value.Trim() + ": " + KoreanLabels.Variable(pick.Groups[1].Value)
+            : Regex.Replace(clause, @" → 현재.*$| \([A-Za-z0-9_]+\)", "").Replace(" 필요 ", "").Trim();
+    }
     internal static string Period(int? from, int? to, int? monthly, bool limited)
     {
         if (!limited) return Get(KoreanStoryMessage.AnyTime);

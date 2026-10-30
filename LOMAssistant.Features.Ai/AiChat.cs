@@ -131,8 +131,8 @@ public static class AiChat
 		LlmProvider provider = Provider;
 		string answer = null;
 		// 系统提示词这一问只算一次，每轮都一样（缓存靠它）；会变的现状接在这次问题前面
-		string system = (persona != null ? persona.Prompt(ReplyLanguage, Spoiler) : SystemPrompt()) + DeepRule;
-		system = AiReplyLanguage.Apply(system, TextConverter.DisplayLanguage, persona?.Id);
+		string system = (persona != null ? persona.Prompt(LanguageRule, Spoiler) : SystemPrompt()) + DeepRule;
+		system = AiReplyLanguage.Apply(system, TextConverter.DisplayLanguage, persona?.Id) + "\n\n" + LanguageRule;
 		string context = persona != null ? persona.Context() : "";
 		var asking = new ChatMessage { Role = ChatMessage.User, Text = context.Length > 0 ? context + "\n\n" + asked : asked };
 		// 同一个问题里一模一样的查询不再重查、不再把结果再发一遍
@@ -204,7 +204,7 @@ public static class AiChat
 			{
 				Shown.Add(new Entry { Kind = Kind.Activity, Text = AiKnowledge.Activity(call.Name, call.Args) });
 				string result;
-				if (call.Name != "propose_change" && !looked.Add(call.Name + call.Args.ToString(Newtonsoft.Json.Formatting.None)))
+				if (call.Name != "propose_change" && !looked.Add(call.Name + call.Args.ToString(Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonConverter[0])))
 				{
 					result = AiText.T("（这个查询前面已经查过，结果就在上面，直接用）", "(이미 실행한 조회입니다. 위에 있는 결과를 사용하세요.)");
 				}
@@ -216,7 +216,7 @@ public static class AiChat
 				{
 					result = result.Substring(0, MaxToolChars) + AiText.T("\n……（太长，后面省略）", "\n…(너무 길어 이후 내용 생략)");
 				}
-				AiDebug.Tool(call.Name, call.Args.ToString(Newtonsoft.Json.Formatting.None), result);
+				AiDebug.Tool(call.Name, call.Args.ToString(Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonConverter[0]), result);
 				turn.Add(new ChatMessage { Role = ChatMessage.Tool, CallId = call.Id, Text = result });
 			}
 		}
@@ -412,12 +412,17 @@ public static class AiChat
 
 	internal static string ReplyLanguage => TextConverter.DisplayLanguage switch
 	{
-		"ChineseTraditional" => "繁体中文",
+		"ChineseTraditional" => "繁體中文（正體字）",
 		UiText.Korean => "한국어",
 		UiText.Japanese => "日语（日本語）",
 		UiText.English => "英语（English）",
 		_ => "简体中文",
 	};
+
+	/// <summary>回答用的语言：跟玩家这一条消息走（界面是繁体、玩家用繁体问，也常被满篇简体的资料带成简体），看不出来时用界面语言。</summary>
+	internal static string LanguageRule => NativeKorean.Enabled ? KoreanAiPrompt.LanguageRule
+		: "用玩家最近一条消息所用的语言和文字回答：玩家写繁體中文就全用繁體中文，写简体中文就用简体中文，写日语、韩语、英语就用那种语言；看不出来时用"
+		+ ReplyLanguage + "。资料里的中文都是简体，引用对白、人名时也换成你回答用的文字。";
 
 	internal static string Spoiler => NativeKorean.Enabled ? KoreanAiPrompt.Spoiler(ConfigManager.AiSpoiler.Value) : ConfigManager.AiSpoiler.Value switch
 	{
@@ -458,6 +463,6 @@ public static class AiChat
 			+ "- 用游戏里的叫法（人名、数值名、任务名）。任务编号可以括注在任务名后面，方便玩家在剧情图里找；剧本编号（ch4_9_3_8、S2700_01_03 这类）不要写给玩家，用「之后」「接下来的剧情」代替；不要提工具、文件、数据这些词。\n"
 			+ "- 简洁：一般不超过 400 字，玩家要细节时再展开。\n"
 			+ "- 剧透：" + Spoiler + "\n"
-			+ "- 用" + ReplyLanguage + "回答。";
+			+ "- " + LanguageRule;
 	}
 }

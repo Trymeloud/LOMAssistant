@@ -102,6 +102,7 @@ public partial class StoryReviewPanel
 				new SettingRow { Element = ConfigManager.OptionResultMode, Name = "选项后果", Choices = new[] { "总是显示", "鼠标悬停", "不显示" } },
 				Row(ConfigManager.ColorOptionDeltas, "选项后果加减上色"),
 				Row(ConfigManager.EnableManualDiceSelection, "骰子手动选择"),
+				Row(ConfigManager.EnableStoryJump, "剧情跳转"),
 				Row(ConfigManager.FontScale, "对白文字大小（%）", 50f, 200f),
 				Row(ConfigManager.FlagNoticeSeconds, "旗标提示停留（秒）", 0f, 30f),
 				Row(ConfigManager.BranchPanelAutoHide, "分支小窗自动收起（秒）", 0f, 600f),
@@ -342,13 +343,35 @@ public partial class StoryReviewPanel
 		}
 	}
 
+	private readonly Dictionary<(GUIStyle, int), GUIStyle> _shrunk = new Dictionary<(GUIStyle, int), GUIStyle>();
+
+	/// <summary>文字比宽度长时，返回字号小一些的同款样式（最小原来的八成）；放得下就是原样式。</summary>
+	private GUIStyle Shrunk(GUIStyle style, string text, float width)
+	{
+		float full = style.CalcSize(new GUIContent(text)).x;
+		if (full <= width || style.fontSize <= 0)
+		{
+			return style;
+		}
+		int size = Mathf.Max(Mathf.CeilToInt(style.fontSize * 0.8f), Mathf.FloorToInt(style.fontSize * width / full));
+		if (!_shrunk.TryGetValue((style, size), out GUIStyle small))
+		{
+			small = new GUIStyle(style) { fontSize = size };
+			_shrunk[(style, size)] = small;
+		}
+		return small;
+	}
+
 	private void DrawSettingRow(SettingRow row, float width)
 	{
 		IConfigElement element = row.Element;
 		GUILayout.BeginHorizontal(_card, GUILayout.Width(width - S(10)));
 		GUIStyle line = Middle(_label);
 		float nameWidth = S(232);
-		GUILayout.Label(Fit(TextConverter.ForDisplay(row.Name), line, nameWidth), line, GUILayout.Width(nameWidth), Ctl());
+		// 译文比中文长时先把字缩小一点（最小到八成）放进去，还放不下才截短
+		string shownName = TextConverter.ForDisplay(row.Name);
+		GUIStyle nameStyle = Shrunk(line, shownName, nameWidth);
+		GUILayout.Label(Fit(shownName, nameStyle, nameWidth), nameStyle, GUILayout.Width(nameWidth), Ctl());
 		Rect nameRect = GUILayoutUtility.GetLastRect();
 		if (row.Restart)
 		{
@@ -399,7 +422,11 @@ public partial class StoryReviewPanel
 		{
 			bool open = _dropdown == row;
 			int current = Mathf.Clamp(picked, 0, row.Choices.Length - 1);
-			GUILayout.BeginVertical(GUILayout.Width(S(170)));
+			// 只在展开时套一层竖排：竖排里按钮的上下边距会多算一次，收起时直接放，和别的行一样高
+			if (open)
+			{
+				GUILayout.BeginVertical(GUILayout.Width(S(170)));
+			}
 			if (GUILayout.Button(row.Choices[current] + (open ? "  ▲" : "  ▼"), open ? _primary : _button, GUILayout.Width(S(170)), Ctl()))
 			{
 				_dropdown = open ? null : row;
@@ -421,8 +448,8 @@ public partial class StoryReviewPanel
 						_dropdown = null;
 					}
 				}
+				GUILayout.EndVertical();
 			}
-			GUILayout.EndVertical();
 		}
 		else if (row.Choices != null && value is int choice)
 		{

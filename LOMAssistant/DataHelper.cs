@@ -209,6 +209,35 @@ public static class DataHelper
 		return string.Empty;
 	}
 
+	/// <summary>
+	/// Condition 检查点现在满不满足，只读条件、不执行（Execute 会加执行次数）。条件里用到 unstable 里的变量（剧本自己在前面会改的旗标）、
+	/// 找不到检查点时返回 null。
+	/// </summary>
+	public static bool? PeekCondition(string checkpoint, ICollection<string> unstable)
+	{
+		ConditionResultConfig config = ConditionConfig();
+		ConditionResultData data = config != null && config.List != null ? config.List.Find(x => x != null && x.name == checkpoint) : null;
+		List<ConditionResultItem> items = data?.GetFieldValue<List<ConditionResultItem>>("_items");
+		if (items == null)
+		{
+			return null;
+		}
+		foreach (ConditionResultItem item in items)
+		{
+			foreach (StatCompareItem compare in item.GetFieldValue<List<StatCompareItem>>("_items") ?? new List<StatCompareItem>())
+			{
+				foreach (StatGroupVariable variable in new[] { compare.GetFieldValue<StatGroupVariable>("_value1"), compare.GetFieldValue<StatGroupVariable>("_value2") })
+				{
+					if (variable != null && unstable.Any(id => variable.name.Contains(id)))
+					{
+						return null;
+					}
+				}
+			}
+		}
+		return items.Any(item => item.Check());
+	}
+
 	/// <summary>Condition 检查点的条件文字（多组之间是「或」），找不到时返回空。</summary>
 	public static string ParseConditionCheckpoint(string checkpoint)
 	{
@@ -465,7 +494,8 @@ public static class DataHelper
 		return LocalizationManager.Instance.LocaleResolver.GetString(battleTeamStat.GetNameKey());
 	}
 
-	public static string GetEventName(PositionEventData eventData)
+	/// <summary>事件名（开发者备注）。translate：韩语界面换成韩语译名，「P_成功_001」这类按界面语言换结果词；AI 资料用中文原名，传 false。</summary>
+	public static string GetEventName(PositionEventData eventData, bool translate = true)
 	{
 		StoryMappingItem fieldValue = eventData.GetFieldValue<StoryMappingItem>("_config");
 		string text = ((fieldValue != null) ? fieldValue.name : null);
@@ -474,11 +504,10 @@ public static class DataHelper
 		{
 			text = fieldValue2;
 		}
-		// In Korean, _devNote is a Chinese developer label rather than official localized text.
-		// Match both the event ID and developer label: travel pools reuse event IDs.
-		if (TextConverter.DisplayLanguage == UiText.Korean)
-			text = EventNameKorean.Resolve(eventData, text);
-		return RichText.Golden(TextConverter.ToSimplified(text));
+		string shown = translate ? UiEventNames.Display(text) : null;
+		if (translate && NativeKorean.Enabled)
+			shown = EventNameKorean.Resolve(eventData, text);
+		return RichText.Golden(shown ?? TextConverter.ToSimplified(text));
 	}
 
 	public static string LoadLuaScript(string scriptName)

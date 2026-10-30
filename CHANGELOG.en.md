@@ -2,6 +2,32 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.2.1 (2026-10-29)
+
+- **AI Companion reply language**: follows the language of your latest message, so a question in Traditional Chinese gets a reply in Traditional Chinese; when it can't tell, it uses the UI language.
+- **AI Companion and affection**: in companion chat, "your affection for me" means her (his) affection for Zhao Huo; changes come as a confirm card instead of being written out as text.
+- **Provider presets**: Gemini now uses gemini-3.8-flash with a cap on thinking time to avoid timeouts; OpenAI deep mode uses gpt-6-sol; SiliconFlow uses DeepSeek-V4-Flash, with DeepSeek-V4-Pro for deep mode. Saved model names stay as they are; pick the provider again to get the new ones.
+
+## 3.2.0 (2026-10-29)
+
+- **Story jump**: pick a scene on the route map or story map and click **Jump here** to play from there, even one you haven't reached yet. Before the jump you see the choices along the way that affect what comes later; the progress in between is filled in the way you pick, and you can bond with one of the heroines too. A save-anywhere save is made first, so you can always go back. Can be turned off under Settings > Story. Not recommended for normal play.
+- **Story map**: every scene box lists its ways on, one per row, with a line from that row to the scene it leads to; options that stay in the scene are listed too. Hover a row for the full condition and what it changes.
+- **Route map**: the main story is one line; branches split off above and below and come back where they rejoin, with the trigger condition on each split. Stop names no longer overlap.
+- **AI Companion couldn't connect**: for some players **Test connection** and sending a message did nothing. Fixed.
+- **Faster start**: parsed scripts are kept, so they aren't all read again on every start unless the game or Coffee Companion has been updated.
+- **While studying away**: the place lists in Kongtong and Qingcheng also show the random events popup, grouped by the options in each place and listing only the options you can pick now; the Now tab no longer lists Tang clan side quests you can't reach.
+- **Option results**: the last option in a group no longer claims the changes everyone gets after the group ends.
+- **Korean UI**: random event names are in Korean; result words in names like 「P_成功_001」 follow the UI language.
+- **English UI**: the save-anywhere limit and the note on the save-anywhere tab are no longer in Chinese.
+
+## 3.1.0 (2026-10-28)
+
+- **Random events of building options**: inside a training building, hover over an option such as chopping wood or training (or select it with the arrow keys or a gamepad) to see the random events it can roll, their odds and which you have not seen; the same goes for moving and peddling in the Go out list.
+- **Now tab**: random events here that you have not seen are marked.
+- **"Not seen"**: random events with an outcome that has no dialogue leave nothing in the read log when they happen, so they are no longer always marked "Not seen".
+- **"All on" preset**: no longer turns on "Break stat cap".
+- **Settings**: setting names that did not fit in Japanese, Korean and English are shorter, and names that still don't fit are shown in a smaller font; the "Title screen partner" row is now as tall as the others.
+
 ## 3.0.9 (2026-10-28)
 
 - **Stat presets**: values you change on the Stats tab are recorded; click "Stat presets" to save them as a preset. After loading another save or starting a new game, click Apply to set them all at once; values you didn't change are left alone.

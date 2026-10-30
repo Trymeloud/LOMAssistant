@@ -394,9 +394,10 @@ public partial class AnytimeSave : MonoBehaviour
 		return reason == null;
 	}
 
-	public void SaveSlot()
+	/// <summary>存一个新的随时存档，返回文件名（存不了返回 null）。note 给了就一并写上备注（剧情跳转存「跳转前」用）。</summary>
+	public string SaveSlot(string note = null)
 	{
-		if (!CanSave(out string reason)) { Notice("暂不能保存：" + reason); return; }
+		if (!CanSave(out string reason)) { Notice("暂不能保存：" + reason); return null; }
 		try
 		{
 			var data = new SaveFile
@@ -426,9 +427,14 @@ public partial class AnytimeSave : MonoBehaviour
 			File.Move(tmp, path);
 			ReadSave(path);
 			Remember(data, name);
+			if (!string.IsNullOrEmpty(note))
+			{
+				SetNote(name, note);
+			}
 			Notice("已保存到随时存档 #" + number);
+			return name;
 		}
-		catch (Exception ex) { Notice("保存失败：" + ex.Message); LOMAssistantPlugin.LogError("随时存档保存失败: " + ex); }
+		catch (Exception ex) { Notice("保存失败：" + ex.Message); LOMAssistantPlugin.LogError("随时存档保存失败: " + ex); return null; }
 	}
 
 	private string Preview()

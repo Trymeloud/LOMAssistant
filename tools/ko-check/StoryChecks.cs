@@ -23,6 +23,12 @@ internal static class StoryChecks
         check(KoreanStoryText.Date(35) == "1년차 12월 하순", "Year end");
         check(KoreanStoryText.Date(36) == "2년차 1월 상순", "Next year");
         check(KoreanStoryText.Date(107) == "3년차 12월 하순", "Third year end");
+        check(KoreanStoryText.RouteClause("현재 시점 필요 >=1 → 현재 30 그리고 행동력 필요 >=1 → 현재 2 그리고 구력 필요 >=40 → 현재 50", _ => null)
+            == "구력>=40", "Route clause omits dates/action counts and retains native comparator");
+        check(KoreanStoryText.RouteClause("현재 시점 필요 >=1 → 현재 30\n또는 소사매 호감도 필요 >=60 → 현재 84", _ => null)
+            == "", "Route clause must not confuse another OR group with the first group");
+        check(KoreanStoryText.RouteClause("당신의 결정 (M80100) 필요 =4 → 현재 0", id => id == "M80100" ? "1. 다른 결정\n4. 서무림맹" : null)
+            == "당신의 결정: 서무림맹", "Route flag value resolves the selected numbered explanation");
         check(KoreanStoryText.Period(null, null, null, false) == "언제든지", "Unlimited mission period");
         check(KoreanStoryText.Period(null, null, null, true) == "시기 미정", "Missing date must not imply an unlimited period");
         check(KoreanStoryText.Period(null, null, 2, true) == "매달 중순", "Monthly mission");

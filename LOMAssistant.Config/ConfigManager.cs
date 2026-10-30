@@ -134,6 +134,7 @@ public static class ConfigManager
 	public static ConfigElement<bool> EnableSaveBrowser;
 
 	public static ConfigElement<bool> EnableShopAllItems;
+	public static ConfigElement<bool> EnableStoryJump;
 
 
 	public static ConfigElement<bool> EnableDebugPanel;
@@ -450,6 +451,7 @@ public static class ConfigManager
 		AutoSaveHistory = new ConfigElement<int>("AutoSaveHistory", "每类自动存档（养成/剧情/战斗）额外保留的旧档数量，0=不保留", 5);
 		EnableSaveBrowser = new ConfigElement<bool>("EnableSaveBrowser", "新版存档、读档界面：左边列表（心上人头像、备注、备注和删除按钮），右边详情（心上人立绘、任务、读档后的对白）。true=开（默认），false=用游戏原来的界面，改后重启生效", defaultValue: true);
 		EnableShopAllItems = new ConfigElement<bool>("EnableShopAllItems", "四师兄商店售卖全部物品（书籍、杂物、特殊物品；不卖《证类本草》，提前买会导致六月后山事件出 bug）。true=开，false=关", defaultValue: false);
+		EnableStoryJump = new ConfigElement<bool>("EnableStoryJump", "剧情跳转：剧情图、路线图里选中一段剧情，可以「跳到这里」直接从那一段开演（包括还没走到的），中间的旗标、任务进度按剧本补上。补剧情、收集分支用，正常游玩不建议。true=开（默认），false=关", defaultValue: true);
 		EnableDebugPanel = new ConfigElement<bool>("EnableDebugPanel", "数值面板热键（F9 打开「数值」页）。已不用：不想要就把 DebugPanelKey 设成 None", defaultValue: true);
 		DebugPanelKey = new ConfigElement<KeyCode>("DebugPanelKey", "打开数值面板的热键，如 F9 / P 等", KeyCode.F9);
 		EnableAnytimeSave = new ConfigElement<bool>("EnableAnytimeSave", "是否启用随时存档（剧情台词、选项、掷骰和养成界面都能存，每次存一个新档，不占原版存档栏）。true=开，false=关，改后重启生效", defaultValue: true);

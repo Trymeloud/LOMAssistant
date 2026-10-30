@@ -59,23 +59,27 @@ Connect a large language model with your own API key to ask about the story and 
 
 ### Story overview (Tab)
 
-- **Now**: every option and dice outcome of the current scene with its result, the branch conditions, whether the following dialogue has been read; the random events here with their odds (pick the next one); your current quests, where to trigger them and what is still missing.
+- **Now**: every option and dice outcome of the current scene with its result, the branch conditions, whether the following dialogue has been read; the random events here with their odds and which you have not seen (pick the next one); your current quests, where to trigger them and what is still missing.
 
   <img src="media/story-now.webp" width="640" alt="Now: this scene's options grouped by choice, stat gains in green and losses in red; current quests">
 
-- **Route map**: the whole main story laid out on a calendar, branches as separate lanes, side quests below; ticks mark what this playthrough has done. Click a stop for when, where and under which conditions it triggers. Search by quest, place, dialogue or flag (a flag result lists the scenes that change or check it).
+- **Route map**: the whole main story laid out as one line along the calendar; branches split off above and below and come back to it where they rejoin, with the trigger condition on each split; side quests below; ticks mark what this playthrough has done. Click a stop for when, where and under which conditions it triggers. Search by quest, place, dialogue or flag (a flag result lists the scenes that change or check it).
 
   <img src="media/story-route.webp" width="640" alt="Route map: the main story as stops on a calendar, side quests below">
 
 - **Romance routes**: pick a love interest on the route map to light up only her scenes and see each step, whether it is done and where to get it.
 
-- **Story map**: each quest as a flow chart, with the option or condition on every path.
+- **Story map**: each quest as a flow chart. Every scene box lists its ways on (options, dice, conditions) one per row, with a line from that row to the scene it leads to; options that stay in the scene are listed too. Hover a row for the full condition and what it changes.
 
   <img src="media/story-flow.webp" width="640" alt="Story map: options, conditions and destinations between story segments">
 
 - **Branch saves**: progress is recorded when the game autosaves at story save points and at the start of each period; click **Replay from here** to go back and try another path. Separate per save, uses no save slots, synced with Steam Cloud.
 
   <img src="media/story-nodes.webp" width="640" alt="Branch saves: recorded story segments by date, replay or delete">
+
+- **Story jump**: pick a scene on the route map or story map and click **Jump here** to play from there, even one you haven't reached yet. Handy for filling in the story or collecting endings on another route. Before the jump you see the choices along the way that affect what comes later; the progress in between is filled in the way you pick, and you can bond with one of the heroines too. A save-anywhere save is made first, so you can always go back. The story in between isn't actually played, so now and then things may not line up; not recommended for normal play.
+
+  <img src="media/story-jump.webp" width="640" alt="Story jump: before jumping it lists the quest, date and changes filled in, lets you bond with someone, and lets you pick each fork on the way">
 
 - **Collection**: records from all playthroughs. Story counts how much of each quest's dialogue you have read; endings, deaths, achievements and ending CGs show their gallery numbers and whether you have them. For anything missing it says where and how to get it. Each entry lists the quests that lead to it; click one to open that quest's story map. On the ending CG page, **Watch the credits** replays the end credits in a story scene; press Esc to stop.
 
@@ -92,7 +96,7 @@ Connect a large language model with your own API key to ask about the story and 
 
   <img src="media/event-picker.webp" width="480" alt="Pick random events: the events that can trigger, their odds and changes">
 
-- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit. Turn on "Map hints: triggerable only" in settings to list only the quests that would trigger now; the rest are only counted.
+- **Map event hints**: hover over a building on the training map to see its main and side quests (can they trigger, conditions) and the odds of its random events; buildings with a quest you can trigger now stay lit. Turn on "Map hints: triggerable only" in settings to list only the quests that would trigger now; the rest are only counted. Inside a building, hover over an option such as chopping wood or training to see the random events it can roll, their odds and which you have not seen; the same goes for moving and peddling in the Go out list.
 - **Item uses** (off by default, may reveal quest names): item descriptions in the bag and shops end with what using the item does and which stories check for it or take it. Setting: "Show item uses".
 - **Branch panel** (off by default, spoilers): lists the conditions of each branch check on the left, met in green and unmet in red.
 
@@ -173,7 +177,7 @@ Changing values or flags at random can break the story; save first.
 
 **Option results missing, dice cannot be picked?** An older mod of the same kind is installed. The installer handles this; for manual installs, remove the old mods from `BepInEx\plugins`.
 
-**Works with 邪神认知污染ON and 剧情随行?** Yes. For 邪神认知污染ON install only 「1_必装_插件」, not 「2_只有没装过BepInEx才装」 (if you did, run this mod's installer again). Clashing hotkeys are given up automatically; bind another under **Hotkeys**.
+**Works with other mods?** Yes, mods whose features don't overlap can be installed alongside it. If a hotkey clashes, this mod gives way automatically, and you can bind another key under Settings > Hotkeys. If another mod ships its own BepInEx, run this mod's installer again after installing it.
 
 **Linux / Steam Deck?** Install manually and add `WINEDLLOVERRIDES="winhttp=n,b" %command%` to the Steam launch options.
 

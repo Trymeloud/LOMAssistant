@@ -26,10 +26,10 @@ public partial class StoryReviewPanel
 	private int _presetConfirm = -1;
 	private float _presetConfirmUntil;
 
-	// 作弊类：无限修炼锻造、不花银两从「辅助」起打开，其余只有「全开」打开（「决斗敌方不受伤」哪一档都不开）
+	// 作弊类：无限修炼锻造、不花银两从「辅助」起打开，其余只有「全开」打开（「决斗敌方不受伤」「突破属性上限」哪一档都不开）
 	private static (IConfigElement, object)[] Cheats(bool training, bool on) => new (IConfigElement, object)[]
 	{
-		(ConfigManager.BreakStatLimit, on),
+		(ConfigManager.BreakStatLimit, false),
 		(ConfigManager.CheatUnlimitedTraining, training),
 		(ConfigManager.CheatUnlimitedUpgrade, training),
 		(ConfigManager.CheatFreeUpgradeMoney, training),
@@ -46,7 +46,7 @@ public partial class StoryReviewPanel
 		{
 			Name = "原汁原味",
 			Tagline = "建议新玩家选择",
-			Note = "关掉选项提示、骰子和随机事件自选、地图提示、直接获胜等辅助和全部作弊，只留随时存档、节点存档、提速这些不影响游戏的功能",
+			Note = "关掉选项提示、骰子和随机事件自选、地图提示、直接获胜、剧情跳转等辅助和全部作弊，只留随时存档、节点存档、提速这些不影响游戏的功能",
 			Values = new (IConfigElement, object)[]
 			{
 				(ConfigManager.ShowBranchChecks, false),
@@ -64,13 +64,14 @@ public partial class StoryReviewPanel
 				(ConfigManager.EnableDuelActionForecast, false),
 				(ConfigManager.EnableLibraryDisplay, false),
 				(ConfigManager.EnableShopAllItems, false),
+				(ConfigManager.EnableStoryJump, false),
 			}.Concat(Cheats(false, false)).ToArray(),
 		},
 		new Preset
 		{
 			Name = "辅助",
 			Tagline = "建议多周目玩家选择",
-			Note = "选项后果、骰子自选、地图提示、空过、直接获胜按钮、无限修炼锻造和不花银两打开；分支小窗、旗标提示、随机事件自选和其他作弊关闭",
+			Note = "选项后果、骰子自选、地图提示、空过、直接获胜按钮、无限修炼锻造和不花银两打开；分支小窗、旗标提示、随机事件自选、剧情跳转和其他作弊关闭",
 			Values = new (IConfigElement, object)[]
 			{
 				(ConfigManager.ShowBranchChecks, false),
@@ -88,13 +89,14 @@ public partial class StoryReviewPanel
 				(ConfigManager.EnableDuelActionForecast, false),
 				(ConfigManager.EnableLibraryDisplay, true),
 				(ConfigManager.EnableShopAllItems, false),
+				(ConfigManager.EnableStoryJump, false),
 			}.Concat(Cheats(true, false)).ToArray(),
 		},
 		new Preset
 		{
 			Name = "全开",
 			Tagline = "建议补全剧情的老玩家选择",
-			Note = "在「辅助」之上再打开分支小窗、旗标提示、随机事件自选、决斗敌方行动预测、四师兄卖全部物品，以及突破上限、战斗无敌等作弊",
+			Note = "在「辅助」之上再打开分支小窗、旗标提示、随机事件自选、决斗敌方行动预测、四师兄卖全部物品、剧情跳转，以及战斗无敌等作弊",
 			Values = new (IConfigElement, object)[]
 			{
 				(ConfigManager.ShowBranchChecks, true),
@@ -112,6 +114,7 @@ public partial class StoryReviewPanel
 				(ConfigManager.EnableDuelActionForecast, true),
 				(ConfigManager.EnableLibraryDisplay, true),
 				(ConfigManager.EnableShopAllItems, true),
+				(ConfigManager.EnableStoryJump, true),
 			}.Concat(Cheats(true, true)).ToArray(),
 		},
 	};

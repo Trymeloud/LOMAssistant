@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace LOMAssistant.Features.Story;
 
-// 路线图：主线任务是站点，按剧本里写明的「下一个主线任务」连线（没写明、按日期接上的画虚线）；
+// 一条贯穿全程的主线（这一局走过的优先）画在同一条车道上，岔路分到上下的车道、线上写触发条件。横轴是游戏日历，支线按任务组挂在下面。
 // 一个站点往后岔出几条路时，第一条留在原车道，其余分到上下的车道。横轴是游戏日历，支线按任务组挂在下面。
 public partial class StoryReviewPanel
 {
@@ -17,6 +17,10 @@ public partial class StoryReviewPanel
 		public readonly List<(float X, int Date)> Columns = new List<(float, int)>();
 		public readonly List<SideStory> Side = new List<SideStory>();
 		public float Width, Height, MainBottom, LabelWidth;
+		/// <summary>岔开的线上写的触发条件（短），按 (从, 到)。</summary>
+		public readonly Dictionary<(string, string), string> EdgeLabels = new Dictionary<(string, string), string>();
+		/// <summary>一条贯穿全程的主线（这一局走过的优先），画在同一条车道上。</summary>
+		public readonly HashSet<string> Spine = new HashSet<string>(StringComparer.Ordinal);
 	}
 
 	private sealed class SideStory
@@ -181,41 +185,119 @@ public partial class StoryReviewPanel
 			last = d;
 		}
 
-		// 车道：沿着连线往下排，岔路的第一条留在原车道，其余就近找空车道
+		// 车道：先挑一条贯穿全程的主线放在第 0 道（每到一个岔口，走这一局走过的那条；都没走过就走后面还长的那条），
+		// 其余的站从主线上下两边就近找空车道，岔路的第一条接着沿用岔出去的那条车道，合流时回到主线
+		var children = edges.GroupBy(e => e.From).ToDictionary(g => g.Key, g => g.Select(e => e.To).Distinct().OrderBy(k => date[k] ?? int.MaxValue).ThenBy(k => k, StringComparer.Ordinal).ToList(), StringComparer.Ordinal);
+		var depth = new Dictionary<string, int>(StringComparer.Ordinal);
+		int Depth(string key, int guard)
+		{
+			if (depth.TryGetValue(key, out int d))
+			{
+				return d;
+			}
+			depth[key] = 0;
+			int best = 0;
+			if (guard < 200 && children.TryGetValue(key, out var next))
+			{
+				foreach (string n in next.Where(n => date[n] >= date[key]))
+				{
+					best = Mathf.Max(best, 1 + Depth(n, guard + 1));
+				}
+			}
+			return depth[key] = best;
+		}
+		var placedKeys = new HashSet<string>(placed.Select(m => m.Key), StringComparer.Ordinal);
+		string at = placed.Count > 0 ? placed[0].Key : null;
+		while (at != null && layout.Spine.Add(at))
+		{
+			at = children.TryGetValue(at, out var next) ? next.Where(n => placedKeys.Contains(n) && date[n] >= date[at] && !layout.Spine.Contains(n))
+				.OrderByDescending(n => mains[n].Visited ? 1 : 0).ThenByDescending(n => Depth(n, 0)).FirstOrDefault() : null;
+		}
+		// 名字按实际显示的宽度算，同一条车道上两站的名字不叠在一起
+		var nameStyle = new GUIStyle(_boxTitle) { fontSize = Mathf.Max(9, Mathf.RoundToInt(_boxTitle.fontSize * _routeZoom)), wordWrap = false };
+		var widths = placed.ToDictionary(m => m.Key, m => Mathf.Max(layout.LabelWidth * 0.6f, nameStyle.CalcSize(new GUIContent(TextConverter.ForDisplay("✓ " + Short(m.Title, 9)))).x), StringComparer.Ordinal);
+		var usedWidth = new Dictionary<int, List<(float X, float W)>>();
+		bool Free(int l, float px, float pw) => !usedWidth.TryGetValue(l, out var xs) || xs.All(v => Mathf.Abs(v.X - px) >= (v.W + pw) / 2f + Z(14));
 		var lane = new Dictionary<string, int>(StringComparer.Ordinal);
-		var used = new Dictionary<int, List<float>>();
-		var children = edges.GroupBy(e => e.From).ToDictionary(g => g.Key, g => g.Select(e => e.To).OrderBy(k => date[k] ?? int.MaxValue).ThenBy(k => k, StringComparer.Ordinal).ToList(), StringComparer.Ordinal);
-		bool Free(int l, float px) => !used.TryGetValue(l, out var xs) || xs.All(v => Mathf.Abs(v - px) >= layout.LabelWidth + Z(8));
-		foreach (StoryMission m in placed)
+		void Take(string key, int l)
+		{
+			lane[key] = l;
+			if (!usedWidth.TryGetValue(l, out var list))
+			{
+				usedWidth[l] = list = new List<(float, float)>();
+			}
+			list.Add((XOf(layout, date[key].Value), widths[key]));
+		}
+		// 主线上同一天的两站会落在同一个横坐标：第一站占中间这道，后面的挪到旁边空着的车道
+		int Nearest(float px, float pw, bool allowSpine)
+		{
+			for (int step = 0; step < 24; step++)
+			{
+				int candidate = step == 0 ? 0 : step % 2 == 1 ? (step + 1) / 2 : -(step / 2);
+				if ((allowSpine || candidate != 0) && Free(candidate, px, pw))
+				{
+					return candidate;
+				}
+			}
+			return allowSpine ? 0 : 1;
+		}
+		foreach (StoryMission m in placed.Where(m => layout.Spine.Contains(m.Key)))
+		{
+			Take(m.Key, Nearest(XOf(layout, date[m.Key].Value), widths[m.Key], true));
+		}
+		foreach (StoryMission m in placed.Where(m => !layout.Spine.Contains(m.Key)))
 		{
 			float px = XOf(layout, date[m.Key].Value);
 			var preds = edges.Where(e => e.To == m.Key && lane.ContainsKey(e.From)).Select(e => e.From).ToList();
-			int want = 0;
-			string heir = preds.FirstOrDefault(p => children.TryGetValue(p, out var c) && c[0] == m.Key);
-			if (heir != null)
-			{
-				want = lane[heir];
-			}
-			else if (preds.Count > 0)
-			{
-				want = lane[preds[0]] + 1;
-			}
+			// 接着前一站所在的岔路车道；从主线上岔出来的，从主线下面一道开始找
+			string from = preds.FirstOrDefault(p => !layout.Spine.Contains(p)) ?? preds.FirstOrDefault();
+			int want = from == null ? 1 : lane[from] == 0 ? 1 : lane[from];
 			int chosen = want;
-			for (int step = 0; step < 20; step++)
+			for (int step = 0; step < 24; step++)
 			{
 				int candidate = want + (step % 2 == 0 ? step / 2 : -(step / 2 + 1));
-				if (Free(candidate, px))
+				if (candidate != 0 && Free(candidate, px, widths[m.Key]))
 				{
 					chosen = candidate;
 					break;
 				}
 			}
-			lane[m.Key] = chosen;
-			if (!used.TryGetValue(chosen, out var list))
+			Take(m.Key, chosen);
+		}
+		// 岔开的线上写触发条件：去掉每条都有的时间、行动次数，留第一条，写短
+		foreach (var (from, to, byDate) in edges)
+		{
+			if (!children.TryGetValue(from, out var outs) || outs.Count < 2 || !mains.TryGetValue(to, out StoryMission target))
 			{
-				used[chosen] = list = new List<float>();
+				continue;
 			}
-			list.Add(px);
+			// 几组条件之间是「\n或 」；旗标说明里自己也会换行（「你的决策」后面一行一个选项），换成空格
+			if (NativeKorean.Enabled)
+			{
+				string preview = KoreanStoryText.RouteClause(RichText.Strip(StoryAtlas.ConditionText(target)),
+					id => TextConverter.ToSimplified(MissionManagerData.Instance?.GetFlag(id)?.DevNote ?? ""));
+				if (preview.Length > 0) layout.EdgeLabels[(from, to)] = Short(preview, 12);
+				continue;
+			}
+			string first = RichText.Strip(StoryAtlas.ConditionText(target)).Split(new[] { "\n或 " }, StringSplitOptions.None)[0].Replace("\r", "").Replace("\n", " ");
+			string clause = first.Split(new[] { " 且 " }, StringSplitOptions.None).Select(c => c.Trim())
+				.FirstOrDefault(c => c.Length > 0 && !c.Contains("时间") && !c.Contains("時間") && !c.Contains("行动次数") && !c.Contains("行動次數"));
+			if (clause == null)
+			{
+				continue;
+			}
+			// 条件写成「名字 (编号) 需=4 → 当前0」，名字只是旗标说明的第一行。说明后面几行一行一个选项（「你的决策」：1. 退隐江湖 2. 战他娘亲 …）
+			// 的，按要的数字查出那一项，写成「你的决策：西武林盟」
+			var flag = System.Text.RegularExpressions.Regex.Match(clause, @"^(.+?) \(([A-Za-z0-9_]+)\) 需=(\d+)");
+			string note = flag.Success ? MissionManagerData.Instance?.GetFlag(flag.Groups[2].Value)?.DevNote : null;
+			var pick = note != null ? System.Text.RegularExpressions.Regex.Match(TextConverter.ToSimplified(note), @"(?:^|\s)" + flag.Groups[3].Value + @"[.．、:：]\s*([^\s\r\n]+)") : System.Text.RegularExpressions.Match.Empty;
+			clause = pick.Success
+				? flag.Groups[1].Value.Trim() + "：" + pick.Groups[1].Value
+				: System.Text.RegularExpressions.Regex.Replace(clause, @" → 当前.*$| \([A-Za-z0-9_]+\)", "").Replace(" 需", "").Trim();
+			if (clause.Length > 0)
+			{
+				layout.EdgeLabels[(from, to)] = Short(clause, 12);
+			}
 		}
 		int minLane = lane.Values.DefaultIfEmpty(0).Min(), maxLane = lane.Values.DefaultIfEmpty(0).Max();
 		float top = Z(70), laneHeight = Z(96);
@@ -359,7 +441,17 @@ public partial class StoryReviewPanel
 				}
 				StoryMission ma = StoryAtlas.Find(from), mb = StoryAtlas.Find(to);
 				bool walked = ma != null && mb != null && ma.Visited && mb.Visited;
-				Elbow(new Vector2(a.x + Z(10), a.y), new Vector2(b.x - Z(10), b.y), walked ? Jade : InkLine, walked ? Z(3) : Z(2), byDate, b.x - Z(26));
+				// 岔开的线在出发的那一站后面就拐，合流的线在到的那一站前面才拐，看得出从哪分、到哪合
+				int outs = layout.Edges.Count(x => x.From == from), ins = layout.Edges.Count(x => x.To == to);
+				float bend = outs > 1 && ins <= 1 ? a.x + Z(26) : b.x - Z(26);
+				Elbow(new Vector2(a.x + Z(10), a.y), new Vector2(b.x - Z(10), b.y), walked ? Jade : InkLine, walked ? Z(3) : Z(2), byDate, bend);
+				// 岔开的线上写它的触发条件，写在拐过去以后那段横线上面
+				if (layout.EdgeLabels.TryGetValue((from, to), out string why) && Mathf.Abs(a.y - b.y) > 1f)
+				{
+					var whyStyle = new GUIStyle(tiny) { alignment = TextAnchor.LowerLeft, wordWrap = false, clipping = TextClipping.Overflow };
+					float whyWidth = whyStyle.CalcSize(new GUIContent(TextConverter.ForDisplay(why))).x + Z(4);
+					GUI.Label(new Rect(bend + Z(6), b.y - Z(22), whyWidth, Z(18)), "<color=#A3302A>" + why + "</color>", whyStyle);
+				}
 			}
 		}
 		// 站点：墨圈，读得越多圈里墨越浓；走过的名字前打勾，当前主线盖一枚朱砂印
@@ -481,6 +573,7 @@ public partial class StoryReviewPanel
 		{
 			OpenFlow(m);
 		}
+		JumpButton(m, m.StartScript);
 		string conditions = StoryAtlas.ConditionText(m);
 		if (conditions.Length > 0)
 		{
@@ -757,7 +850,8 @@ public partial class StoryReviewPanel
 		foreach (FlowBox box in boxes.Take(40))
 		{
 			bool main = trunk.Contains(box);
-			string entry = main ? "" : Cached((box, "entry"), () => string.Join("；", graph.Links.Where(l => l.To == box && l.Text.Length > 0).Select(l => l.Text.Replace("\n", " / ")).ToArray()));
+			// 岔路写怎么走进来：连进来的那几行去处的短说明（完整条件在剧情图里悬停看）
+			string entry = main ? "" : Cached((box, "entry"), () => string.Join("；", graph.Boxes.SelectMany(b => b.Ways).Where(w => w.To == box && w.Short != "接着" && (!NativeKorean.Enabled || w.Short != "이어서")).Select(w => w.Short).Distinct().Take(4).ToArray()));
 			string head = (main ? "<b>" + StoryUi.Text(KoreanStoryMessage.Trunk, "主干") + "</b>　" : "<color=#73644F>" + StoryUi.Text(KoreanStoryMessage.Branch, "岔路") + "</color>　") + Short(box.Title, 18) + (box.Read != null ? "　<color=#73644F>" + StoryUi.Text(KoreanStoryMessage.ReadPercent, "读过 {0}%", box.Read) + "</color>" : "");
 			if (GUILayout.Button(head + (entry.Length > 0 ? "\n<size=" + Mathf.RoundToInt(14 * _scale) + "><color=#73644F>" + entry + "</color></size>" : ""),
 				new GUIStyle(_button) { alignment = TextAnchor.MiddleLeft, wordWrap = true, richText = true }))

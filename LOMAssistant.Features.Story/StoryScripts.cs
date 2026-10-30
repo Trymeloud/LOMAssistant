@@ -47,6 +47,8 @@ public sealed class StoryScript
 	public List<string> Records = new List<string>();
 	/// <summary>菜单里的选项（每个 choose 一组），收录节点时列出来。</summary>
 	public List<List<StoryStep>> Menus = new List<List<StoryStep>>();
+	/// <summary>每个菜单出现时所在的分岔（和 Menus 一一对应）：整组菜单放在某个条件分支里的（和她结缘才有的那组），不在那条路上就不会出现。</summary>
+	public List<List<StoryStep>> MenuPaths = new List<List<StoryStep>>();
 	/// <summary>结局（汗青书）、死亡（生死簿）的触发位置：在哪条分岔路上、哪个条目。</summary>
 	public List<(List<StoryStep> Path, bool Death, string Id)> Endings = new List<(List<StoryStep>, bool, string)>();
 	/// <summary>剧本里直接解锁的成就（风云史，AddAchievementLib）：在哪条分岔路上、哪个条目。</summary>
@@ -60,11 +62,32 @@ public sealed class StoryScript
 	public List<(List<StoryStep> Path, string Text)> Effects = new List<(List<StoryStep>, string)>();
 	// Analysis and reverse lookup continue to use canonical Effects above.
 	// Display effects retain the action data so changing UI language cannot change analysis.
+	[Newtonsoft.Json.JsonIgnore]
 	public List<(List<StoryStep> Path, LOMAssistant.LuaParse.Action Action)> DisplayEffects = new List<(List<StoryStep>, LOMAssistant.LuaParse.Action)>();
+	// Cache raw action inputs only. Action construction/localization must run on Unity's main thread.
+	private List<(List<StoryStep> Path, LOMAssistant.LuaParse.ActionType Type, string Content)> _cachedDisplayEffects;
+	[Newtonsoft.Json.JsonProperty(ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace)]
+	public List<(List<StoryStep> Path, LOMAssistant.LuaParse.ActionType Type, string Content)> CachedDisplayEffects
+	{
+		get => _cachedDisplayEffects ?? DisplayEffects.Select(e => (e.Path, e.Action.Type, e.Action.Content)).ToList();
+		set => _cachedDisplayEffects = value;
+	}
+	internal void RestoreDisplayEffects()
+	{
+		if (_cachedDisplayEffects == null) return;
+		DisplayEffects = _cachedDisplayEffects.Select(e => (e.Path, new LOMAssistant.LuaParse.Action(e.Type, e.Content))).ToList();
+		_cachedDisplayEffects = null;
+	}
 	/// <summary>改旗标、给收物品的原始调用（SetFlag、AddMisc……）和编号、数值，旗标、物品反查用。</summary>
 	public List<(List<StoryStep> Path, string Method, string Id, string Value)> Modifies = new List<(List<StoryStep>, string, string, string)>();
 	/// <summary>剧本里用到的条件检查点（分支判断 Switch、选项条件 Condition），旗标、物品反查用。</summary>
 	public List<(List<StoryStep> Path, string Checkpoint, bool Switch)> Checks = new List<(List<StoryStep>, string, bool)>();
+
+	/// <summary>
+	/// 跳转补进度用：改状态的调用（旗标、剧情记录、主线支线任务、物品、好感、数值），记在发生时所在的分岔下，按剧本顺序。
+	/// Args 是括号里的参数（字符串去掉引号）。
+	/// </summary>
+	public List<(List<StoryStep> Path, string Method, string[] Args)> Commands = new List<(List<StoryStep>, string, string[])>();
 
 	/// <summary>走这个去处一路上会有的变化。</summary>
 	public List<string> EffectsOn(StoryExit exit)
@@ -106,6 +129,8 @@ public static class StoryScripts
 	private static readonly Regex SetCharacter = new Regex(@"^setcharacter\(characters\.Get\(""(\w+)""\)");
 	private static readonly Regex AddStory = new Regex(@"AddStory\(""([^""]+)""\)");
 	private static readonly Regex Modify = new Regex(@"statmodifymanager\.(?!GetDisplayTime|AddStory|Mission|IsTrigger|ResetTalkFlag)\w+\(.*?\)");
+	private static readonly Regex Command = new Regex(@"statmodifymanager\.(SetFlag|AddFlag|AddStory|Mission|IsTriggerSubMission|AddBook|RemoveBook|AddMisc|RemoveMisc|AddSpecial|RemoveSpecial|Character|SetCharacter|Player|SetPlayer)\(([^()]*)\)");
+	private static readonly Regex CommandArg = new Regex(@"""([^""]*)""|(-?\d+)");
 	private static readonly Regex Tracked = new Regex(@"^statmodifymanager\.(SetFlag|AddFlag|AddBook|RemoveBook|AddMisc|RemoveMisc|AddSpecial|RemoveSpecial|Character)\(""(\w+)""(?:, *(-?\d+))?");
 
 	/// <summary>读过的全部剧本（生成时间线时一口气读进来的）。</summary>
@@ -143,6 +168,7 @@ public static class StoryScripts
 	{
 		if (script != null)
 		{
+			script.RestoreDisplayEffects();
 			Outlines[script.Name] = script;
 		}
 	}
@@ -216,6 +242,7 @@ public static class StoryScripts
 				var options = tables.TryGetValue(m.Groups[2].Value, out var t) ? t : new Dictionary<int, StoryStep>();
 				choices[m.Groups[1].Value] = (StoryStep.Option, options);
 				script.Menu = true;
+				script.MenuPaths.Add(CurrentPath(blocks, choices, switches));
 				script.Menus.Add(options.OrderBy(p => p.Key).Select(p => p.Value).Where(s => s.Key.Length > 0)
 					.Select(s => new StoryStep { Kind = StoryStep.Option, Key = s.Key, Requirement = s.Requirement, Range = s.Range }).ToList());
 				continue;
@@ -286,6 +313,11 @@ public static class StoryScripts
 			foreach (Match t in AddStory.Matches(line))
 			{
 				script.Records.Add(t.Groups[1].Value);
+			}
+			foreach (Match c in Command.Matches(line))
+			{
+				string[] args = CommandArg.Matches(c.Groups[2].Value).Cast<Match>().Select(x => x.Groups[1].Success ? x.Groups[1].Value : x.Groups[2].Value).ToArray();
+				script.Commands.Add((CurrentPath(blocks, choices, switches), c.Groups[1].Value, args));
 			}
 			foreach (Match t in Modify.Matches(line))
 			{

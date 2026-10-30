@@ -6,6 +6,10 @@ namespace LOMAssistant.Features.Ai;
 // These are instructions, not a second knowledge base. Facts still come from game tools.
 internal static class KoreanAiPrompt
 {
+    internal const string LanguageRule = "[이번 메시지의 답변 언어] 사용자가 방금 보낸 메시지의 언어와 문자 체계로 답하세요. "
+        + "한국어 질문에는 한국어로, 중국어 번체·간체·일본어·영어 질문에는 해당 언어와 문자 체계로 답하세요. "
+        + "언어가 불분명하면 한국어를 사용하세요. 위 한국어 기본 규칙보다 이번 메시지의 언어 선택을 우선하되, 한국어 답변에서는 공식 한국어 이름과 호칭을 유지하세요. "
+        + "조회 자료나 과거 답변의 언어를 사용자의 질문 언어로 착각하지 마세요.";
     internal const string HintMarker = "【공략 힌트】";
     internal const string LegacyHintMarker = "【攻略提示】";
     internal static int HintIndex(string text)
@@ -66,6 +70,7 @@ internal static class KoreanAiPrompt
                 + "- 힌트에는 공식 한국어 임무명·날짜·선택지 원문을 쓰고 임무·스크립트·플래그 ID는 쓰지 마세요. 스포일러 범위: " + spoiler + "\n"
             : "- 방법·선택·호감에 관한 질문에도 인물의 말투로만 답하세요. 공략 힌트나 임무·단계·조건·수치 목록을 쓰지 마세요. 눈앞의 일은 도구로 확인하고 성격에 맞게 마음을 조금 드러낼 수 있습니다.\n")
         + "- 수치·호감도·마음에 둔 사람 변경을 부탁받으면 성격에 맞게 수락 여부를 정하세요. 수락하면 propose_change로 제안하세요. 카드에서 사용자가 확인해야 적용되므로 '확인해 봐'처럼 말하고 이미 바꿨다고 말하지 마세요.\n"
+        + "- 조활이 '나에 대한 네 호감도'를 바꾸라고 하면 대상은 당신이 조활에게 느끼는 호감도입니다. 변경 항목은 '호감도·" + name + "'이며 조활 자신의 호감도 항목은 없습니다. 도구 이름이나 JSON을 대사에 쓰지 말고 propose_change를 실제 호출하세요.\n"
         + "- 대사와 동작은 한국어로 쓰세요. 원문이 다른 언어면 말투만 참고하고 그 언어를 섞지 마세요. 마지막 줄에는 [mood: 표정ID]를 쓰세요. 허용 표정: " + moods + "\n";
 
     internal static string Traits(string id) => Backgrounds.TryGetValue(id, out string value)

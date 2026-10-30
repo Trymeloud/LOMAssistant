@@ -1,0 +1,117 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.Linq;
+using System.Reflection;
+using System.Threading;
+using System.Text.RegularExpressions;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
+using LOMAssistant.Features.Ai;
+using LOMAssistant.Features.Story;
+using LOMAssistant;
+
+namespace LOMAssistant.Config { }
+namespace OBB.Framework.Data { public class StoryMappingItem { public string name; } }
+namespace OBB.Framework.Utils {
+    public static class FieldRead {
+        public static T GetFieldValue<T>(this object o,string name)=>(T)o.GetType().GetField(name).GetValue(o);
+    }
+}
+namespace Mortal.Story {
+    public class PositionEventData { public string name,_devNote; public OBB.Framework.Data.StoryMappingItem _config; }
+    public class PositionResultData { public List<PositionEventData> List; }
+    public class PositionResultConfig { public List<PositionResultData> List; }
+}
+
+namespace BepInEx {
+    public static class Paths {
+        public static string CachePath=Path.Combine(AppContext.BaseDirectory,"migration-cache-"+Guid.NewGuid().ToString("N"));
+    }
+}
+namespace UnityEngine { public static class Application { public static string version="test-game-version"; } }
+
+public static class MigrationFixtureTests
+{
+    public static void Run(Action<bool,string> check)
+    {
+        var bodyMethod=typeof(LlmClient).GetMethod("OpenAiBody",BindingFlags.NonPublic|BindingFlags.Static);
+        JObject Body(string url,string model) => (JObject)bodyMethod.Invoke(null,new object[]{model,"한국어",new List<ChatMessage>{new ChatMessage{Text="안녕"}},true,2000,url});
+        AiChat.Deep=false;
+        var gemini=Body("https://generativelanguage.googleapis.com/v1beta/openai","gemini-3.8-flash");
+        check((string)gemini["reasoning_effort"]=="low" && (int)gemini["max_tokens"]==2000,"Gemini normal mode reasoning and output limit");
+        check(gemini["tools"] is JArray ts && ts.Count==15,"Gemini retains all 15 tool schemas");
+        AiChat.Deep=true;
+        check((string)Body("https://generativelanguage.googleapis.com/v1beta/openai","gemini-3.8-flash")["reasoning_effort"]=="medium","Gemini deep mode reasoning");
+        check(Body("https://custom.example/v1","gemini-3.8-flash")["reasoning_effort"]==null,"Gemini-specific parameter must not change custom gateways");
+        check((string)Body("https://api.openai.com/v1","gpt-6-sol")["reasoning_effort"]=="none","Upstream Sol tool compatibility retained");
+        AiChat.Deep=false;
+
+        foreach(var row in UiEventNames.Table)
+            check(UiEventNames.Display(row[0])==row[1]&&!Regex.IsMatch(row[1],"[一-鿿]"),"Upstream event name: "+row[0]);
+        foreach(string raw in new[]{"大失敗","大成功","失敗","成功","正常","其他","特殊"})
+        {
+            string shown=UiEventNames.Display("P_"+raw+"_009");
+            check(shown.StartsWith("P_")&&shown.EndsWith("_009")&&!Regex.IsMatch(shown,"[一-鿿]"),"Generic event result keeps prefix and number: "+raw);
+        }
+        typeof(EventNameKorean).GetField("loaded",BindingFlags.Static|BindingFlags.NonPublic).SetValue(null,true);
+        var overrides=(EventNameTable)typeof(EventNameKorean).GetField("Overrides",BindingFlags.Static|BindingFlags.NonPublic).GetValue(null);
+        overrides.Add("Travel_F_01","P_失敗_001","실패 이벤트 001");
+        overrides.Add("Travel_F_01","遭遇地獄道鬼卒攔路","지옥도 귀졸의 길막");
+        var travel=new Mortal.Story.PositionEventData{name="Travel_F_01"};
+        check(EventNameKorean.Resolve(travel,"P_失敗_001")=="실패 이벤트 001","Existing contextual override precedes upstream generic event name");
+        check(EventNameKorean.Resolve(travel,"遭遇地獄道鬼卒攔路")=="지옥도 귀졸의 길막","Reused ID resolves by original label");
+        check(EventNameKorean.Resolve(travel,"P_大成功_999")=="P_대성공_999","New unknown-ID generic result uses upstream fallback");
+        TextConverter.DisplayLanguage=UiText.English;
+        check(UiEventNames.Display("P_大成功_009")=="P_Critical success_009","Upstream generic English result");
+        check(EventNameKorean.Resolve(travel,"P_失敗_001")=="P_失敗_001","Korean event overrides do not alter other languages");
+        TextConverter.DisplayLanguage=UiText.Korean;
+
+        var block=typeof(LOMAssistant.LuaParse.LuaParser).GetMethod("BranchBlock",BindingFlags.NonPublic|BindingFlags.Static);
+        string[] lua={"if choice_fixture == 1 then","--index:O_A","statmodifymanager.Player(\"money\", 1)","elseif choice_fixture == 2 then","--index:O_B","if condition then","statmodifymanager.Player(\"money\", 2)","end","end","statmodifymanager.Player(\"money\", 99)"};
+        string first=(string)block.Invoke(null,new object[]{lua,1});
+        string last=(string)block.Invoke(null,new object[]{lua,4});
+        check(first.Contains(", 1)")&&!first.Contains(", 2)")&&!first.Contains(", 99)"),"First option excludes sibling and shared effects");
+        check(last.Contains(", 2)")&&!last.Contains(", 99)"),"Last option excludes post-menu shared effects but retains nested branch");
+        check(block.Invoke(null,new object[]{new[]{"unrelated()","--index:O_X","other()"},1})==null,"Non-choice marker retains upstream fallback");
+
+        var step=new StoryStep{Kind=StoryStep.Option,Key="OPTION_A"};
+        var path=new List<StoryStep>{step};
+        var script=new StoryScript{Name="cache_fixture"};
+        script.Effects.Add((path,"money -10"));
+        script.Commands.Add((path,"SetFlag",new[]{"M50009","1"}));
+        script.Menus.Add(new List<StoryStep>{step});
+        script.MenuPaths.Add(new List<StoryStep>());
+        script.DisplayEffects.Add((path,new LOMAssistant.LuaParse.Action(LOMAssistant.LuaParse.ActionType.ModifyAction,"money -10")));
+        string json=JsonConvert.SerializeObject(script);
+        check(!json.Contains("\"Description\"")&&!json.Contains("\"DisplayEffects\""),"Background cache must never serialize localized Action objects");
+        int constructors=LOMAssistant.LuaParse.Action.ConstructorCalls;
+        var copy=System.Threading.Tasks.Task.Run(()=>JsonConvert.DeserializeObject<StoryScript>(json)).GetAwaiter().GetResult();
+        check(LOMAssistant.LuaParse.Action.ConstructorCalls==constructors && copy.DisplayEffects.Count==0,"Cache load must not construct game actions on background thread");
+        StoryScripts.Remember(copy);
+        check(LOMAssistant.LuaParse.Action.ConstructorCalls==constructors+1 && copy.DisplayEffects.Count==1,"Remember restores cached presentation actions on main thread");
+        check(copy.DisplayEffects[0].Path[0].Key=="OPTION_A" && copy.DisplayEffects[0].Action.Content=="money -10","Cached display effect retains original path and inputs");
+        LOMAssistant.NativeKorean.Enabled=true;
+        var exit=new StoryExit{Path=copy.DisplayEffects[0].Path};
+        check(copy.EffectsOn(exit).Single()=="한국어 money -10" && copy.CanonicalEffectsOn(exit).Single()=="money -10","Cached Korean presentation must stay separate from canonical route analysis");
+        check(copy.Commands.Single().Method=="SetFlag" && copy.Commands.Single().Args.SequenceEqual(new[]{"M50009","1"})
+            && copy.MenuPaths.Count==1 && copy.Menus[0][0].Key=="OPTION_A","Cache retains jump commands and menu nesting");
+        StoryScripts.Remember(copy);
+        check(LOMAssistant.LuaParse.Action.ConstructorCalls==constructors+1,"Remember twice must not duplicate restored actions");
+
+        // Exercise the actual disk cache with fake game/version/path adapters only.
+        StoryScriptCache.Save(new List<StoryScript>{script});
+        string cache=Path.Combine(BepInEx.Paths.CachePath,"LOMAssistant","StoryScripts.json");
+        for(int i=0;i<100&&!File.Exists(cache);i++) Thread.Sleep(20);
+        var loaded=StoryScriptCache.Load().GetAwaiter().GetResult();
+        check(loaded!=null&&loaded.Count==1,"Actual background disk cache round-trip");
+        StoryScripts.Remember(loaded[0]);
+        check(loaded[0].DisplayEffects.Count==1&&loaded[0].Commands[0].Args[0]=="M50009","Disk cache retains Korean effects and jump command IDs");
+        UnityEngine.Application.version="updated-game-version";
+        check(StoryScriptCache.Load().GetAwaiter().GetResult()==null,"Game updates invalidate the parsed script cache");
+        File.WriteAllText(cache,"ko2|broken\n{invalid");
+        check(StoryScriptCache.Load().GetAwaiter().GetResult()==null,"Invalid cache falls back to parsing");
+        LOMAssistant.NativeKorean.Enabled=false;
+        Console.WriteLine("Migration: actual Gemini request bodies and background cache round-trips tested without API/game writes");
+    }
+}

@@ -67,10 +67,10 @@ internal static class AiChecks
     }
 
     private static SyntaxNode Parse(string path) => CSharpSyntaxTree.ParseText(File.ReadAllText(path)).GetRoot();
-    private static string Baseline(string root, string file)
+    private static string Baseline(string root, string file, string revision = "c381992")
     {
         var start = new ProcessStartInfo("git") { WorkingDirectory = root, RedirectStandardOutput = true, RedirectStandardError = true, UseShellExecute = false, CreateNoWindow = true };
-        start.ArgumentList.Add("show"); start.ArgumentList.Add("c381992:" + file);
+        start.ArgumentList.Add("show"); start.ArgumentList.Add(revision + ":" + file);
         using var process = Process.Start(start);
         string text = process.StandardOutput.ReadToEnd(); string error = process.StandardError.ReadToEnd(); process.WaitForExit();
         if (process.ExitCode != 0) throw new Exception("Cannot read ko.2 source: " + error);
@@ -80,12 +80,11 @@ internal static class AiChecks
     {
         const string client = "LOMAssistant.Features.Ai/LlmClient.cs";
         string[] Tokens(SyntaxNode node) => node.DescendantTokens().Select(t => t.RawKind + ":" + t.ValueText).ToArray();
-        var before = Tokens(CSharpSyntaxTree.ParseText(Baseline(root, client)).GetRoot());
+        var before = Tokens(CSharpSyntaxTree.ParseText(Baseline(root, client, "v3.2.1")).GetRoot());
         var after = Tokens(new OriginalText().Visit(Parse(Path.Combine(root, client))));
-        check(before.SequenceEqual(after), "AI transport, endpoints, retries, limits and provider schemas changed beyond text");
+        check(before.SequenceEqual(after), "AI transport must match upstream 3.2.1 including JSON compatibility and Gemini reasoning fixes");
         foreach (var spec in new[] {
             ("LOMAssistant.Features.Ai/AiPersonas.cs", new[] {"ReadLines", "Bonded", "Intros", "LatestCall", "ScriptOrder"}),
-            ("LOMAssistant.Features.Story/StoryScripts.cs", new[] {"Parse"}),
             ("LOMAssistant.Features.Story/StoryUsage.cs", new[] {"Build", "AddConditions"}),
         })
         {
@@ -97,6 +96,42 @@ internal static class AiChecks
                 check(Body(oldTree).SequenceEqual(Body(newTree)), "Game parsing or spoiler/history gate changed: " + spec.Item1 + ":" + name);
             }
         }
+        // Parsing now collects jump commands. Normalize only the existing display/analysis split.
+        var upstreamParse = CSharpSyntaxTree.ParseText(Baseline(root, "LOMAssistant.Features.Story/StoryScripts.cs", "v3.2.1")).GetRoot()
+            .DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == "Parse");
+        var localParse = Parse(Path.Combine(root, "LOMAssistant.Features.Story/StoryScripts.cs"))
+            .DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == "Parse");
+        check(Tokens(upstreamParse).SequenceEqual(Tokens(new CanonicalParse().Visit(localParse))), "Script parser must match upstream 3.2.1 except Korean display effects");
+        foreach (string file in new[] { "LOMAssistant.Features.Story/StoryJump.cs", "LOMAssistant.LuaParse/LuaParser.cs" })
+        {
+            var upstream = CSharpSyntaxTree.ParseText(Baseline(root, file, "v3.2.1")).GetRoot();
+            var local = Parse(Path.Combine(root, file));
+            foreach (string method in file.EndsWith("StoryJump.cs") ? new[] { "CanJump", "Execute", "Apply", "Return", "CanBond" } : new[] { "BranchBlock", "ExtractOptionActionsFromLua" })
+            {
+                var old = upstream.DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == method);
+                var now = local.DescendantNodes().OfType<MethodDeclarationSyntax>().Single(m => m.Identifier.Text == method);
+                check(Tokens(old).SequenceEqual(Tokens(now)), "Upstream jump guards/mutations or option boundaries changed: " + method);
+            }
+        }
+    }
+    private sealed class CanonicalParse : CSharpSyntaxRewriter
+    {
+        public override SyntaxNode VisitLocalDeclarationStatement(LocalDeclarationStatementSyntax node)
+        {
+            if (node.Declaration.Variables.Count == 1)
+            {
+                var v = node.Declaration.Variables[0];
+                if (v.Identifier.Text == "action" && v.Initializer?.Value is ObjectCreationExpressionSyntax c && c.Type.ToString() == "LOMAssistant.LuaParse.Action") return null;
+                if (v.Identifier.Text == "path" && v.Initializer?.Value.ToString() == "CurrentPath(blocks, choices, switches)") return null;
+            }
+            return base.VisitLocalDeclarationStatement(node);
+        }
+        public override SyntaxNode VisitExpressionStatement(ExpressionStatementSyntax node) => node.Expression is InvocationExpressionSyntax call
+            && call.Expression.ToString() == "script.DisplayEffects.Add" ? null : base.VisitExpressionStatement(node);
+        public override SyntaxNode VisitMemberAccessExpression(MemberAccessExpressionSyntax node) => node.ToString() == "action.CanonicalDescription"
+            ? SyntaxFactory.ParseExpression("new LOMAssistant.LuaParse.Action(LOMAssistant.LuaParse.ActionType.ModifyAction, t.Value).Description") : base.VisitMemberAccessExpression(node);
+        public override SyntaxNode VisitInvocationExpression(InvocationExpressionSyntax node) => node.Expression.ToString() == "script.Effects.Add"
+            ? SyntaxFactory.ParseExpression(node.ToString().Replace("((path,", "((CurrentPath(blocks, choices, switches),")) : base.VisitInvocationExpression(node);
     }
     private sealed class OriginalText : CSharpSyntaxRewriter
     {
@@ -119,15 +154,26 @@ internal static class AiChecks
         string script = Members(root, "LOMAssistant.Features.Story/StoryScripts.cs", "StoryStep", "StoryExit", "StoryScript");
         string schema = Members(root, "LOMAssistant.Features.Ai/AiKnowledge.cs", "CanonicalTools", "Schema", "Current", "Clean", "CanonicalClean");
         string proposal = Members(root, "LOMAssistant.Features.Ai/AiChat.cs", "Kind", "Entry", "ProposalState", "Change", "Propose", "Resolve");
-        string imports = "using System;using System.Collections.Generic;using System.Linq;using System.Text;using System.Text.RegularExpressions;using Newtonsoft.Json.Linq;using LOMAssistant;using LOMAssistant.Features.Story;";
+        string transport = Members(root, "LOMAssistant.Features.Ai/LlmClient.cs", "ChatMessage", "ToolCall");
+        string requestBody = Members(root, "LOMAssistant.Features.Ai/LlmClient.cs", "OpenAiBody");
+        string remember = Members(root, "LOMAssistant.Features.Story/StoryScripts.cs", "Outlines", "Remember", "IsPrefix", "SamePath");
+        string branchBlock = Members(root, "LOMAssistant.LuaParse/LuaParser.cs", "choiceBranchRegex", "BranchBlock");
+        string imports = "using System;using System.Collections.Generic;using System.Linq;using System.Text;using System.Text.RegularExpressions;using Newtonsoft.Json;using Newtonsoft.Json.Linq;using LOMAssistant;using LOMAssistant.Features.Story;";
         string code = imports
             + "namespace LOMAssistant.Features.Ai {public static class AiAnalysis {" + analysis + "public static string ExplainTime(string t)=>t;}"
-            + "public static class AiKnowledge {" + schema + "} public static class AiChat {" + proposal + "}}"
-            + "namespace LOMAssistant.Features.Story {" + script + "}"
+            + "public static class AiKnowledge {public static (string Name,string Description,JObject Parameters)[] Tools=>CanonicalTools;" + schema + "} public static class AiChat {public static bool Deep;" + proposal + "}"
+            + transport + "public static class LlmClient {" + requestBody + "}}"
+            + "namespace LOMAssistant.Features.Story {" + script + "public static partial class StoryScripts {" + remember + "}}"
+            + "namespace LOMAssistant.LuaParse {public class LuaParser {" + branchBlock + "}}"
             + File.ReadAllText(Path.Combine(root, "tools/ko-check/ai-fixtures.cs.txt"));
         var trees = new[] { CSharpSyntaxTree.ParseText(code), CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant.Features.Ai/AiText.cs"))),
             CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant.Features.Ai/KoreanAiQuery.cs"))),
-            CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant.Features.Ai/KoreanAiTools.cs"))) };
+            CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant.Features.Ai/KoreanAiTools.cs"))),
+            CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant.Features.Story/StoryScriptCache.cs"))),
+            CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant/UiEventNames.cs"))),
+            CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant/EventNameTable.cs"))),
+            CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "LOMAssistant/EventNameKorean.cs"))),
+            CSharpSyntaxTree.ParseText(File.ReadAllText(Path.Combine(root, "tools/ko-check/migration-fixtures.cs.txt"))) };
         var refs = ((string)AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES")).Split(Path.PathSeparator)
             .Append(typeof(JObject).Assembly.Location).Distinct().Select(p => MetadataReference.CreateFromFile(p));
         var compilation = CSharpCompilation.Create("AiOfflineFixtures", trees, refs, new CSharpCompilationOptions(OutputKind.DynamicallyLinkedLibrary));
@@ -136,5 +182,6 @@ internal static class AiChecks
         check(emitted.Success, "AI offline fixture compilation: " + string.Join("\n", emitted.Diagnostics.Where(d => d.Severity == DiagnosticSeverity.Error)));
         var assembly = Assembly.Load(output.ToArray());
         assembly.GetType("AiFixtureTests").GetMethod("Run").Invoke(null, new object[] { check });
+        assembly.GetType("MigrationFixtureTests").GetMethod("Run").Invoke(null, new object[] { check });
     }
 }

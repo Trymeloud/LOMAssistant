@@ -302,7 +302,7 @@ public static class AiKnowledge
 		var hits = new List<(string Pool, Mortal.Story.PositionEventData Data, string Script, int Score)>();
 		foreach (var (pool, data) in all)
 		{
-			string name = Clean(DataHelper.GetEventName(data));
+			string name = Clean(DataHelper.GetEventName(data, false));
 			string place = LOMAssistant.PositionEventCache.PlaceName(pool);
 			string script = LOMAssistant.PositionEventCache.Instance.ResultScript(data) ?? "";
 			int score = name.Contains(q) ? 3 : place.Contains(q) ? 2 : 0;
@@ -326,7 +326,7 @@ public static class AiKnowledge
 		var sb = new StringBuilder();
 		foreach (var h in hits.OrderByDescending(x => x.Score).Take(MaxEvents))
 		{
-			sb.Append("【").Append(LOMAssistant.PositionEventCache.PlaceName(h.Pool)).Append(" · ").Append(Clean(DataHelper.GetEventName(h.Data))).Append("】");
+			sb.Append("【").Append(LOMAssistant.PositionEventCache.PlaceName(h.Pool)).Append(" · ").Append(Clean(DataHelper.GetEventName(h.Data, false))).Append("】");
 			if (h.Script.Length > 0)
 			{
 				sb.Append(AiText.T("剧本 ", "스크립트 ")).Append(h.Script).Append(LOMAssistant.MapEventHints.Unread(h.Script) ? AiText.T("（玩家没看过）", "(사용자가 아직 보지 않음)") : "");
@@ -436,7 +436,7 @@ public static class AiKnowledge
 		try
 		{
 			var events = LOMAssistant.PositionEventCache.Instance.AllEvents()
-				.Select(e => (Place: LOMAssistant.PositionEventCache.PlaceName(e.Pool), Name: Clean(DataHelper.GetEventName(e.Data))))
+				.Select(e => (Place: LOMAssistant.PositionEventCache.PlaceName(e.Pool), Name: Clean(DataHelper.GetEventName(e.Data, false))))
 				.Where(e => e.Name.Contains(q) || e.Place.Contains(q)).Distinct().Take(8).ToList();
 			if (events.Count > 0)
 			{

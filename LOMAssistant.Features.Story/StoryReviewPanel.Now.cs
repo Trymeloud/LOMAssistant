@@ -19,6 +19,8 @@ public partial class StoryReviewPanel
 		public PositionEventData Data;
 		public string Name = "", Desc = "";
 		public int Rate, Percent;
+		/// <summary>这个事件的剧情一句都没读过（和随机事件小窗的「没看过」一样）。</summary>
+		public bool Unread;
 	}
 
 	private sealed class NowMission
@@ -144,7 +146,7 @@ public partial class StoryReviewPanel
 				GUILayout.BeginVertical(_card);
 				GUILayout.BeginHorizontal();
 				GUILayout.Label(ev.Name + "　" + (ev.Rate > 0 ? $"<color=#2F6B3A>{ev.Percent}%</color>"
-					: "<color=#A3302A>" + NativeKorean.Text(KoreanMessage.Unmet, "条件不满足") + "</color>"), _rich);
+					: "<color=#A3302A>" + NativeKorean.Text(KoreanMessage.Unmet, "条件不满足") + "</color>") + (ev.Unread ? "　<color=#A3302A>" + StoryUi.Text(KoreanStoryMessage.UnreadMark, "没看过") + "</color>" : ""), _rich);
 				GUILayout.FlexibleSpace();
 				if (ev.Rate > 0)
 				{
@@ -304,7 +306,8 @@ public partial class StoryReviewPanel
 							Name = TextConverter.ToSimplified(PositionEventCache.Instance.GetPositionEventName(data)),
 							Desc = OnPaper(TextConverter.ToSimplified(PositionEventCache.Instance.GetPositionEventDesc(data)).Trim()),
 							Rate = rate,
-							Percent = rate > 0 ? Mathf.RoundToInt(rate * 100f / total) : 0
+							Percent = rate > 0 ? Mathf.RoundToInt(rate * 100f / total) : 0,
+							Unread = MapEventHints.Unread(PositionEventCache.Instance.ResultScript(data))
 						});
 					}
 				}
@@ -324,9 +327,15 @@ public partial class StoryReviewPanel
 				});
 			}
 			var active = missions?.ActiveSubMissions;
+			// 留学（崆峒、青城）等主角不在唐门的时候，唐门各处的支线去不了、触发不了，只列不限地点的
+			bool away = (missions?.GetFlag("E11000")?.State ?? 0) == 1;
 			foreach (var pair in DataHelper.GetMissions())
 			{
 				MissionCheckData check = pair.Key;
+				if (away && check.Position != PositionType.無)
+				{
+					continue;
+				}
 				string place = TextConverter.ToSimplified(check.Position.ToString());
 				now.Missions.Add(new NowMission
 				{
