@@ -43,14 +43,15 @@ public static class AiChat
 
 	private static AiSession Current => Session;
 
-	// 查资料的轮数上限（每轮可以同时查好几处）：只防死循环，正常问题远用不到；深度模式放宽
-	private static int MaxRounds => Deep ? 30 : 20;
+	// 查资料的轮数上限（每轮可以同时查好几处）：只防死循环，正常问题远用不到；深度模式放宽，极速模式查几次就得答
+	private static int MaxRounds => Deep ? 30 : Fast ? 6 : 20;
 	// 发给模型的问答历史按字数算：超过 HistoryChars 时，较早的部分压缩成一段摘要，最近 HistoryKeepChars 字原样留着；
 	// 两次压缩之间前缀不变，缓存一直命中。一问里查资料最多要 8 万 token 左右，历史再加 3 万字，128K 窗口的模型也放得下
-	private const int HistoryChars = 30000;
-	private const int HistoryKeepChars = 12000;
+	// 极速模式给的是本地小模型、免费额度：上下文小，历史和查到的资料都压到三分之一
+	private static int HistoryChars => Fast ? 10000 : 30000;
+	private static int HistoryKeepChars => Fast ? 4000 : 12000;
 	private const string SummaryHead = "（前面聊过的内容摘要）";
-	private const int MaxToolChars = 12000;
+	private static int MaxToolChars => Fast ? 4000 : 12000;
 
 	/// <summary>给玩家看的对话（含「正在查…」和出错提示）。</summary>
 	public static List<Entry> Shown => Current.Shown;
@@ -70,12 +71,19 @@ public static class AiChat
 
 	public static bool Deep => ConfigManager.AiDeepMode.Value;
 
+	/// <summary>极速模式：少查几轮、只给常用的几个工具、提示词精简、不让模型多想。和深度模式同时开着时按深度模式算。</summary>
+	public static bool Fast => ConfigManager.AiFastMode.Value && !Deep;
+
+	/// <summary>这一问给模型的工具：极速模式只给最常用的几个，小模型工具多了容易选错、或把调用写进正文。</summary>
+	public static IEnumerable<(string Name, string Description, Newtonsoft.Json.Linq.JObject Parameters)> Tools
+		=> Fast ? AiKnowledge.Tools.Where(t => FastTools.Contains(t.Name)) : AiKnowledge.Tools;
+
+	private static readonly HashSet<string> FastTools = new HashSet<string> { "search", "script", "heroine", "player_state", "propose_change" };
+
 	/// <summary>这次用的模型：深度模式且填了深度模型就用它。</summary>
 	public static string Model => Deep && ConfigManager.AiDeepModel.Value.Trim().Length > 0 ? ConfigManager.AiDeepModel.Value.Trim() : ConfigManager.AiModel.Value;
 
-	private static string DeepRule => Deep
-		? "\n\n【深度模式】回答前把要说的每个结论对照查到的资料核对一遍：数字、条件、选项通向哪里、日期都要有资料依据；拿不准的再查一次，宁可多查。好感、数值的「最多」「合计」一定用 routes 算。"
-		: "";
+	private static string DeepRule => Deep ? AiPrompts.DeepRule : Fast ? AiPrompts.FastRule : "";
 
 	public static bool Configured => ConfigManager.AiBaseUrl.Value.Trim().Length > 0 && ConfigManager.AiModel.Value.Trim().Length > 0
 		&& (Provider.NoKey || ConfigManager.AiApiKey.Value.Trim().Length > 0);
@@ -131,9 +139,10 @@ public static class AiChat
 		LlmProvider provider = Provider;
 		string answer = null;
 		// 系统提示词这一问只算一次，每轮都一样（缓存靠它）；会变的现状接在这次问题前面
-		string system = (persona != null ? persona.Prompt(LanguageRule, Spoiler) : SystemPrompt()) + DeepRule;
+		string system = (persona != null ? persona.Prompt(LanguageRule, Spoiler, Fast) : SystemPrompt()) + DeepRule;
 		string context = persona != null ? persona.Context() : "";
-		var asking = new ChatMessage { Role = ChatMessage.User, Text = context.Length > 0 ? context + "\n\n" + asked : asked };
+		// 现状是中文写的，玩家的话标出来：不然整条消息大半是中文，模型会照着中文回答，也会把眼前的选项当成玩家在问
+		var asking = new ChatMessage { Role = ChatMessage.User, Text = context.Length > 0 ? context + "\n\n【赵活说】\n" + asked : asked };
 		// 同一个问题里一模一样的查询不再重查、不再把结果再发一遍
 		var looked = new HashSet<string>();
 		AiDebug.Turn(persona?.Name ?? "攻略助手", system, asking.Text);
@@ -147,13 +156,13 @@ public static class AiChat
 			// Claude 查满轮数时不换成摘要：原样带着这一问的查询记录和工具定义，只是不许再调用，前面的缓存全部接得上
 			bool keep = last && !rewrite && provider.Claude;
 			var send = keep
-				? History.Concat(new[] { asking }).Concat(turn.Skip(1)).Concat(new[] { new ChatMessage { Role = ChatMessage.User, Text = "查资料的轮数用完了，不能再查。直接用上面查到的资料回答；没查到的就说没查到。" } }).ToList()
+				? History.Concat(new[] { asking }).Concat(turn.Skip(1)).Concat(new[] { new ChatMessage { Role = ChatMessage.User, Text = AiPrompts.RoundsUsedUp } }).ToList()
 				: last
 				? History.Concat(new[] { asking, new ChatMessage { Role = ChatMessage.User, Text = Digest(turn) } }).ToList()
 				: History.Concat(new[] { asking }).Concat(turn.Skip(1)).ToList();
 			Partial = "";
 			yield return LlmClient.Complete(provider, ConfigManager.AiBaseUrl.Value, ConfigManager.AiApiKey.Value, Model,
-				system, send, !last || keep, last ? (Deep ? 8000 : 6000) : Deep ? 4000 : 2000, r => reply = r, keep, text => Partial = Showable(text));
+				system, send, !last || keep, last ? (Deep ? 8000 : Fast ? 3000 : 6000) : Deep ? 4000 : Fast ? 1500 : 2000, r => reply = r, keep, text => Partial = WrongLanguage(text, question) ? "" : Showable(text));
 			Partial = "";
 			if (_stop)
 			{
@@ -205,7 +214,7 @@ public static class AiChat
 				string result;
 				if (call.Name != "propose_change" && !looked.Add(call.Name + call.Args.ToString(Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonConverter[0])))
 				{
-					result = "（这个查询前面已经查过，结果就在上面，直接用）";
+					result = AiPrompts.AlreadyLooked;
 				}
 				else
 				{
@@ -219,6 +228,29 @@ public static class AiChat
 				turn.Add(new ChatMessage { Role = ChatMessage.Tool, CallId = call.Id, Text = result });
 			}
 		}
+		// 界面是英、韩、日文，玩家也没用中文问，回答却是中文（人设的原话、资料全是中文，规则写成那种语言也拦不住）：
+		// 拿这段回答再问一次，只让它改写成界面语言。繁体界面回答成简体时直接转成繁体
+		if (!_stop && answer != null && answer.Length > 0)
+		{
+			if (TextConverter.DisplayLanguage == "ChineseTraditional")
+			{
+				answer = TextConverter.ToTraditional(answer);
+			}
+			else if (AiPrompts.RewriteRule != null && WrongLanguage(answer, question))
+			{
+				FileLogger.Log("[AI] 回答不是界面语言，让它改写一遍");
+				LlmReply rewritten = null;
+				Partial = "";
+				yield return LlmClient.Complete(provider, ConfigManager.AiBaseUrl.Value, ConfigManager.AiApiKey.Value, Model,
+					AiPrompts.RewriteRule + AiPrompts.RewriteSpeaker(persona), new List<ChatMessage> { new ChatMessage { Role = ChatMessage.User, Text = answer } }, false, Deep ? 8000 : 4000, r => rewritten = r);
+				string text = rewritten != null && rewritten.Error == null ? StripIds(StripToolMarkup(rewritten.Text ?? ""), persona != null).Trim() : "";
+				if (text.Length > 0)
+				{
+					answer = text;
+					TokensUsed += rewritten.InputTokens + rewritten.OutputTokens;
+				}
+			}
+		}
 		if (_stop)
 		{
 			Shown.Add(new Entry { Kind = Kind.Error, Text = "已停止" });
@@ -229,6 +261,8 @@ public static class AiChat
 			if (persona != null)
 			{
 				answer = TakeMood(answer, persona, out mood);
+				// 攻略提示的记号有的模型会写成 [攻略提示]、**【攻略提示】**，统一成界面认的写法
+				answer = System.Text.RegularExpressions.Regex.Replace(answer, @"\**[\[【]\s*攻略提示\s*[\]】]\**", "【攻略提示】");
 			}
 			Shown.Add(new Entry { Kind = Kind.Assistant, Text = answer.Length > 0 ? answer : "（AI 没有说话）", Mood = mood });
 			Shown.AddRange(proposals);
@@ -335,9 +369,9 @@ public static class AiChat
 		var parts = results.Select(r => r.Length > each ? r.Substring(0, each) + "…" : r).ToList();
 		if (parts.Count == 0)
 		{
-			return "（直接回答上面的问题，不用再查资料。）";
+			return AiPrompts.DigestNone;
 		}
-		return "（下面是你为这个问题查到的资料。不能再查了，根据这些资料把完整的回答写出来；资料里没有的就说没查到，不要编。）\n\n"
+		return AiPrompts.DigestHead
 			+ string.Join("\n\n———\n\n", parts.ToArray());
 	}
 
@@ -426,48 +460,44 @@ public static class AiChat
 		_ => "简体中文",
 	};
 
-	/// <summary>回答用的语言：跟玩家这一条消息走（界面是繁体、玩家用繁体问，也常被满篇简体的资料带成简体），看不出来时用界面语言。</summary>
-	internal static string LanguageRule => "用玩家最近一条消息所用的语言和文字回答：玩家写繁體中文就全用繁體中文，写简体中文就用简体中文，写日语、韩语、英语就用那种语言；看不出来时用"
-		+ ReplyLanguage + "。资料里的中文都是简体，引用对白、人名时也换成你回答用的文字。";
+	/// <summary>回答用的语言：用界面语言写的那份规则里说。</summary>
+	internal static string LanguageRule => AiPrompts.LanguageRule;
 
-	internal static string Spoiler => ConfigManager.AiSpoiler.Value switch
+	/// <summary>
+	/// 回答是不是用错了语言：界面是英文、韩文时汉字比本国文字多，界面是日文时汉字很多却几乎没有假名。
+	/// 玩家自己用中文问的（问题里有汉字、日文界面下没有假名）不算错。「」里引的原文不计。
+	/// </summary>
+	private static bool WrongLanguage(string answer, string question)
 	{
-		1 => "只说玩家当前进度和已经经历过的剧情；问到后面的剧情时，只说「后面会有相关剧情」和要做的准备（数值、好感、选项），不讲具体发生了什么、谁会死、结局是什么，人物的真实身份和身世秘密也不说。",
-		2 => "只给提示，不直接说结果：告诉玩家该往哪个方向努力（提高什么数值、关注哪个人、在哪类选项上谨慎），让玩家自己去发现剧情。人物的真实身份、身世秘密、幕后黑手、谁会死、结局内容一律不说，哪怕工具查到了；被问到就说这是要自己在剧情里发现的，只给怎么去发现的方向。",
-		_ => "玩家想知道什么就说什么，可以剧透。",
-	};
-
-	private static string SystemPrompt()
-	{
-		return "你是武侠游戏《活侠传》的攻略助手，在游戏 Mod「咖啡伴侣」里回答玩家的问题。玩家操控的主角是赵活。\n\n"
-			+ "怎么查资料\n"
-			+ "- 剧情、条件、数值、结局一律以工具查到的游戏数据为准，不要凭印象编。查不到就说查不到，不要猜。\n"
-			+ "- 前面的回答可能说错过：涉及数字、条件、剧情走向时，以这次查到的资料为准，不要照抄前面说过的。\n"
-			+ "- 要资料就直接用工具查，不要先问玩家「要我查吗」。\n"
-			+ "- 问某个人物是谁、什么来历、哪一门、父母师父是谁，先用 person 看人物志，一次就够，不要一处处去搜对白。\n"
-			+ "- 问某个物品做什么用、哪里拿，某件装备、暗器、丹药怎么开发出来、为什么开发列表里没有，先用 item 查；开发项目要从别的项目练到几级才进化出来，看它的「怎么出现在开发列表里」。问四师兄（商店）卖什么、吃了加什么、什么时候有货，用 shop。问某门武功怎么练、修练条件、某个天赋有什么用，也用 item。问门派资产、门派规模、设施，用 sect。问某项数值（心相、性情、变心、门派规模等）或技能要多少、在哪加，用 usage。\n"
-			+ "- 在某个场所修炼、工作、闲逛时随机抽到的事件（求仙问道、跑步邀请这类）用 events 找；决斗要撑几回合、第几回合谁来帮、输了会不会死，看 script 或 search 结果里的「战斗中的条件」。\n"
-			+ "- 不知道编号时先 search，再用 quest 看任务、script 看剧本的分岔和对白、endings 看结局、heroine 看结缘路线。\n"
-			+ "- 问「这个任务最多能加多少」「哪条路最好」「怎么走好感最高」时用 routes：它把每条完整的路和这条路上的合计算好了。分岔互斥，不要自己把几个剧本的变化加在一起。\n"
-			+ "- 问「某个旗标在哪设」「要满足什么才触发」「某人好感在哪被判定」时用 usage。\n"
-			+ "- 「目前时间」是从开局数的第几旬，资料里已经在括号里换成了日期。\n"
-			+ "- 问题和玩家现在的进度有关（「我现在」「接下来」「来得及吗」）时，先用 player_state 看进度、数值和好感。\n"
-			+ "- 玩家问推荐走哪条、选哪个时，看 script 里选项和去处后面的〔读过多少〕、「这一局走过」，quest 里的「玩家进度」：在玩家想要的结果都能达到的前提下，优先推荐没读过、这一局没走过的那条，并说明另一条已经读过；玩家明说要稳妥、要某个结果时以结果为准。\n"
-			+ "- 说玩家还能不能碰到某段剧情之前，看相关旗标这一局的值（quest 列出触发条件里旗标的当前值，usage 也给当前值）：进的哪一门、任务进度计数、触发过没有。不要只按时间推断，也不要说读不到进度。\n"
-			+ "- 玩家要你帮他改数值、好感、心上人、旗标时，用 propose_change 提出修改，玩家在卡片上点确认才会生效；改之前先用 player_state 看当前值。要改咖啡伴侣的设置时，先用 settings 查准名字和可选值。\n"
-			+ "- 玩家问「这里怎么选」「这个选项」「这次掷骰」时，player_state 的【眼前】是屏幕上正在显示的选项或掷骰，再用 script 查那个剧本，按选项文字找到对应的分岔，结合玩家现在的数值说每个选项的结果和推荐。\n"
-			+ "- 资料里「若 …需>=40」是条件，「掷骰「…」（>=50）」是骰子要掷到的点数，「变化」是这条路上的数值和旗标变化。\n"
-			+ "- 剧本的对白很长时会分页，需要时再翻页，不要一次全翻。\n\n"
-			+ "怎么回答\n"
-			+ "- 先给结论，再分条说清楚条件、每条路的结果和依据；可以引用一两句原文对白。\n"
-			+ "- 查到几条不同的途径（不同任务、不同时期、不同条件）都要列出来，按时间先后排，不要只挑其中一条讲。\n"
-			+ "- 说「一定会」「没有办法」「只能」之前，先用 usage 查相关的旗标（名字里带「幸存」「复活」「在唐门」这类的）确认没有别的路。\n"
-			+ "- 问「怎么才能…」「怎么换成…」时，先讲游戏里怎么做到（剧情、条件、选项）；能用 propose_change 直接改的，放在最后当另一个办法提一句，不要一上来就提修改。\n"
-			+ "- 好感、数值、旗标的变化只说资料「变化」里写了的；资料里没写某人的好感变化，就是这段剧情不改她的好感，不要说「好感容易涨」「好感涨得最多」这类话。\n"
-			+ "- 「准备」只说具体能做的（提高哪项数值到多少、先存档、用 Mod 的骰子自选），不说空泛的话。\n"
-			+ "- 用游戏里的叫法（人名、数值名、任务名）。任务编号可以括注在任务名后面，方便玩家在剧情图里找；剧本编号（ch4_9_3_8、S2700_01_03 这类）不要写给玩家，用「之后」「接下来的剧情」代替；不要提工具、文件、数据这些词。\n"
-			+ "- 简洁：一般不超过 400 字，玩家要细节时再展开。\n"
-			+ "- 剧透：" + Spoiler + "\n"
-			+ "- " + LanguageRule;
+		string body = System.Text.RegularExpressions.Regex.Replace(answer, "「[^」]*」|\\[表情:[^\\]]*\\]|【[^】]*】", "");
+		int han = 0, kana = 0, hangul = 0, latin = 0, qHan = 0, qKana = 0;
+		foreach (char c in body)
+		{
+			if (c >= '一' && c <= '鿿') han++;
+			else if (c >= 'ぁ' && c <= 'ヿ') kana++;
+			else if (c >= '가' && c <= '힣') hangul++;
+			else if (c >= 'A' && c <= 'Z' || c >= 'a' && c <= 'z') latin++;
+		}
+		foreach (char c in question ?? "")
+		{
+			if (c >= '一' && c <= '鿿') qHan++;
+			else if (c >= 'ぁ' && c <= 'ヿ') qKana++;
+		}
+		switch (TextConverter.DisplayLanguage)
+		{
+			case UiText.English:
+				return qHan == 0 && han > 20 && han * 2 > latin / 5;
+			case UiText.Korean:
+				return qHan == 0 && han > 20 && han > hangul;
+			case UiText.Japanese:
+				return (qKana > 0 || qHan == 0) && han > 20 && kana * 10 < han;
+			default:
+				return false;
+		}
 	}
+
+	internal static string Spoiler => AiPrompts.Spoiler(ConfigManager.AiSpoiler.Value);
+
+	// 攻略助手的规则按界面语言各写了一份，见 AiPrompts
+	private static string SystemPrompt() => Fast ? AiPrompts.FastAssistant(Spoiler) : AiPrompts.Assistant(Spoiler);
 }

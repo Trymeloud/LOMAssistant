@@ -85,6 +85,7 @@ public static class ConfigManager
 	public static ConfigElement<bool> AiHints;
 	public static ConfigElement<bool> AiDebugLog;
 	public static ConfigElement<bool> AiDeepMode;
+	public static ConfigElement<bool> AiFastMode;
 	public static ConfigElement<string> AiDeepModel;
 
 	public static ConfigElement<int> PanelFont;
@@ -408,6 +409,7 @@ public static class ConfigManager
 		AiModel = new ConfigElement<string>("AiModel", "AI 用的模型名（选服务商时自动填建议的，可以改）", "deepseek-flash");
 		AiApiKey = new ConfigElement<string>("AiApiKey", "AI 服务商的 API Key：只存在这台电脑的配置文件里，只发给选的服务商", "");
 		AiDeepMode = new ConfigElement<bool>("AiDeepMode", "AI 深度模式：换用更强的模型（AiDeepModel），回答更长，答前把结论对照查到的资料核对一遍。更准，也更贵、更慢", defaultValue: false);
+		AiFastMode = new ConfigElement<bool>("AiFastMode", "AI 极速模式：少查几次资料、提示词更短、不让模型多想，免费额度和本地小模型也能较快回答；答案更粗略。和深度模式只能开一个", defaultValue: false);
 		AiDeepModel = new ConfigElement<string>("AiDeepModel", "深度模式用的模型名；空着就和平时用同一个模型", "deepseek-v4-pro");
 		AiDebugLog = new ConfigElement<bool>("AiDebugLog", "把每次发给 AI 的人设、现状、查资料的结果和用量写进 Mod 文件夹的 logs/ai_debug.txt，方便核对", defaultValue: false);
 		AiHints = new ConfigElement<bool>("AiHints", "女主角人设问到攻略时，在回答后面单独给一段攻略提示；关掉就只用她的口吻聊天", defaultValue: true);

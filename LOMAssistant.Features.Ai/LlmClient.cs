@@ -585,11 +585,16 @@ public static class LlmClient
 		// Gemini 3 系列的思考关不掉，不设时想得太久会超时：平时 low，深度模式 medium
 		if (url.IndexOf("generativelanguage.googleapis.com", StringComparison.OrdinalIgnoreCase) >= 0 && model.IndexOf("gemini-3", StringComparison.OrdinalIgnoreCase) >= 0)
 		{
-			body["reasoning_effort"] = AiChat.Deep ? "medium" : "low";
+			body["reasoning_effort"] = AiChat.Deep ? "medium" : AiChat.Fast ? "minimal" : "low";
+		}
+		// 极速模式下本地模型（Ollama）不思考：小模型想很久也不会更准，还常卡住
+		if (AiChat.Fast && url.IndexOf(":11434", StringComparison.Ordinal) >= 0)
+		{
+			body["reasoning_effort"] = "none";
 		}
 		if (useTools)
 		{
-			body["tools"] = new JArray(AiKnowledge.Tools.Select(t => new JObject
+			body["tools"] = new JArray(AiChat.Tools.Select(t => new JObject
 			{
 				["type"] = "function",
 				["function"] = new JObject { ["name"] = t.Name, ["description"] = t.Description, ["parameters"] = t.Parameters }
@@ -694,7 +699,7 @@ public static class LlmClient
 		}
 		if (useTools)
 		{
-			body["tools"] = new JArray(AiKnowledge.Tools.Select(t => new JObject { ["name"] = t.Name, ["description"] = t.Description, ["input_schema"] = t.Parameters }));
+			body["tools"] = new JArray(AiChat.Tools.Select(t => new JObject { ["name"] = t.Name, ["description"] = t.Description, ["input_schema"] = t.Parameters }));
 		}
 		return body;
 	}

@@ -143,23 +143,29 @@ public static class AiKnowledge
 	public static string Activity(string name, JObject args)
 	{
 		string Arg(string key) => args?[key]?.ToString().Trim() ?? "";
+		// 「查了 N 处资料」点开后的明细，按界面语言写（简体、英、韩、日、繁体）；引号里是 AI 查的原词，照原样
+		string F(string zh, string en, string ko, string ja, string hant, params string[] a) => string.Format(AiPrompts.L(zh, en, ko, ja, hant), a);
 		switch (name)
 		{
-			case "search": return "搜索「" + Arg("query") + "」";
-			case "quest": return "查看任务 " + Arg("key") + (StoryAtlas.Find(Arg("key")) is StoryMission m ? "「" + Clean(m.Title) + "」" : "");
-			case "script": return "查看剧本 " + Arg("name");
-			case "endings": return "查结局「" + Arg("query") + "」";
-			case "heroine": return "查看「" + Arg("name") + "」的结缘路线";
-			case "person": return "查看「" + Arg("name") + "」的人物志";
-			case "item": return "查物品「" + Arg("name") + "」";
-			case "shop": return "查看商店";
-			case "sect": return "查看门派经营";
-			case "events": return "查场所事件「" + Arg("query") + "」";
-			case "player_state": return "查看当前进度";
-			case "settings": return "查看设置项" + (Arg("query").Length > 0 ? "「" + Arg("query") + "」" : "");
-			case "usage": return "反查「" + Arg("name") + "」";
-			case "routes": return "算任务 " + Arg("key") + " 每条路线";
-			case "propose_change": return "提议修改数值";
+			case "search": return F("搜索「{0}」", "Searched 「{0}」", "「{0}」 검색", "「{0}」を検索", "搜尋「{0}」", Arg("query"));
+			case "quest":
+				string title = StoryAtlas.Find(Arg("key")) is StoryMission m ? "「" + Clean(m.Title) + "」" : "";
+				return F("查看任务 {0}{1}", "Quest {0}{1}", "임무 {0}{1} 확인", "任務 {0}{1} を確認", "查看任務 {0}{1}", Arg("key"), title);
+			case "script": return F("查看剧本 {0}", "Scene {0}", "대본 {0} 확인", "台本 {0} を確認", "查看劇本 {0}", Arg("name"));
+			case "endings": return F("查结局「{0}」", "Endings 「{0}」", "결말 「{0}」 찾기", "結末「{0}」を検索", "查結局「{0}」", Arg("query"));
+			case "heroine": return F("查看「{0}」的结缘路线", "Romance route of 「{0}」", "「{0}」 인연 루트 확인", "「{0}」の縁のルートを確認", "查看「{0}」的結緣路線", Arg("name"));
+			case "person": return F("查看「{0}」的人物志", "Biography of 「{0}」", "「{0}」 인물지 확인", "「{0}」の人物誌を確認", "查看「{0}」的人物誌", Arg("name"));
+			case "item": return F("查物品「{0}」", "Item 「{0}」", "물건 「{0}」 찾기", "物品「{0}」を検索", "查物品「{0}」", Arg("name"));
+			case "shop": return F("查看商店", "Shop", "상점 확인", "店を確認", "查看商店");
+			case "sect": return F("查看门派经营", "Sect management", "문파 경영 확인", "門派経営を確認", "查看門派經營");
+			case "events": return F("查场所事件「{0}」", "Place events 「{0}」", "장소 이벤트 「{0}」 찾기", "場所のイベント「{0}」を検索", "查場所事件「{0}」", Arg("query"));
+			case "player_state": return F("查看当前进度", "Current progress", "현재 진행 확인", "今の進行を確認", "查看目前進度");
+			case "settings":
+				string q = Arg("query").Length > 0 ? "「" + Arg("query") + "」" : "";
+				return F("查看设置项{0}", "Settings {0}", "설정 항목 {0} 확인", "設定項目{0}を確認", "查看設定項目{0}", q);
+			case "usage": return F("反查「{0}」", "Where 「{0}」 is used", "「{0}」 역추적", "「{0}」を逆引き", "反查「{0}」", Arg("name"));
+			case "routes": return F("算任务 {0} 每条路线", "Routes of quest {0}", "임무 {0}의 모든 루트 계산", "任務 {0} の全ルートを計算", "算任務 {0} 每條路線", Arg("key"));
+			case "propose_change": return F("提议修改数值", "Proposed a change", "수치 변경 제안", "数値の変更を提案", "提議修改數值");
 			default: return name;
 		}
 	}

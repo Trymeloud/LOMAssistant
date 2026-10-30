@@ -115,16 +115,7 @@ public partial class StoryReviewPanel
 		GUILayout.Label("模型名是建议值，服务商出了新模型可以自己改。要选支持工具调用（function calling）的模型。", _muted);
 		GUILayout.Space(S(8));
 
-		GUILayout.Label("剧透程度", _label);
-		int spoiler = Pick(new[] { "想知道什么说什么", "只说当前和走过的", "只给方向提示" }, Mathf.Clamp(ConfigManager.AiSpoiler.Value, 0, 2), 3, r.width - S(30));
-		if (spoiler != ConfigManager.AiSpoiler.Value)
-		{
-			ConfigManager.AiSpoiler.Value = spoiler;
-		}
-		GUILayout.Space(S(8));
-		GUILayout.Label("女主角的攻略提示", _label);
-		int hints = Pick(new[] { "问到攻略时给", "只聊天，不给" }, ConfigManager.AiHints.Value ? 0 : 1, 2, r.width - S(30));
-		ConfigManager.AiHints.Value = hints == 0;
+		GUILayout.Label("回答方式、剧透程度、女主角的攻略提示在对话页上方直接选。", _muted);
 		GUILayout.Space(S(8));
 		GUILayout.Label("调试记录", _label);
 		int debug = Pick(new[] { "不记", "记下发给 AI 的内容" }, ConfigManager.AiDebugLog.Value ? 1 : 0, 2, r.width - S(30));
@@ -483,6 +474,26 @@ public partial class StoryReviewPanel
 	private Vector2 _aiHistoryScroll;
 
 	// 这位的全部对话：点一段切过去接着聊
+	/// <summary>一排「名字 + 几个选项」：选中的标红，悬停看每项的说明；从 x 往右排，排完 x 移到末尾。返回点了哪项（没点就是 current）。</summary>
+	private int ChoiceStrip(ref float x, float y, float h, string label, string[] choices, int current, string[] tips)
+	{
+		float lw = TextWidth(label, Middle(_muted), 0f);
+		GUI.Label(new Rect(x, y, lw, h), label, Middle(_muted));
+		x += lw + S(4);
+		int picked = current;
+		for (int i = 0; i < choices.Length; i++)
+		{
+			var b = new Rect(x, y, TextWidth(choices[i], _aiSmallButton, S(64)), h);
+			if (GUI.Button(b, choices[i], i == current ? _primary : _aiSmallButton))
+			{
+				picked = i;
+			}
+			Hover(b, tips[i]);
+			x = b.xMax + S(2);
+		}
+		return picked;
+	}
+
 	private void DrawAiHistory(Rect r)
 	{
 		List<AiSession> sessions = AiSessions.Of(AiChat.PersonaId);
@@ -771,17 +782,6 @@ public partial class StoryReviewPanel
 		{
 			int current = AiChat.PersonaId.Length == 0 ? 0 : personas.FindIndex(p => p.Id == AiChat.PersonaId) + 1;
 			float x = r.x;
-			for (int i = 0; i <= personas.Count; i++)
-			{
-				string label = i == 0 ? "攻略助手" : personas[i - 1].Name;
-				float bw = widths[i];
-				var cell = new Rect(x, r.y, bw, h);
-				if (GUI.Button(cell, "", i == current ? _primary : _button) && !AiChat.Busy)
-				{
-					AiChat.PersonaId = i == 0 ? AiPersona.AssistantId : personas[i - 1].Id;
-					_aiHistory = false;
-				}
-				var icon = new Rect(cell.x + S(5), cell.y + S(5), h - S(10), h - S(10));
 			// 英文名比中文长，一排放不下时缩小间隔、按比例收窄每格（宽度本来留了余量，名字不会被截）
 			float[] widths = new float[personas.Count + 1];
 			for (int i = 0; i <= personas.Count; i++)
@@ -798,6 +798,17 @@ public partial class StoryReviewPanel
 					widths[i] *= Mathf.Min(1f, fit);
 				}
 			}
+			for (int i = 0; i <= personas.Count; i++)
+			{
+				string label = i == 0 ? "攻略助手" : personas[i - 1].Name;
+				float bw = widths[i];
+				var cell = new Rect(x, r.y, bw, h);
+				if (GUI.Button(cell, "", i == current ? _primary : _button) && !AiChat.Busy)
+				{
+					AiChat.PersonaId = i == 0 ? AiPersona.AssistantId : personas[i - 1].Id;
+					_aiHistory = false;
+				}
+				var icon = new Rect(cell.x + S(5), cell.y + S(5), h - S(10), h - S(10));
 				if (i == 0)
 				{
 					if (Event.current.type == EventType.Repaint)
@@ -848,14 +859,8 @@ public partial class StoryReviewPanel
 		// 右上：模型名和小按钮
 		float bh = S(32), bwid = S(110);
 		LlmProvider provider = AiChat.Provider;
-		var deep = new Rect(r.xMax - bwid * 6 - S(30), r.y, bwid, bh);
-		if (GUI.Button(deep, "深度模式", AiChat.Deep ? _primary : _aiSmallButton) && !AiChat.Busy)
-		{
-			ConfigManager.AiDeepMode.Value = !ConfigManager.AiDeepMode.Value;
-		}
-		Hover(deep, "换用更强的模型，回答前核对资料：更准，也更贵、更慢");
 		bool exported = Time.realtimeSinceStartup - _aiExportedAt < 5f;
-		GUI.Label(new Rect(r.x, r.y, r.width - bwid * 6 - S(42), bh), exported ? string.Format("已导出到桌面：{0}", _aiExportedName) : provider.Name + " · " + AiChat.Model + (AiChat.TokensUsed > 0 ? "　" + string.Format("这次开游戏用了 {0} token", AiChat.TokensUsed) + (AiChat.CachedUsed > 0 ? "　" + string.Format("缓存命中 {0}", AiChat.CachedUsed) : "") : ""), Middle(_muted));
+		GUI.Label(new Rect(r.x, r.y, r.width - bwid * 5 - S(36), bh), exported ? string.Format("已导出到桌面：{0}", _aiExportedName) : provider.Name + " · " + AiChat.Model + (AiChat.TokensUsed > 0 ? "　" + string.Format("这次开游戏用了 {0} token", AiChat.TokensUsed) + (AiChat.CachedUsed > 0 ? "　" + string.Format("缓存命中 {0}", AiChat.CachedUsed) : "") : ""), Middle(_muted));
 		float bx = r.xMax - bwid * 5 - S(24);
 		GUI.enabled = !AiChat.Busy;
 		if (GUI.Button(new Rect(bx, r.y, bwid, bh), "新对话", _aiSmallButton))
@@ -900,6 +905,39 @@ public partial class StoryReviewPanel
 		if (GUI.Button(new Rect(bx + (bwid + S(6)) * 4, r.y, bwid, bh), "AI 设置", _aiSmallButton))
 		{
 			_aiSetup = true;
+		}
+		r = new Rect(r.x, r.y + bh + S(8), r.width, r.height - bh - S(8));
+
+		// 第二行：回答方式、剧透程度、（女主角）攻略提示，几个选项都摆出来，一眼看得到、点一下就换
+		float sx = r.x;
+		int mode = AiChat.Fast ? 0 : AiChat.Deep ? 2 : 1;
+		int pickedMode = ChoiceStrip(ref sx, r.y, bh, "回答方式", new[] { "极速", "标准", "深度" }, mode, new[]
+		{
+			"少查几次资料、提示词更短、不让模型多想：免费额度和本地小模型也能较快回答，答案更粗略",
+			"查好资料再回答，速度和准确都适中",
+			"换用更强的模型，回答前核对资料：更准，也更贵、更慢",
+		});
+		if (pickedMode != mode && !AiChat.Busy)
+		{
+			ConfigManager.AiFastMode.Value = pickedMode == 0;
+			ConfigManager.AiDeepMode.Value = pickedMode == 2;
+		}
+		sx += S(24);
+		int spoiler = Mathf.Clamp(ConfigManager.AiSpoiler.Value, 0, 2);
+		ConfigManager.AiSpoiler.Value = ChoiceStrip(ref sx, r.y, bh, "剧透程度", new[] { "全说", "只说走过的", "只给方向" }, spoiler, new[]
+		{
+			"想知道什么说什么",
+			"只说当前和走过的",
+			"只给方向提示",
+		});
+		if (persona != null)
+		{
+			sx += S(24);
+			ConfigManager.AiHints.Value = ChoiceStrip(ref sx, r.y, bh, "攻略提示", new[] { "问到时给", "不给" }, ConfigManager.AiHints.Value ? 0 : 1, new[]
+			{
+				"问到攻略时给",
+				"只聊天，不给",
+			}) == 0;
 		}
 		r = new Rect(r.x, r.y + bh + S(8), r.width, r.height - bh - S(8));
 		if (_aiHistory)
