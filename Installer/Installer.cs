@@ -1028,6 +1028,10 @@ internal class InstallerForm : Form
 			if (installed != null && newest != null && File.Exists(Path.Combine(_game, "winhttp.dll")) && !mixed && !switchedOff
 				&& (Short(installed) == Short(newest) || installed > newest))
 			{
+				if (Diagnostics.IgnoreDisableSwitch(_game))
+				{
+					Log(L("已打开加载器的 ignore_disable_switch：Steam 被带 Mod 的游戏拉起来过时，从它启动的游戏也照样加载 Mod。"));
+				}
 				DisablePlugins(disable);
 				Logo();
 				Finish(true, F("已经是最新版本 {0}，不需要重新安装。", Short(installed)) + (disable.Count > 0 ? "\n\n" + L("勾选的 Mod 已移到「BepInEx\\DisabledMods」。") : ""));

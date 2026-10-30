@@ -104,6 +104,35 @@ internal static class Diagnostics
 	/// <summary>加载器开关被关掉了（doorstop_config.ini 里 enabled = false）：别的 Mod 管理器停用 BepInEx 时会这样改，Mod 不会加载。</summary>
 	internal static bool DoorstopDisabled(string game) => game != null && DoorstopSwitch(Path.Combine(game, "doorstop_config.ini")).Contains("false");
 
+	/// <summary>
+	/// 把 doorstop_config.ini 里的 ignore_disable_switch 改成 true（改过返回 true）。
+	/// 加载器会给游戏进程设 DOORSTOP_DISABLE=TRUE，防止它启动的程序再被注入；Steam 没开时被带 Mod 的游戏拉起来，
+	/// Steam 就继承了这个变量，之后从它启动的游戏加载器都直接跳过，一点痕迹都不留。打开这个开关就不看这个变量。
+	/// </summary>
+	internal static bool IgnoreDisableSwitch(string game)
+	{
+		string ini = game == null ? null : Path.Combine(game, "doorstop_config.ini");
+		try
+		{
+			if (ini == null || !File.Exists(ini))
+			{
+				return false;
+			}
+			string text = File.ReadAllText(ini);
+			string fixedText = System.Text.RegularExpressions.Regex.Replace(text, @"(?m)^(\s*ignore_disable_switch\s*=\s*)false", "${1}true");
+			if (fixedText == text)
+			{
+				return false;
+			}
+			File.WriteAllText(ini, fixedText);
+			return true;
+		}
+		catch
+		{
+			return false;
+		}
+	}
+
 	// 加载器开关：别的 Mod 管理器停用 BepInEx 时会把 enabled 改成 false，这时 Mod 不会加载
 	private static string DoorstopSwitch(string ini)
 	{
@@ -119,7 +148,8 @@ internal static class Diagnostics
 				if (t.StartsWith("enabled", StringComparison.OrdinalIgnoreCase) && t.Contains("="))
 				{
 					bool on = t.Substring(t.IndexOf('=') + 1).Trim().StartsWith("true", StringComparison.OrdinalIgnoreCase);
-					return on ? "，加载器开着" : "，加载器被关掉了（enabled = false，Mod 不会加载）";
+					string ignore = File.ReadAllText(ini).Contains("ignore_disable_switch = true") ? "，ignore_disable_switch 开着" : "，ignore_disable_switch 关着（Steam 被带 Mod 的游戏拉起来过时，从它启动的游戏不加载 Mod）";
+					return (on ? "，加载器开着" : "，加载器被关掉了（enabled = false，Mod 不会加载）") + ignore;
 				}
 			}
 		}
@@ -150,10 +180,13 @@ internal static class Diagnostics
 		sb.AppendLine("  winhttp.dll：" + DescribeWinHttp(Path.Combine(game, "winhttp.dll")));
 		sb.AppendLine("  doorstop_config.ini：" + Describe(Path.Combine(game, "doorstop_config.ini")) + DoorstopSwitch(Path.Combine(game, "doorstop_config.ini")));
 		sb.AppendLine("  .doorstop_version：" + Describe(Path.Combine(game, ".doorstop_version")));
-		foreach (string core in new[] { "BepInEx.Core.dll", "BepInEx.Unity.Mono.dll", "BepInEx.Preloader.Core.dll", "0Harmony.dll" })
+		foreach (string core in new[] { "BepInEx.Unity.Mono.Preloader.dll", "BepInEx.Core.dll", "BepInEx.Unity.Mono.dll", "BepInEx.Preloader.Core.dll", "0Harmony.dll" })
 		{
 			sb.AppendLine("  BepInEx\\core\\" + core + "：" + Describe(Path.Combine(game, @"BepInEx\core", core)));
 		}
+		sb.AppendLine("  BepInEx\\LogOutput.log：" + Describe(Path.Combine(game, @"BepInEx\LogOutput.log"))
+			+ (File.Exists(Path.Combine(game, @"BepInEx\LogOutput.log")) ? "" : "（BepInEx 从没启动过：游戏没有加载 winhttp.dll，见下面「加载器排查」）"));
+		sb.Append(LoaderCheck.Report(game));
 		sb.AppendLine();
 		sb.AppendLine("BepInEx\\plugins 里的插件：");
 		string plugins = Path.Combine(game, @"BepInEx\plugins");

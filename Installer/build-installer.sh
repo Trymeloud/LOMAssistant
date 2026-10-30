@@ -9,7 +9,7 @@ SDK_DIR="$(dirname "$(command -v "$DOTNET" || echo "$DOTNET")")/sdk"
 CSC="$(find "$SDK_DIR" -path '*Roslyn/bincore/csc.dll' | sort | tail -1)"
 FW="${FW:-/c/Windows/Microsoft.NET/Framework64/v4.0.30319}"
 refs=()
-for n in mscorlib System System.Core System.Drawing System.Windows.Forms System.IO.Compression System.IO.Compression.FileSystem; do
+for n in mscorlib System System.Core System.Drawing System.Windows.Forms System.IO.Compression System.IO.Compression.FileSystem System.Management; do
 	refs+=("-r:$FW/$n.dll")
 done
 mkdir -p bin

@@ -211,6 +211,7 @@ internal static class InstallerText
 		new[] { "导出诊断失败：{0}", "Failed to export diagnostics: {0}", "診断の書き出しに失敗しました：{0}", "진단 내보내기 실패: {0}" },
 		new[] { "导出失败：{0}", "Export failed: {0}", "書き出しに失敗しました：{0}", "내보내기 실패: {0}" },
 		new[] { "已经是最新版本 {0}，不需要重新安装。", "Already on the latest version {0}; no need to reinstall.", "すでに最新版 {0} です。再インストールは不要です。", "이미 최신 버전 {0}입니다. 다시 설치할 필요가 없습니다." },
+		new[] { "已打开加载器的 ignore_disable_switch：Steam 被带 Mod 的游戏拉起来过时，从它启动的游戏也照样加载 Mod。", "Turned on the loader's ignore_disable_switch: games started from a Steam that was launched by a modded game will still load the mod.", "ローダーの ignore_disable_switch をオンにしました。MOD 入りのゲームから起動された Steam から始めたゲームでも MOD が読み込まれます。", "로더의 ignore_disable_switch를 켰습니다. Mod가 적용된 게임이 실행한 Steam에서 시작한 게임에서도 Mod가 로드됩니다." },
 		new[] { "勾选的 Mod 已移到「BepInEx\\DisabledMods」。", "Checked mods were moved to 「BepInEx\\DisabledMods」.", "チェックした MOD は「BepInEx\\DisabledMods」へ移しました。", "체크한 Mod는 「BepInEx\\DisabledMods」로 옮겼습니다." },
 		new[] { "没有可安装的文件：压缩包里没有安装文件，也没能从 GitHub 下载。请把整个压缩包解压后再运行安装器。", "Nothing to install: the zip has no install files and the download from GitHub failed. Extract the whole zip, then run the installer.", "インストールするファイルがありません：ZIP にファイルがなく、GitHub からのダウンロードもできませんでした。ZIP をすべて展開してからインストーラーを実行してください。", "설치할 파일이 없습니다: 압축 파일에 설치 파일이 없고 GitHub에서 내려받지도 못했습니다. 압축 파일 전체를 푼 뒤 설치 프로그램을 실행하세요." },
 		new[] { "已复制 {0} 个文件。", "Copied {0} files.", "{0} 個のファイルをコピーしました。", "파일 {0}개를 복사했습니다." },
