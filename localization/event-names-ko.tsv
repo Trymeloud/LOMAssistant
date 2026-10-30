@@ -1,0 +1,407 @@
+﻿# event ID	Chinese developer label	Korean translation
+Alchemy_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Alchemy_Work_BS_01	P_大成功_001	대성공 이벤트 001
+Alchemy_Work_E_01	不滿	불만
+Alchemy_Work_E_02	滿	만족
+Alchemy_Work_E_03	小梅翹課	우소매의 수업 땡땡이
+Alchemy_Work_F_01	P_失敗_001	실패 이벤트 001
+Alchemy_Work_F_02	P_失敗_002	실패 이벤트 002
+Alchemy_Work_M_01	小梅	우소매
+Alchemy_Work_N_01	P_正常_001	일반 이벤트 001
+Alchemy_Work_S_01	P_成功_001	성공 이벤트 001
+Back_02_E_01	龍湘的挑戰	용상의 도전
+Back_02_N_01	P_正常_001	일반 이벤트 001
+Back_03_E_01	烤魚	생선 굽기
+Back_03_E_02	教小竹練功	욱죽에게 무공 가르치기
+Back_03_E_03	小梅練功	우소매의 무공 수련
+Back_03_N_01	P_正常_001	일반 이벤트 001
+Back_Free_F_01	P_失敗_001	실패 이벤트 001
+Back_Free_M_01	小梅亂入	우소매의 난입
+Back_Free_N_01	P_正常_001	일반 이벤트 001
+Back_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Back_Work_BF_02	P_大失敗_002	대실패 이벤트 002
+Back_Work_E_01	無敵號與一團廢紙	무적호와 종이 뭉치
+Back_Work_E_02	馬富貴 獵人	마부귀의 사냥
+Back_Work_E_03	馬富貴 獵人失敗	마부귀의 사냥 실패
+Back_Work_E_04	馬富貴 挖礦人	광부 마부귀
+Back_Work_E_05	小竹 一起挑柴	욱죽과 함께 땔감 나르기
+Back_Work_E_06	小竹 修繕棧道	욱죽의 잔도 수리
+Back_Work_F_01	P_失敗_001	실패 이벤트 001
+Back_Work_M_01	P_其他_001	기타 이벤트 001
+Back_Work_M_02	登崖眺望	절벽에 올라 경치 바라보기
+Back_Work_M_03	葉雲舟採藥	엽운주의 약초 채집
+Back_Work_M_05	P_其他_005	기타 이벤트 005
+Back_Work_N_01	P_正常_001	일반 이벤트 001
+Back_Work_S_01	P_成功_001	성공 이벤트 001
+Casino_01_BS_01	P_大成功_001	대성공 이벤트 001
+Casino_01_F_01	P_失敗_001	실패 이벤트 001
+Casino_01_S_01	P_成功_001	성공 이벤트 001
+Center_Free_BF_01	P_大失敗_001	대실패 이벤트 001
+Center_Free_BS_01	P_大成功_001	대성공 이벤트 001
+Center_Free_E_01	糾紛1	분쟁 1
+Center_Free_E_02	糾紛2	분쟁 2
+Center_Free_E_03	超團結	강한 단결
+Center_Free_F_01	P_失敗_001	실패 이벤트 001
+Center_Free_F_02	P_失敗_002	실패 이벤트 002
+Center_Free_F_03	P_失敗_003	실패 이벤트 003
+Center_Free_M_01	P_其他_001	기타 이벤트 001
+Center_Free_M_02	P_其他_002	기타 이벤트 002
+Center_Free_M_03	P_其他_003	기타 이벤트 003
+Center_Free_M_04	解無塵帶操	해무진의 훈련 지도
+Center_Free_M_05	丹霞子帶操	단하자의 훈련 지도
+Center_Free_N_01	P_正常_001	일반 이벤트 001
+Center_Free_S_01	P_成功_001	성공 이벤트 001
+Center_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Center_Work_E_01	小竹一起刷地	욱죽과 함께 바닥 청소
+Center_Work_E_02	小竹 有一口井	욱죽과 우물 하나
+Center_Work_F_02	P_失敗_002	실패 이벤트 002
+Center_Work_N_01	P_正常_001	일반 이벤트 001
+Center_Work_S_01	P_成功_001	성공 이벤트 001
+Center_Work_S_02	P_成功_002	성공 이벤트 002
+Ch_3_1_7_2_01_F_01	P_失敗_001	실패 이벤트 001
+Ch_3_1_7_2_01_F_02	P_失敗_002	실패 이벤트 002
+Ch_3_1_7_2_01_N_01	P_正常_001	일반 이벤트 001
+Ch_3_1_7_2_01_N_02	P_正常_002	일반 이벤트 002
+Ch_3_6_1_01_E_01	P_特殊_001	특수 이벤트 001
+Ch_3_6_1_01_E_02	P_特殊_002	특수 이벤트 002
+Ch_3_6_1_01_E_03	P_特殊_003	특수 이벤트 003
+Ch_3_6_1_01_E_04	P_特殊_004	특수 이벤트 004
+Ch_3_6_1_01_E_06	小竹	욱죽
+Ch_6_4_3_2_01_E_01	龍湘吹簫	용상의 퉁소 연주
+Ch_6_4_3_2_01_E_02	小梅奏你	우소매의 연주
+Ch_6_4_3_2_01_E_03	雲裳彈琴	엽운상의 거문고 연주
+Ch_6_4_3_2_01_E_04	龍湘吹簫小師妹崇拜	용상의 퉁소 연주를 동경하는 소사매
+Chess_01_F_01	P_失敗_001	실패 이벤트 001
+Chess_01_F_02	P_失敗_002	실패 이벤트 002
+Chess_01_S_01	P_成功_001	성공 이벤트 001
+Chess_02_F_01	P_失敗_001	실패 이벤트 001
+Chess_02_S_01	P_成功_001	성공 이벤트 001
+Chess_02_S_02	P_成功_002	성공 이벤트 002
+Chess_03_F_01	P_失敗_001	실패 이벤트 001
+Chess_03_S_01	P_成功_001	성공 이벤트 001
+Craft_Work_E_01	修繕崆峒山道	공동산 산길 보수
+Craft_Work_E_02	修繕山道dead End	산길 보수: 막다른 길
+Craft_Work_E_03	精美的簪子	아름다운 비녀
+Craft_Work_E_04	趙活磨喝樂	조활의 마갈락
+Craft_Work_E_05	修葺地牢	지하 감옥 수리
+Craft_Work_E_06	戰鬥陀螺殺人事件	배틀 팽이 살인 사건
+Craft_Work_E_07	牙控車殺人事件	아공차 살인 사건
+Craft_Work_E_08	大師兄的機關甲衣	대사형의 기관 갑옷
+Craft_Work_E_09	修葺飛天殿	비천전 수리
+Craft_Work_E_10	修繕唐門	당문 보수
+Craft_Work_F_01	被小竹趕出門	욱죽에게 문전박대당함
+Craft_Work_F_02	補屋頂失敗	지붕 보수 실패
+Craft_Work_F_03	打魚	물고기 잡기
+Craft_Work_N_01	農具	농기구
+Craft_Work_N_02	廚具	조리 도구
+Craft_Work_N_03	獵具	사냥 도구
+Craft_Work_N_04	磨針	바늘 갈기
+Craft_Work_N_05	補屋頂	지붕 보수
+Craft_Work_S_01	保養工具	도구 손질
+Craft_Work_S_02	香具	향 도구
+Craft_Work_S_03	茶具	다구
+Door_02_E_01	小梅亂入	우소매의 난입
+Door_02_E_02	我有帶秘笈	비급을 가져왔다
+Door_02_E_03	龍之反省	용의 반성
+Door_02_E_04	排隊的龍湘	줄 서 있는 용상
+Door_02_E_05	馬富貴 大宋閒漢	마부귀: 송나라 한량
+Door_02_E_06	馬富貴 買飲料	마부귀: 음료 구매
+Door_02_E_07	福韞 揍你	복온이 때림
+Door_02_N_01	P_正常_001	일반 이벤트 001
+Door_Free_BF_01	P_大失敗_001	대실패 이벤트 001
+Door_Free_BS_01	P_大成功_001	대성공 이벤트 001
+Door_Free_E_02	龍湘挑戰1	용상의 도전 1
+Door_Free_E_03	龍湘挑戰2	용상의 도전 2
+Door_Free_E_04	龍湘服務生1	점원 용상 1
+Door_Free_E_05	龍湘服務生2	점원 용상 2
+Door_Free_E_06	龍湘服務生3	점원 용상 3
+Door_Free_E_07	馬富貴 胸口碎大石	마부귀: 가슴 위 바위 깨기
+Door_Free_E_08	馬富貴 弄蛇成功	마부귀: 뱀 부리기 성공
+Door_Free_E_09	馬富貴 弄蛇失敗	마부귀: 뱀 부리기 실패
+Door_Free_E_10	馬富貴 弄蛇大成功	마부귀: 뱀 부리기 대성공
+Door_Free_E_11	馬富貴 釣魚	마부귀의 낚시
+Door_Free_E_12	福韞 化緣	복온의 탁발
+Door_Free_E_13	小竹與飛石幫1	욱죽과 비석방 1
+Door_Free_E_14	小竹與飛石幫2	욱죽과 비석방 2
+Door_Free_E_15	小竹與飛石幫3	욱죽과 비석방 3
+Door_Free_E_16	和小梅跑步	우소매와 함께 달리기
+Door_Free_E_17	眉山探險隊	미산 탐험대
+Door_Free_F_01	P_失敗_001	실패 이벤트 001
+Door_Free_F_02	P_失敗_002	실패 이벤트 002
+Door_Free_F_03	P_失敗_003	실패 이벤트 003
+Door_Free_F_04	P_失敗_004	실패 이벤트 004
+Door_Free_M_01	P_其他_001	기타 이벤트 001
+Door_Free_M_02	P_其他_002	기타 이벤트 002
+Door_Free_M_03	P_其他_003	기타 이벤트 003
+Door_Free_M_04	P_其他_004	기타 이벤트 004
+Door_Free_N_01	P_正常_001	일반 이벤트 001
+Door_Free_S_01	P_成功_001	성공 이벤트 001
+Door_Free_S_02	小師妹出嫁後消滅	소사매가 시집간 뒤 사라짐
+Door_Free_S_03	P_成功_003	성공 이벤트 003
+Door_Girl_05_N_01	P_正常_001	일반 이벤트 001
+Door_Girl_05_N_02	P_正常_002	일반 이벤트 002
+Door_Girl_05_S_01	P_特殊_001	특수 이벤트 001
+Door_Girl_05_S_02	P_特殊_002	특수 이벤트 002
+Door_Girl_05_S_03	P_特殊_003	특수 이벤트 003
+Door_Girl_05_S_04	P_特殊_004	특수 이벤트 004
+Door_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Door_Work_BS_01	P_大成功_001	대성공 이벤트 001
+Door_Work_BS_02	P_大成功_002	대성공 이벤트 002
+Door_Work_F_01	P_失敗_001	실패 이벤트 001
+Door_Work_N_01	P_正常_001	일반 이벤트 001
+Door_Work_S_01	P_成功_001	성공 이벤트 001
+Farm_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Farm_Work_N_01	P_正常_001	일반 이벤트 001
+Farm_Work_S_01	P_成功_001	성공 이벤트 001
+Fish_01_BF_01	P_大失敗_001	대실패 이벤트 001
+Fish_01_F_01	P_失敗_001	실패 이벤트 001
+Fish_01_S_01	P_成功_001	성공 이벤트 001
+Forge_01_E_01	P_特殊_001	특수 이벤트 001
+Forge_01_N_01	P_正常_001	일반 이벤트 001
+Forge_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Forge_Work_E_01	不滿	불만
+Forge_Work_E_02	滿	만족
+Forge_Work_F_01	P_失敗_001	실패 이벤트 001
+Forge_Work_N_01	P_正常_001	일반 이벤트 001
+Forge_Work_S_01	P_成功_001	성공 이벤트 001
+Fortress_02_E_01	龍湘與福韞	용상과 복온
+Fortress_02_N_01	P_正常_001	일반 이벤트 001
+Fortress_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Fortress_Work_BS_01	P_大成功_001	대성공 이벤트 001
+Fortress_Work_E_01	福韞 講法1	복온의 설법 1
+Fortress_Work_E_02	福韞 講法2	복온의 설법 2
+Fortress_Work_E_03	福韞 講法3	복온의 설법 3
+Fortress_Work_F_01	P_失敗_001	실패 이벤트 001
+Fortress_Work_M_01	苦命葉雲舟	고생하는 엽운주
+Fortress_Work_M_02	葉雲舟 木劍	엽운주: 목검
+Fortress_Work_M_03	葉雲舟 葉家劍法	엽운주: 엽가검법
+Fortress_Work_S_01	P_成功_001	성공 이벤트 001
+Fortress_Work_S_02	P_成功_002	성공 이벤트 002
+GirlRoom_Free_BF_01	P_大失敗_001	대실패 이벤트 001
+GirlRoom_Free_F_01	P_失敗_001	실패 이벤트 001
+GirlRoom_Free_N_01	P_正常_001	일반 이벤트 001
+GirlRoom_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+GirlRoom_Work_F_01	P_失敗_001	실패 이벤트 001
+GirlRoom_Work_S_01	P_成功_001	성공 이벤트 001
+Kitchen_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Kitchen_Work_E_01	P_特殊_001	특수 이벤트 001
+Kitchen_Work_E_02	小梅的菜1	우소매의 요리 1
+Kitchen_Work_E_03	小梅的菜2	우소매의 요리 2
+Kitchen_Work_E_04	小梅的菜3	우소매의 요리 3
+Kitchen_Work_F_01	P_失敗_001	실패 이벤트 001
+Kitchen_Work_M_01	P_其他_001	기타 이벤트 001
+Kitchen_Work_M_02	P_其他_002	기타 이벤트 002
+Kitchen_Work_M_03	假趙活 請客	가짜 조활의 한턱내기
+Kitchen_Work_N_01	P_正常_001	일반 이벤트 001
+Kitchen_Work_S_01	掌門米糊糊	장문인의 쌀죽
+Kitchen_Work_S_02	P_成功_002	성공 이벤트 002
+Kitchen_Work_S_03	P_成功_003	성공 이벤트 003
+Mall_Free_Result_BF_01	P_大失敗_001	대실패 이벤트 001
+Mall_Free_Result_F_01	P_失敗_001	실패 이벤트 001
+Mall_Free_Result_N_01	P_正常_001	일반 이벤트 001
+Mall_Free_Result_N_02	P_正常_002	일반 이벤트 002
+Mall_Free_Result_S_01	P_成功_001	성공 이벤트 001
+Mall_Free_Result_S_02	P_成功_002	성공 이벤트 002
+Mall_Work_Result_BF_01	P_大失敗_001	대실패 이벤트 001
+Mall_Work_Result_E_01	P_特殊_001	특수 이벤트 001
+Mall_Work_Result_E_02	小梅問安	우소매의 안부 인사
+Mall_Work_Result_E_03	小梅問安2	우소매의 안부 인사 2
+Mall_Work_Result_F_01	P_失敗_001	실패 이벤트 001
+Mall_Work_Result_F_02	P_失敗_002	실패 이벤트 002
+Mall_Work_Result_F_03	P_失敗_003	실패 이벤트 003
+Mall_Work_Result_M_03	P_其他_003	기타 이벤트 003
+Mall_Work_Result_M_04	P_其他_004	기타 이벤트 004
+Mall_Work_Result_M_05	P_其他_005	기타 이벤트 005
+Mall_Work_Result_N_01	P_正常_001	일반 이벤트 001
+Pharmacy_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Pharmacy_Work_BS_01	P_大成功_001	대성공 이벤트 001
+Pharmacy_Work_E_01	P_特殊_001	특수 이벤트 001
+Pharmacy_Work_E_02	P_特殊_002	특수 이벤트 002
+Pharmacy_Work_F_01	P_失敗_001	실패 이벤트 001
+Pharmacy_Work_F_02	P_失敗_002	실패 이벤트 002
+Pharmacy_Work_F_03	P_失敗_003	실패 이벤트 003
+Pharmacy_Work_N_01	P_正常_001	일반 이벤트 001
+Pharmacy_Work_N_02	P_正常_002	일반 이벤트 002
+Pharmacy_Work_S_01	P_成功_001	성공 이벤트 001
+Pharmacy_Work_S_02	P_成功_002	성공 이벤트 002
+Pharmacy_Work_S_03	P_成功_003	성공 이벤트 003
+Room_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Room_Work_BS_01	P_大成功_001	대성공 이벤트 001
+Room_Work_E_01	福韞 講法1	복온의 설법 1
+Room_Work_E_02	福韞 講法2	복온의 설법 2
+Room_Work_N_01	P_正常_001	일반 이벤트 001
+S2321_04_03_02_BS_01	P_大成功_001	대성공 이벤트 001
+S2321_04_03_02_BS_02	P_大成功_002	대성공 이벤트 002
+S2321_04_03_02_F_01	P_失敗_001	실패 이벤트 001
+S2321_04_03_02_N_01	P_正常_001	일반 이벤트 001
+S2321_04_03_03_BS_01	P_大成功_001	대성공 이벤트 001
+S2321_04_03_03_S_01	P_成功_001	성공 이벤트 001
+S2800_02_Break_01_F_01	自暴自棄	자포자기
+S2800_02_Break_01_N_01	打坐調息	좌선하며 운기조식
+S2800_02_Break_01_N_02	活動筋骨	몸 풀기
+S2800_02_Break_01_S_01	嘗試逃獄	탈옥 시도
+S2800_02_Break_01_S_02	聊天（瑞笙在場限定	대화 (서생이 있을 때만)
+S2800_02_Break_01_S_03	聊天（瑞笙在場限定2	대화 (서생이 있을 때만) 2
+S2800_02_Break_01_S_04	有偷油婆	바퀴벌레 등장
+Section_01_00_E_01	P_特殊_001	특수 이벤트 001
+Section_01_00_M_01	欺負人	다른 사람 괴롭히기
+Section_01_00_N_01	P_正常_001	일반 이벤트 001
+Section_01_00_N_02	P_正常_002	일반 이벤트 002
+Section_01_01_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_01_BS_02	P_大成功_002	대성공 이벤트 002
+Section_01_01_BS_03	P_大成功_003	대성공 이벤트 003
+Section_01_01_F_01	P_失敗_001	실패 이벤트 001
+Section_01_01_M_01	飛天弟子找碴	비천문 제자의 시비
+Section_01_01_S_01	P_成功_001	성공 이벤트 001
+Section_01_02_BF_01	P_大失敗_001	대실패 이벤트 001
+Section_01_02_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_02_BS_02	P_大成功_002	대성공 이벤트 002
+Section_01_02_BS_03	P_大成功_003	대성공 이벤트 003
+Section_01_02_F_01	P_失敗_001	실패 이벤트 001
+Section_01_02_S_01	P_成功_001	성공 이벤트 001
+Section_01_02_S_02	P_成功_002	성공 이벤트 002
+Section_01_02_Start_E_01	P_特殊_001	특수 이벤트 001
+Section_01_02_Start_E_02	P_特殊_002	특수 이벤트 002
+Section_01_02_Start_E_03	P_特殊_003	특수 이벤트 003
+Section_01_02_Start_E_04	P_特殊_004	특수 이벤트 004
+Section_01_02_Start_E_05	P_特殊_005	특수 이벤트 005
+Section_01_02_Start_E_06	P_特殊_006	특수 이벤트 006
+Section_01_02_Start_N_01	P_正常_001	일반 이벤트 001
+Section_01_03_BF_01	P_大失敗_001	대실패 이벤트 001
+Section_01_03_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_03_BS_02	P_大成功_002	대성공 이벤트 002
+Section_01_03_E_01	被小竹無視	욱죽에게 무시당함
+Section_01_03_F_01	P_失敗_001	실패 이벤트 001
+Section_01_03_N_01	P_正常_001	일반 이벤트 001
+Section_01_03_S_01	P_成功_001	성공 이벤트 001
+Section_01_04_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_04_S_01	P_成功_001	성공 이벤트 001
+Section_01_04_S_02	P_成功_002	성공 이벤트 002
+Section_01_06_01_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_06_01_S_01	P_成功_001	성공 이벤트 001
+Section_01_06_01_S_02	P_成功_002	성공 이벤트 002
+Section_01_06_01_S_03	P_成功_003	성공 이벤트 003
+Section_01_06_02_01_E_01	P_特殊_001	특수 이벤트 001
+Section_01_06_02_01_E_02	P_特殊_002	특수 이벤트 002
+Section_01_06_02_01_E_03	P_特殊_003	특수 이벤트 003
+Section_01_06_02_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_06_02_F_01	P_失敗_001	실패 이벤트 001
+Section_01_06_02_S_01	P_成功_001	성공 이벤트 001
+Section_01_07_01_E_01	P_特殊_001	특수 이벤트 001
+Section_01_07_01_E_02	P_特殊_002	특수 이벤트 002
+Section_01_07_01_E_03	P_特殊_003	특수 이벤트 003
+Section_01_07_02_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_07_02_BS_02	P_大成功_002	대성공 이벤트 002
+Section_01_07_02_E_01	P_特殊_001	특수 이벤트 001
+Section_01_07_02_E_02	P_特殊_002	특수 이벤트 002
+Section_01_07_02_E_04	P_特殊_004	특수 이벤트 004
+Section_01_07_02_N_01	P_正常_001	일반 이벤트 001
+Section_01_07_02_N_02	P_正常_002	일반 이벤트 002
+Section_01_07_02_S_01	P_成功_001	성공 이벤트 001
+Section_01_07_02_S_02	P_成功_002	성공 이벤트 002
+Section_01_07_02_S_03	P_成功_003	성공 이벤트 003
+Section_01_07_BF_01	P_大失敗_001	대실패 이벤트 001
+Section_01_07_BS_01	P_大成功_001	대성공 이벤트 001
+Section_01_07_BS_02	P_大成功_002	대성공 이벤트 002
+Section_01_07_BS_03	P_大成功_003	대성공 이벤트 003
+Section_01_07_F_01	P_失敗_001	실패 이벤트 001
+Section_01_07_F_02	P_失敗_002	실패 이벤트 002
+Section_01_07_S_01	P_成功_001	성공 이벤트 001
+Section_01_07_S_02	P_成功_002	성공 이벤트 002
+Section_01_08_06_E_01	P_特殊_001	특수 이벤트 001
+Section_01_08_06_E_02	P_特殊_002	특수 이벤트 002
+Section_01_08_06_E_03	P_特殊_003	특수 이벤트 003
+Section_01_08_06_E_04	P_特殊_004	특수 이벤트 004
+Section_01_08_06_E_05	P_特殊_005	특수 이벤트 005
+Section_02_00_E_01	P_特殊_001	특수 이벤트 001
+Section_02_00_E_02	P_特殊_002	특수 이벤트 002
+Section_02_00_E_03	P_特殊_003	특수 이벤트 003
+Section_02_00_N_01	P_正常_001	일반 이벤트 001
+Section_02_00_N_02	P_正常_002	일반 이벤트 002
+Section_02_01_01_E_01	P_特殊_001	특수 이벤트 001
+Section_02_01_01_N_01	P_正常_001	일반 이벤트 001
+Section_02_01_02_BS_01	P_大成功_001	대성공 이벤트 001
+Section_02_01_02_E_01	P_特殊_001	특수 이벤트 001
+Section_02_01_02_E_02	P_特殊_002	특수 이벤트 002
+Section_02_01_02_M_01	P_其他_001	기타 이벤트 001
+Section_02_01_02_M_02	P_其他_002	기타 이벤트 002
+Section_02_01_02_N_01	P_正常_001	일반 이벤트 001
+Section_02_01_02_N_02	P_正常_002	일반 이벤트 002
+Section_02_01_02_S_01	P_成功_001	성공 이벤트 001
+Section_02_01_02_S_02	P_成功_002	성공 이벤트 002
+Section_02_01_02_S_03	P_成功_003	성공 이벤트 003
+Section_02_02_01_BF_01	P_大失敗_001	대실패 이벤트 001
+Section_02_02_01_BS_01	P_大成功_001	대성공 이벤트 001
+Section_02_02_01_BS_02	P_大成功_002	대성공 이벤트 002
+Section_02_02_01_F_01	P_失敗_001	실패 이벤트 001
+Section_02_02_01_F_02	P_失敗_002	실패 이벤트 002
+Section_02_02_01_S_01	P_成功_001	성공 이벤트 001
+Section_02_02_01_S_02	P_成功_002	성공 이벤트 002
+Section_02_02_02_E_01	P_特殊_001	특수 이벤트 001
+Section_02_02_02_E_02	P_特殊_002	특수 이벤트 002
+Section_02_02_02_F_01	P_失敗_001	실패 이벤트 001
+Section_02_02_02_S_01	P_成功_001	성공 이벤트 001
+Section_02_03_01_BS_01	P_大成功_001	대성공 이벤트 001
+Section_02_03_01_F_01	P_失敗_001	실패 이벤트 001
+Section_02_03_01_F_02	P_失敗_002	실패 이벤트 002
+Section_02_03_01_N_01	P_正常_001	일반 이벤트 001
+Section_02_03_01_S_01	P_成功_001	성공 이벤트 001
+Section_02_03_01_S_02	P_成功_002	성공 이벤트 002
+Section_02_03_02_BF_01	P_大失敗_001	대실패 이벤트 001
+Section_02_03_02_E_01	P_大成功_001	대성공 이벤트 001
+Section_02_03_02_F_01	P_失敗_001	실패 이벤트 001
+Section_02_03_02_N_01	P_正常_001	일반 이벤트 001
+Section_02_03_02_S_01	P_成功_001	성공 이벤트 001
+Section_02_03_03_E_01	P_特殊_001	특수 이벤트 001
+Section_02_03_03_E_02	P_特殊_002	특수 이벤트 002
+Section_02_03_03_F_01	P_失敗_001	실패 이벤트 001
+Section_02_03_03_M_01	P_其他_001	기타 이벤트 001
+Section_02_03_03_M_02	P_其他_002	기타 이벤트 002
+Section_02_03_03_N_01	P_正常_001	일반 이벤트 001
+Section_02_03_03_N_02	P_正常_002	일반 이벤트 002
+Section_02_03_03_S_01	P_成功_001	성공 이벤트 001
+Section_02_03_03_S_02	P_成功_002	성공 이벤트 002
+Section_02_03_03_S_03	P_成功_003	성공 이벤트 003
+Spa_Free_BF_01	P_大失敗_001	대실패 이벤트 001
+Spa_Free_E_01	P_特殊_001	특수 이벤트 001
+Spa_Free_E_02	小梅偷窺	우소매의 엿보기
+Spa_Free_F_01	P_失敗_001	실패 이벤트 001
+Spa_Free_N_01	P_正常_001	일반 이벤트 001
+Study_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Study_Work_E_01	P_特殊_001	특수 이벤트 001
+Study_Work_E_02	P_特殊_002	특수 이벤트 002
+Study_Work_F_01	P_失敗_001	실패 이벤트 001
+Study_Work_N_01	P_正常_001	일반 이벤트 001
+Teashop_Work_BF_01	P_大失敗_001	대실패 이벤트 001
+Teashop_Work_BF_02	P_大失敗_002	대실패 이벤트 002
+Teashop_Work_BF_03	P_大失敗_003	대실패 이벤트 003
+Teashop_Work_BS_01	P_大成功_001	대성공 이벤트 001
+Teashop_Work_E_01	P_特殊_001	특수 이벤트 001
+Teashop_Work_F_01	P_失敗_001	실패 이벤트 001
+Teashop_Work_S_01	P_成功_001	성공 이벤트 001
+Teashop_Work_S_02	P_成功_002	성공 이벤트 002
+Travel_E_01	P_特殊_001	특수 이벤트 001
+Travel_E_01	官兵護航	관군의 호송
+Travel_E_02	P_特殊_002	특수 이벤트 002
+Travel_E_02	龍湘出來迎接你	용상이 마중 나옴
+Travel_E_03	P_特殊_003	특수 이벤트 003
+Travel_E_04	遭遇了火炎山劍閣	화염산 검각과 조우
+Travel_E_04	P_特殊_004	특수 이벤트 004
+Travel_F_01	遭遇地獄道鬼卒攔路	지옥도 귀졸의 길막
+Travel_F_01	P_失敗_001	실패 이벤트 001
+Travel_F_02	遭遇畜生道乞丐攔路	축생도 거지의 길막
+Travel_F_02	P_失敗_002	실패 이벤트 002
+Travel_F_03	遭遇餓鬼道海賊攔路	아귀도 해적의 길막
+Travel_F_03	P_失敗_003	실패 이벤트 003
+Travel_M_01	P_其他_001	기타 이벤트 001
+Travel_M_01	遭遇峨嵋派	아미파와 조우
+Travel_M_02	P_其他_002	기타 이벤트 002
+Travel_M_02	遭遇青城派	청성파와 조우
+Travel_M_03	P_其他_003	기타 이벤트 003
+Travel_M_03	遭遇崆峒派	공동파와 조우
+Travel_M_04	遭遇點蒼派	점창파와 조우
+Travel_M_05	遭遇全真派	전진파와 조우
+Travel_M_06	遭遇嵩山派	숭산파와 조우
+Travel_N_01	P_正常_001	일반 이벤트 001
+Travel_N_02	P_正常_002	일반 이벤트 002
+Walk_01_S_01	P_成功_001	성공 이벤트 001

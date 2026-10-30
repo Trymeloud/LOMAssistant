@@ -28,6 +28,8 @@ mkdir -p bin
 	-resource:LOMAssistant.Features.AnytimeSave/Replay.lua,LOMAssistant.AnytimeSave.Replay.lua \
 	-resource:LOMAssistant.Features.AnytimeSave/contract.tsv.gz,LOMAssistant.AnytimeSave.contract.tsv.gz \
 	-resource:LOMAssistant/conditions.json.gz,LOMAssistant.conditions.json.gz \
+	-resource:localization/flag-names-ko.tsv,LOMAssistant.flag-names-ko.tsv \
+	-resource:localization/event-names-ko.tsv,LOMAssistant.event-names-ko.tsv \
 	-resource:CHANGELOG.md,LOMAssistant.CHANGELOG.md \
 	-resource:CHANGELOG.ja.md,LOMAssistant.CHANGELOG.ja.md \
 	-resource:CHANGELOG.ko.md,LOMAssistant.CHANGELOG.ko.md \

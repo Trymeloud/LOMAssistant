@@ -7,6 +7,10 @@ namespace LOMAssistant.Features.Ai;
 /// </summary>
 internal static class AiPrompts
 {
+	// Korean instructions use the same language/mode entry points as the other languages.
+	public static string Summary(string original) => NativeKorean.Enabled ? KoreanAiPrompt.Summary : original;
+	public static string KoreanPersona(AiPersona persona, string spoiler, bool fast) =>
+		AiReplyLanguage.Apply(persona.KoreanPrompt(spoiler, fast), UiText.Korean, persona.Id) + "\n\n" + LanguageRule;
 	/// <summary>按界面语言挑一份。</summary>
 	public static string L(string zh, string en, string ko, string ja, string hant)
 	{
@@ -34,14 +38,14 @@ internal static class AiPrompts
 		"用简体中文回答；玩家用别的语言写时，就用那种语言回答。",
 		"Answer in English, including the actions in parentheses and the strategy tip. If the player writes in another language, answer in that language. "
 			+ "The game data, quotes and notes you are given are in Chinese because the game is; translate names and terms into English (romanize names in pinyin) and never answer in Chinese.",
-		"한국어로 답하세요. 괄호 속 동작 묘사와 공략 힌트도 한국어로 씁니다. 플레이어가 다른 언어로 쓰면 그 언어로 답하세요. "
-			+ "받는 게임 자료, 대사, 설정은 게임이 중국어라서 중국어로 되어 있습니다. 인명과 용어는 한국어로 옮겨 쓰고(인명은 한자음으로), 중국어로 답하지 마세요.",
+		KoreanAiPrompt.LanguageRule,
 		"日本語で答えてください。括弧内の動作や攻略ヒントも日本語で書きます。プレイヤーが別の言語で書いたら、その言語で答えてください。"
 			+ "渡されるゲーム資料、台詞、設定はゲームが中国語なので中国語です。人名や用語は日本語にして（人名は漢字のまま日本の字体で）、中国語では答えないでください。",
 		"用繁體中文回答；玩家用別的語言寫時，就用那種語言回答。資料是簡體中文，引用時也換成繁體。");
 
 	public static string Spoiler(int level)
 	{
+		if (NativeKorean.Enabled) return KoreanAiPrompt.Spoiler(level);
 		switch (level)
 		{
 			case 1:
@@ -77,7 +81,8 @@ internal static class AiPrompts
 						+ "Translate names and terms (romanize Chinese names in pinyin). Keep the marker 【攻略提示】 and the last line [表情: …] exactly as they are. Output only the rewritten message.";
 				case UiText.Korean:
 					return "사용자가 보내는 글을 전부 자연스러운 한국어로 다시 쓰세요. 뜻, 말투, 문단, 괄호 속 동작 묘사는 그대로 살립니다. "
-						+ "인명과 용어도 한국어로 옮기세요(중국 인명은 한자음으로). 「【攻略提示】」 표시와 마지막 줄 [表情: …]는 그대로 두세요. 다시 쓴 글만 출력하세요.";
+						+ "공식 한국어 이름과 호칭을 사용하세요. 공략 힌트 표시는 원래 형식(【공략 힌트】 또는 【攻略提示】)을 유지하고, "
+						+ "마지막 표정 메타데이터의 키와 코드는 바꾸지 마세요. 다시 쓴 글만 출력하세요.\n" + AiReplyLanguage.KoreanRules(null);
 				case UiText.Japanese:
 					return "ユーザーが送る文を、すべて自然な日本語に書き直してください。意味、口調、段落、括弧内の動作はそのまま残します。"
 						+ "人名や用語も日本語にしてください（中国の人名は漢字のまま日本の字体で）。「【攻略提示】」の記号と最後の行の[表情: …]はそのままにしてください。書き直した文だけを出力してください。";
@@ -154,6 +159,7 @@ internal static class AiPrompts
 	/// <summary>攻略助手的系统提示词。</summary>
 	public static string Assistant(string spoiler)
 	{
+		if (NativeKorean.Enabled) return AiReplyLanguage.Apply(KoreanAiPrompt.Assistant(spoiler), UiText.Korean, null) + "\n\n" + LanguageRule;
 		return L(AssistantZh(spoiler), AssistantEn(spoiler), AssistantKo(spoiler), AssistantJa(spoiler),
 			AssistantHant(spoiler));
 	}
@@ -161,6 +167,12 @@ internal static class AiPrompts
 	/// <summary>极速模式的攻略助手：只留最要紧的几条，小模型读得完、照得做。</summary>
 	public static string FastAssistant(string spoiler)
 	{
+		if (NativeKorean.Enabled) return AiReplyLanguage.Apply(
+			"당신은 활협전의 공략 도우미입니다. 주인공은 조활입니다.\n"
+			+ "스토리·조건·수치는 도구로 확인하고 찾지 못하면 그렇다고 말하세요. 두세 번까지만 조회하고 짧게 답하세요.\n"
+			+ "현재 진행과 선택지는 player_state, 이야기와 선택 결과는 search·script, 인연은 heroine을 사용하세요. 복잡한 경로의 최댓값이나 합계가 필요하면 일반 모드에서 다시 확인하도록 안내하세요. 서로 배타적인 경로의 수치를 더하지 마세요.\n"
+			+ "수치·호감도 변경은 propose_change로 제안하며 사용자가 카드에서 확인해야 적용됩니다. 도구 이름과 매개변수를 답변에 쓰지 마세요.\n"
+			+ "스포일러: " + spoiler + "\n" + LanguageRule, UiText.Korean, null) + "\n\n" + LanguageRule;
 		return L(
 			"你是武侠游戏《活侠传》的攻略助手，在游戏 Mod「咖啡伴侣」里回答玩家的问题。玩家操控的主角是赵活。\n\n"
 				+ "- 剧情、条件、结局以工具查到的资料为准，查不到就说查不到，不要编。\n"

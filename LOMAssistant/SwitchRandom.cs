@@ -184,6 +184,9 @@ internal static class SwitchRandom
 		try
 		{
 			condition = RichText.Strip(DataHelper.SwitchBranchCondition(name, branch)).Trim();
+			if (NativeKorean.Enabled)
+				condition = System.Text.RegularExpressions.Regex.Replace(condition, @"난수\((-?\d+)~(-?\d+)\) 필요 (<=|>=|<|>|=|!=)(-?\d+) → 현재 -?\d+",
+					m => "난수(" + m.Groups[1].Value + "~" + m.Groups[2].Value + ") " + m.Groups[3].Value + m.Groups[4].Value);
 			// 「随机值_0_100 需<=72 → 当前0」：当前值是定住的数，没有意义，写成「随机数（0～100）≤ 72」
 			condition = System.Text.RegularExpressions.Regex.Replace(condition, @"随机值_(-?\d+)_(-?\d+)\s*需\s*(<=|>=|<|>|=|!=)\s*(-?\d+)\s*→\s*当前\s*-?\d+",
 				m => "随机数（" + m.Groups[1].Value + "～" + m.Groups[2].Value + "）" + (m.Groups[3].Value == "<=" ? "≤" : m.Groups[3].Value == ">=" ? "≥" : m.Groups[3].Value) + " " + m.Groups[4].Value);
@@ -201,7 +204,9 @@ internal static class SwitchRandom
 			{
 				where = string.Join("；", s.Exits
 					.Where(e => e.Path.Any(p => p.Kind == StoryStep.Branch && p.Key == name && p.Arm == arm))
-					.Select(e => e.ToTitle ? "回到标题（结局）" : e.ToMap ? "回到地图" : e.Target.Length > 0 ? "接到「" + Segment(e.Target) + "」" : "")
+					.Select(e => e.ToTitle ? NativeKorean.Text(KoreanMessage.BranchEnding, "回到标题（结局）")
+						: e.ToMap ? StoryUi.Text(KoreanStoryMessage.BackToMap, "回到地图")
+						: e.Target.Length > 0 ? NativeKorean.Text(KoreanMessage.BranchDestination, "接到「{0}」", Segment(e.Target)) : "")
 					.Where(x => x.Length > 0).Distinct().Take(2).ToArray());
 			}
 		}
@@ -209,7 +214,7 @@ internal static class SwitchRandom
 		{
 			where = "";
 		}
-		return where.Length > 0 ? (where, condition) : (condition.Length > 0 ? condition : "第 " + branch + " 条路", "");
+		return where.Length > 0 ? (where, condition) : (condition.Length > 0 ? condition : NativeKorean.Text(KoreanMessage.BranchNumber, "第 {0} 条路", branch), "");
 	}
 
 	// 剧情段的名字：有剧情记录用记录，没有就用它的第一句台词（剧本名玩家看不懂）

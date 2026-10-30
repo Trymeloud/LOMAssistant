@@ -327,6 +327,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 
 	private void DrawWindowContent(int id)
 	{
+		RefreshStoryLanguage();
 		_tooltip = "";
 		float w = _windowRect.width, pad = S(18);
 		// 确认框开着时，点击、滚轮、按键先给确认框，剩下的吞掉，下面的界面不响应
@@ -551,7 +552,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 		bool focused = GUI.GetNameOfFocusedControl() == name;
 		if (string.IsNullOrEmpty(value) && !focused)
 		{
-			GUI.Label(new Rect(r.x + S(10), r.y, S(80), r.height), "搜索", _center);
+			GUI.Label(new Rect(r.x + S(10), r.y, S(80), r.height), StoryUi.Text(KoreanStoryMessage.Search, "搜索"), _center);
 		}
 		else if (GUI.Button(new Rect(r.xMax - S(40), r.y, S(40), r.height), "×", _button))
 		{
@@ -684,7 +685,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 
 	private static string Short(string text, int length)
 	{
-		text = RichText.Strip(text ?? "").Replace("\n", " ");
+		text = RichText.Strip(TextConverter.ForDisplay(text ?? "")).Replace("\n", " ");
 		return text.Length <= length ? text : text.Substring(0, length) + "…";
 	}
 
@@ -790,7 +791,8 @@ public partial class StoryReviewPanel : MonoBehaviour
 		}
 		StoryScript next = StoryScripts.Get(exit.Target);
 		int? read = next != null ? StoryScripts.ReadPercent(next.Lines) : null;
-		mark = read == null || read == 100 ? "" : read == 0 ? "〔未读〕" : "〔读过 " + read + "%〕";
+		mark = NativeKorean.Enabled ? KoreanStoryText.ReadMark(read)
+			: read == null || read == 100 ? "" : read == 0 ? "〔未读〕" : "〔读过 " + read + "%〕";
 		_reading[exit.Target] = mark;
 		return mark;
 	}
@@ -806,8 +808,8 @@ public partial class StoryReviewPanel : MonoBehaviour
 		{
 			StoryAtlas.Start();
 		}
-		GUI.Label(new Rect(r.x, r.y + S(20), r.width, S(30)), StoryAtlas.Status, _label);
-		if (!StoryAtlas.Building && GUI.Button(new Rect(r.x, r.y + S(60), S(140), S(36)), "重新生成", _button))
+		GUI.Label(new Rect(r.x, r.y + S(20), r.width, S(30)), StoryAtlas.DisplayStatus, _label);
+		if (!StoryAtlas.Building && GUI.Button(new Rect(r.x, r.y + S(60), S(140), S(36)), StoryUi.Text(KoreanStoryMessage.Rebuild, "重新生成"), _button))
 		{
 			StoryAtlas.Start();
 		}
@@ -884,23 +886,29 @@ public partial class StoryReviewPanel : MonoBehaviour
 	{
 		if (ending.Ways.Count == 0)
 		{
-			return "<color=#73644F>在剧本和决斗数据里都没找到触发的地方（可能由团战、小游戏等直接触发）</color>";
+			return "<color=#73644F>" + StoryUi.Text(KoreanStoryMessage.NoEndingSource, "在剧本和决斗数据里都没找到触发的地方（可能由团战、小游戏等直接触发）") + "</color>";
 		}
 		var lines = new List<string>();
 		foreach (StoryEndingWay way in ending.Ways.Take(4))
 		{
+			if (NativeKorean.Enabled)
+			{
+				lines.Add(OnPaper(KoreanStoryText.EndingWay(way.Mission?.Main ?? false, way.Mission?.Title,
+					way.Mission != null ? StoryUi.When(way.Mission) : "", way.Script, way.Path.Select(StoryScripts.Describe), way.LostDuel)));
+				continue;
+			}
 			string head = way.Mission != null ? $"在{(way.Mission.Main ? "主线" : "支线")}「{way.Mission.Title}」（{way.Mission.When}）" : "在剧本 " + way.Script;
 			var parts = way.Path.Select(StoryScripts.Describe).ToList();
 			if (way.LostDuel)
-			{
 				parts.Add("决斗输了");
-			}
-			string steps = parts.Count > 0 ? "：" + string.Join(" → ", parts.ToArray()) : "：走到这一段就会触发";
+			string steps = parts.Count > 0 ? ": " + string.Join(" → ", parts.ToArray()) : "：走到这一段就会触发";
 			lines.Add(OnPaper(head + steps));
 		}
 		if (ending.Ways.Count > 4)
 		{
-			lines.Add($"<color=#73644F>还有 {ending.Ways.Count - 4} 处</color>");
+			lines.Add(TextConverter.DisplayLanguage == UiText.Korean
+				? "<color=#73644F>" + KoreanStoryText.Get(KoreanStoryMessage.MoreSources, ending.Ways.Count - 4) + "</color>"
+				: $"<color=#73644F>还有 {ending.Ways.Count - 4} 处</color>");
 		}
 		return string.Join("\n", lines.ToArray());
 	}
@@ -927,7 +935,8 @@ public partial class StoryReviewPanel : MonoBehaviour
 			return ending.Number + ". ";
 		}
 		string format = Mortal.Core.LocalizationManager.Instance?.LocaleResolver?.GetString("System/EndText");
-		return (string.IsNullOrEmpty(format) || !format.Contains("{0}") ? "结局" + ending.Number : string.Format(format, ending.Number)) + "　";
+		return (NativeKorean.Enabled ? KoreanStoryText.Get(KoreanStoryMessage.EndingNumber, ending.Number)
+			: string.IsNullOrEmpty(format) || !format.Contains("{0}") ? "结局" + ending.Number : string.Format(format, ending.Number)) + "　";
 	}
 
 	private static bool _endingsByTime; // false：按游戏图鉴的编号；true：按剧情里最早能触发的时间
@@ -966,7 +975,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 		float fx = r.x + searchWidth + S(16);
 		for (int i = 0; i < EndingFilters.Length; i++)
 		{
-			if (GUI.Button(new Rect(fx, r.y + S(2), S(96), S(32)), EndingFilters[i], i == _endingsFilter ? _primary : _button) && _endingsFilter != i)
+			if (GUI.Button(new Rect(fx, r.y + S(2), S(96), S(32)), StoryUi.Filter(i, EndingFilters[i]), i == _endingsFilter ? _primary : _button) && _endingsFilter != i)
 			{
 				_endingsFilter = i;
 				_endingsScroll = Vector2.zero;
@@ -981,7 +990,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 			for (int i = 0; i < sorts.Length; i++)
 			{
 				bool on = _endingsByTime == (i == 1);
-				if (GUI.Button(new Rect(fx, r.y + S(2), S(96), S(32)), sorts[i], on ? _primary : _button) && !on)
+				if (GUI.Button(new Rect(fx, r.y + S(2), S(96), S(32)), StoryUi.Text(i == 0 ? KoreanStoryMessage.SortNumber : KoreanStoryMessage.SortTime, sorts[i]), on ? _primary : _button) && !on)
 				{
 					_endingsByTime = i == 1;
 					_endingsScroll = Vector2.zero;
@@ -994,8 +1003,8 @@ public partial class StoryReviewPanel : MonoBehaviour
 		foreach (int i in SectionOrder)
 		{
 			string title = i == StorySection
-				? $"{EndingSections[i]}  {StoryMissions().Count(StoryDone)}/{StoryMissions().Count()}"
-				: $"{EndingSections[i]}  {EndingSection(i).Count(e => e.Achieved)}/{EndingSection(i).Count()}";
+				? $"{StoryUi.Category(i, EndingSections[i])}  {StoryMissions().Count(StoryDone)}/{StoryMissions().Count()}"
+				: $"{StoryUi.Category(i, EndingSections[i])}  {EndingSection(i).Count(e => e.Achieved)}/{EndingSection(i).Count()}";
 			float width = _tabOn.CalcSize(new GUIContent(title)).x * 0.85f + S(24);
 			bool on = i == _endingsSection && query.Length == 0;
 			if (GUI.Button(new Rect(gx, gy, width, S(32)), title, on ? _primary : _button) && (_endingsSection != i || query.Length > 0))
@@ -1006,7 +1015,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 			}
 			gx += width + S(6);
 		}
-		GUI.Label(new Rect(gx + S(10), gy, Mathf.Max(0f, r.xMax - gx - S(10)), S(32)), "全部周目的记录，换存档也不变", Middle(_muted));
+		GUI.Label(new Rect(gx + S(10), gy, Mathf.Max(0f, r.xMax - gx - S(10)), S(32)), StoryUi.Text(KoreanStoryMessage.AllRuns, "全部周目的记录，换存档也不变"), Middle(_muted));
 		var endingsArea = new Rect(r.x, r.y + S(86), r.width, r.height - S(86));
 		DragScroll("endings", endingsArea, ref _endingsScroll);
 		GUILayout.BeginArea(endingsArea);
@@ -1025,7 +1034,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 			}
 			var shown = EndingSection(section).Where(e => _endingsFilter == 0 || e.Achieved == (_endingsFilter == 1)).Where(e =>
 			{
-				string where = string.Join("、", e.Ways.Select(w => w.Mission).Where(m => m != null).Select(m => (m.Main ? "主线" : m.SeriesTitle) + "「" + m.Title + "」").Distinct().ToArray());
+				string where = string.Join("、", e.Ways.Select(w => w.Mission).Where(m => m != null).Select(m => StoryUi.Series(m) + "「" + m.Title + "」").Distinct().ToArray());
 				return Matches(query, EndingNumber(e) + e.Title, e.Desc, e.Id, e.Award, where);
 			}).ToList();
 			if (shown.Count == 0)
@@ -1036,7 +1045,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 			if (query.Length > 0)
 			{
 				GUILayout.Space(S(8));
-				GUILayout.Label(EndingSections[section], _heading);
+				GUILayout.Label(StoryUi.Category(section, EndingSections[section]), _heading);
 			}
 			if (section == CgSection)
 			{
@@ -1046,7 +1055,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 			{
 				GUILayout.BeginVertical(_card);
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(ending.Achieved ? "<color=#2F6B3A><b>✓ 已达成</b></color>" : "<color=#A3302A>未达成</color>", _small, GUILayout.Width(S(80)));
+				GUILayout.Label(ending.Achieved ? "<color=#2F6B3A><b>✓ " + StoryUi.Text(KoreanStoryMessage.Achieved, "已达成") + "</b></color>" : "<color=#A3302A>" + StoryUi.Text(KoreanStoryMessage.Unachieved, "未达成") + "</color>", _small, GUILayout.Width(S(80)));
 				GUILayout.Label("<b>" + EndingNumber(ending) + ending.Title + "</b>", _label);
 				GUILayout.EndHorizontal();
 				if (section == AchievementSection)
@@ -1058,7 +1067,7 @@ public partial class StoryReviewPanel : MonoBehaviour
 					}
 					if (ending.Award.Length > 0)
 					{
-						GUILayout.Label("<color=#73644F>奖励：" + ending.Award + "</color>", _rich);
+						GUILayout.Label("<color=#73644F>" + StoryUi.Text(KoreanStoryMessage.Award, "奖励：{0}", ending.Award) + "</color>", _rich);
 					}
 					if (ending.Ways.Count > 0)
 					{
@@ -1076,7 +1085,9 @@ public partial class StoryReviewPanel : MonoBehaviour
 		if (shownTotal == 0)
 		{
 			GUILayout.Space(S(12));
-			GUILayout.Label(query.Length > 0 ? "没有搜到相关条目" : _endingsFilter == 1 ? "这一类还没有达成的条目" : "这一类已经全部达成", _muted);
+			GUILayout.Label(query.Length > 0 ? StoryUi.Text(KoreanStoryMessage.NoSearchResults, "没有搜到相关条目")
+				: _endingsFilter == 1 ? StoryUi.Text(KoreanStoryMessage.NoAchieved, "这一类还没有达成的条目")
+				: StoryUi.Text(KoreanStoryMessage.AllAchieved, "这一类已经全部达成"), _muted);
 		}
 		GUILayout.EndScrollView();
 		GUILayout.EndArea();
@@ -1093,12 +1104,12 @@ public partial class StoryReviewPanel : MonoBehaviour
 		GUILayout.BeginHorizontal();
 		foreach (StoryMission m in missions)
 		{
-			string text = (m.Main ? "主线" : "支线") + "「" + Short(m.Title, 12) + "」";
+			string text = StoryUi.Mission(m.Main, Short(m.Title, 12));
 			if (GUILayout.Button(text, _button, GUILayout.Width(TextWidth(text, _button, S(120)))))
 			{
 				OpenFlow(m);
 			}
-			Hover(GUILayoutUtility.GetLastRect(), "看剧情图：" + m.Title + (m.When.Length > 0 ? "（" + m.When + "）" : ""));
+			Hover(GUILayoutUtility.GetLastRect(), StoryUi.Text(KoreanStoryMessage.OpenFlowTitle, "看剧情图：{0}", m.Title) + (m.When.Length > 0 ? "（" + StoryUi.When(m) + "）" : ""));
 		}
 		GUILayout.FlexibleSpace();
 		GUILayout.EndHorizontal();
@@ -1116,21 +1127,21 @@ public partial class StoryReviewPanel : MonoBehaviour
 		if (query.Length > 0)
 		{
 			GUILayout.Space(S(8));
-			GUILayout.Label(EndingSections[StorySection], _heading);
+			GUILayout.Label(StoryUi.Category(StorySection, EndingSections[StorySection]), _heading);
 		}
 		foreach (StoryMission m in shown)
 		{
 			GUILayout.BeginVertical(_card);
 			GUILayout.BeginHorizontal();
-			GUILayout.Label(StoryDone(m) ? "<color=#2F6B3A><b>✓ 读完</b></color>" : "<color=#A3302A>" + string.Format("读过 {0}%", m.Read) + "</color>", _small, GUILayout.Width(S(80)));
+			GUILayout.Label(StoryDone(m) ? "<color=#2F6B3A><b>✓ " + StoryUi.Text(KoreanStoryMessage.ReadComplete, "读完") + "</b></color>" : "<color=#A3302A>" + StoryUi.Text(KoreanStoryMessage.ReadPercent, "读过 {0}%", m.Read) + "</color>", _small, GUILayout.Width(S(80)));
 			GUILayout.Label("<b>" + m.Title + "</b>", _label);
 			GUILayout.FlexibleSpace();
-			if (GUILayout.Button("看剧情图", _button, GUILayout.Width(S(130))))
+			if (GUILayout.Button(StoryUi.Text(KoreanStoryMessage.OpenFlow, "看剧情图"), _button, GUILayout.Width(S(130))))
 			{
 				OpenFlow(m);
 			}
 			GUILayout.EndHorizontal();
-			string where = (m.Main ? "主线" : m.SeriesTitle) + (m.When.Length > 0 ? "　·　" + m.When : "") + (m.Place.Length > 0 ? "　·　" + m.Place : "");
+			string where = StoryUi.Series(m) + (m.When.Length > 0 ? "　·　" + StoryUi.When(m) : "") + (m.Place.Length > 0 ? "　·　" + m.Place : "");
 			GUILayout.Label("<color=#73644F>" + where + "</color>", _rich);
 			GUILayout.EndVertical();
 		}

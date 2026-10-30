@@ -388,6 +388,11 @@ public class LuaParser
 
 	public static string Description(List<Action> actions)
 	{
+		if (NativeKorean.Enabled)
+		{
+			return KoreanText.Effects(actions.Where(a => !a.IsConditional).Select(a => a.Description),
+				actions.Where(a => a.IsConditional).GroupBy(a => a.BranchIndex).Select(g => g.Select(a => a.Description)));
+		}
 		List<string> list = (from action in actions
 			where !action.IsConditional
 			select action.Description into description

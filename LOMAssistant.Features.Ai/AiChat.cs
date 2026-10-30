@@ -50,7 +50,7 @@ public static class AiChat
 	// 极速模式给的是本地小模型、免费额度：上下文小，历史和查到的资料都压到三分之一
 	private static int HistoryChars => Fast ? 10000 : 30000;
 	private static int HistoryKeepChars => Fast ? 4000 : 12000;
-	private const string SummaryHead = "（前面聊过的内容摘要）";
+	private static string SummaryHead => AiText.T("（前面聊过的内容摘要）", "[이전 대화 요약]");
 	private static int MaxToolChars => Fast ? 4000 : 12000;
 
 	/// <summary>给玩家看的对话（含「正在查…」和出错提示）。</summary>
@@ -145,7 +145,7 @@ public static class AiChat
 		var asking = new ChatMessage { Role = ChatMessage.User, Text = context.Length > 0 ? context + "\n\n【赵活说】\n" + asked : asked };
 		// 同一个问题里一模一样的查询不再重查、不再把结果再发一遍
 		var looked = new HashSet<string>();
-		AiDebug.Turn(persona?.Name ?? "攻略助手", system, asking.Text);
+		AiDebug.Turn(persona?.Name ?? AiText.T("攻略助手", "공략 도우미"), system, asking.Text);
 		bool rewrite = false;
 		for (int round = 0; round < MaxRounds + (rewrite ? 1 : 0) && !_stop; round++)
 		{
@@ -170,7 +170,7 @@ public static class AiChat
 			}
 			if (reply == null || reply.Error != null)
 			{
-				Shown.Add(new Entry { Kind = Kind.Error, Text = reply?.Error ?? "没有回复" });
+				Shown.Add(new Entry { Kind = Kind.Error, Text = reply?.Error ?? AiText.T("没有回复", "응답이 없습니다.") });
 				FileLogger.LogWarning("[AI] " + (reply?.Error ?? "没有回复"));
 				break;
 			}
@@ -189,7 +189,7 @@ public static class AiChat
 						rewrite = true;
 						continue;
 					}
-					answer = "（查了很多资料还没整理出答案，换个具体点的问法再问一次吧。）";
+					answer = AiText.T("（查了很多资料还没整理出答案，换个具体点的问法再问一次吧。）", "(자료를 조회했지만 답을 정리하지 못했습니다. 질문을 조금 더 구체적으로 바꿔 다시 물어보세요.)");
 					break;
 				}
 				string cut = StripToolMarkup(reply.Text);
@@ -203,7 +203,7 @@ public static class AiChat
 				answer = StripIds(cut, persona != null).Trim();
 				if (answer.Length == 0 && reply.Text.Trim().Length > 0)
 				{
-					answer = "（查了很多资料还没整理出答案，换个具体点的问法再问一次吧。）";
+					answer = AiText.T("（查了很多资料还没整理出答案，换个具体点的问法再问一次吧。）", "(자료를 조회했지만 답을 정리하지 못했습니다. 질문을 조금 더 구체적으로 바꿔 다시 물어보세요.)");
 				}
 				break;
 			}
@@ -222,7 +222,7 @@ public static class AiChat
 				}
 				if (result.Length > MaxToolChars)
 				{
-					result = result.Substring(0, MaxToolChars) + "\n……（太长，后面省略）";
+					result = result.Substring(0, MaxToolChars) + AiText.T("\n……（太长，后面省略）", "\n…(너무 길어 이후 내용 생략)");
 				}
 				AiDebug.Tool(call.Name, call.Args.ToString(Newtonsoft.Json.Formatting.None, new Newtonsoft.Json.JsonConverter[0]), result);
 				turn.Add(new ChatMessage { Role = ChatMessage.Tool, CallId = call.Id, Text = result });
@@ -253,7 +253,7 @@ public static class AiChat
 		}
 		if (_stop)
 		{
-			Shown.Add(new Entry { Kind = Kind.Error, Text = "已停止" });
+			Shown.Add(new Entry { Kind = Kind.Error, Text = AiText.T("已停止", "중지했습니다.") });
 		}
 		else if (answer != null)
 		{
@@ -264,7 +264,7 @@ public static class AiChat
 				// 攻略提示的记号有的模型会写成 [攻略提示]、**【攻略提示】**，统一成界面认的写法
 				answer = System.Text.RegularExpressions.Regex.Replace(answer, @"\**[\[【]\s*攻略提示\s*[\]】]\**", "【攻略提示】");
 			}
-			Shown.Add(new Entry { Kind = Kind.Assistant, Text = answer.Length > 0 ? answer : "（AI 没有说话）", Mood = mood });
+			Shown.Add(new Entry { Kind = Kind.Assistant, Text = answer.Length > 0 ? answer : AiText.T("（AI 没有说话）", "(AI가 답변하지 않았습니다.)"), Mood = mood });
 			Shown.AddRange(proposals);
 			History.Add(turn[0]);
 			History.Add(new ChatMessage { Role = ChatMessage.Assistant, Text = answer });
@@ -299,13 +299,14 @@ public static class AiChat
 		var old = new System.Text.StringBuilder();
 		for (int i = 0; i < keep; i++)
 		{
-			old.Append(history[i].Role == ChatMessage.User ? "玩家：" : "回答：").Append(history[i].Text).Append("\n\n");
+			old.Append(history[i].Role == ChatMessage.User ? AiText.T("玩家：", "사용자: ") : AiText.T("回答：", "답변: ")).Append(history[i].Text).Append("\n\n");
 		}
 		string system = "下面是《活侠传》玩家和游戏 Mod 里 AI 的一段对话。把它压缩成摘要，给接着聊的 AI 当记忆用。\n"
 			+ "- 只记：玩家说过的自己的情况、打算和偏好（走哪条线、想和谁结缘、不想知道什么）；聊过哪些话题；玩家确认或拒绝过哪些修改；说好的约定；还没解决的问题。\n"
 			+ "- 回答里说过的数字、条件、剧情结论不要当事实记，最多写「聊过某某的条件」，之后要用时会重新查。\n"
 			+ "- 开头已经有摘要的，把它和后面的内容合在一起重写成一份。\n"
 			+ "- 分条写，不超过 800 字，用" + ReplyLanguage + "。只输出摘要。";
+		system = AiPrompts.Summary(system);
 		LlmReply reply = null;
 		yield return LlmClient.Complete(provider, ConfigManager.AiBaseUrl.Value, ConfigManager.AiApiKey.Value, ConfigManager.AiModel.Value,
 			system, new List<ChatMessage> { new ChatMessage { Role = ChatMessage.User, Text = old.ToString() } }, false, 1500, r => reply = r);
@@ -340,13 +341,13 @@ public static class AiChat
 		var sb = new System.Text.StringBuilder();
 		if (changes.Count > 0)
 		{
-			sb.Append("已经把修改卡片给玩家看了（").Append(string.Join("；", changes.Select(c => c.Name + " " + c.From + " → " + c.To).ToArray())).Append("），玩家点确认才会改。告诉玩家去确认，不要说已经改好了。");
+			sb.Append(AiText.T("已经把修改卡片给玩家看了（", "변경 카드를 표시했습니다(")).Append(string.Join("；", changes.Select(c => c.Name + " " + c.From + " → " + c.To).ToArray())).Append(AiText.T("），玩家点确认才会改。告诉玩家去确认，不要说已经改好了。", "). 사용자가 확인해야 적용됩니다. 카드 확인을 요청하고 이미 변경했다고 말하지 마세요."));
 		}
 		if (missing.Count > 0)
 		{
-			sb.Append("这些没找到，没放进卡片：").Append(string.Join("、", missing.ToArray())).Append("。可以用数值页里的名字再试一次。");
+			sb.Append(AiText.T("这些没找到，没放进卡片：", "찾지 못해 카드에서 제외한 항목: ")).Append(string.Join("、", missing.ToArray())).Append(AiText.T("。可以用数值页里的名字再试一次。", ". 수치 화면의 이름으로 다시 시도할 수 있습니다."));
 		}
-		return sb.Length > 0 ? sb.ToString() : "没有要改的项。";
+		return sb.Length > 0 ? sb.ToString() : AiText.T("没有要改的项。", "변경할 항목이 없습니다.");
 	}
 
 	// 有的模型不能调用工具时会把自己的调用格式当正文写出来（DeepSeek 的「<｜DSML｜function_calls>」、<invoke …>、<tool_call>），剪掉
@@ -384,7 +385,7 @@ public static class AiChat
 		{
 			t = t.Substring(0, tag);
 		}
-		return MoodTag.Replace(t, "").Trim();
+		return AiReplyLanguage.MoodTag.Replace(t, "").Trim();
 	}
 
 	// 剧本编号（ch4_9_3_8、S2700_01_03）；女主角口中连任务编号、旗标编号（S2700_01、G11006）也不要
@@ -423,23 +424,14 @@ public static class AiChat
 			FileLogger.Log("[AI] 玩家确认修改：" + items);
 		}
 		proposal.State = apply ? ProposalState.Applied : ProposalState.Declined;
-		session.Note = (apply ? "玩家确认了修改：" : "玩家没有同意修改：") + items;
+		session.Note = (apply ? AiText.T("玩家确认了修改：", "사용자가 변경을 확인함: ") : AiText.T("玩家没有同意修改：", "사용자가 변경을 거절함: ")) + items;
 		AiSessions.Save(session);
 	}
-
-	private static readonly System.Text.RegularExpressions.Regex MoodTag = new System.Text.RegularExpressions.Regex(@"\[\s*(?:表情|mood)\s*[:：]\s*([A-Za-z_0-9]+)\s*\]", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
 	// 回复末尾的「[表情: shy]」拿出来，不显示；不在她能用的表情里就用默认
 	private static string TakeMood(string answer, AiPersona persona, out string mood)
 	{
-		mood = persona.Moods[0];
-		System.Text.RegularExpressions.Match m = MoodTag.Match(answer);
-		if (m.Success)
-		{
-			string raw = m.Groups[1].Value.ToLowerInvariant();
-			mood = persona.Moods.Contains(raw) ? raw : persona.Moods.FirstOrDefault(x => x.TrimEnd('1', '2', '3') == raw.TrimEnd('1', '2', '3')) ?? persona.Moods[0];
-		}
-		return MoodTag.Replace(answer, "").Trim();
+		return AiReplyLanguage.TakeMood(answer, persona.Moods, out mood);
 	}
 
 	/// <summary>试一下能不能连上：不带工具，问一句很短的话。</summary>
@@ -447,14 +439,14 @@ public static class AiChat
 	{
 		LlmReply reply = null;
 		yield return LlmClient.Complete(Provider, ConfigManager.AiBaseUrl.Value, ConfigManager.AiApiKey.Value, ConfigManager.AiModel.Value,
-			"用一句话回答。", new List<ChatMessage> { new ChatMessage { Text = "你好，请回复「连上了」。" } }, false, 30, r => reply = r);
-		done(reply == null ? "没有回复" : reply.Error ?? "");
+			AiText.T("用一句话回答。", "한국어 한 문장으로 답하세요."), new List<ChatMessage> { new ChatMessage { Text = AiText.T("你好，请回复「连上了」。", "안녕하세요. '연결되었습니다'라고 답해 주세요.") } }, false, 30, r => reply = r);
+		done(reply == null ? AiText.T("没有回复", "응답이 없습니다.") : reply.Error ?? "");
 	}
 
 	internal static string ReplyLanguage => TextConverter.DisplayLanguage switch
 	{
 		"ChineseTraditional" => "繁體中文（正體字）",
-		UiText.Korean => "韩语（한국어）",
+		UiText.Korean => "한국어",
 		UiText.Japanese => "日语（日本語）",
 		UiText.English => "英语（English）",
 		_ => "简体中文",

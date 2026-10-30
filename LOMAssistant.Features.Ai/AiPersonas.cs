@@ -194,6 +194,12 @@ public sealed class AiPersona
 	{
 		var heart = StoryRomance.All.FirstOrDefault(StoryRomance.IsLover);
 		var bonded = StoryRomance.All.Where(Bonded).ToList();
+		if (NativeKorean.Enabled)
+		{
+			string NameOf(StoryRomance.Heroine x) => h != null && x == h ? "당신" : StoryRomance.Name(x);
+			return (heart != null ? "조활이 현재 마음에 둔 사람: " + NameOf(heart) + "(바뀔 수 있으며 인연을 맺었다는 뜻은 아님). " : "조활은 현재 마음에 둔 사람이 없음. ")
+				+ (bonded.Count > 0 ? "인연을 맺은 사람: " + string.Join(", ", bonded.Select(NameOf).ToArray()) + "(인연 이야기를 끝까지 진행함)." : "아직 누구와도 인연을 맺지 않음(해당 인물의 인연 이야기를 끝까지 진행해야 함).");
+		}
 		string Who(StoryRomance.Heroine x) => h != null && x == h ? "你" : StoryRomance.Name(x);
 		string text = heart != null ? "赵活现在的心上人是" + Who(heart) + "（游戏里记的倾心对象，可以变，不等于已经结缘）。" : "赵活现在没有心上人。";
 		text += bonded.Count > 0 ? "已经和" + string.Join("、", bonded.Select(Who).ToArray()) + "结缘（结缘的剧情都走完了）。" : "还没有和任何人结缘（结缘要走完那个人的结缘剧情）。";
@@ -295,18 +301,23 @@ public sealed class AiPersona
 	/// <summary>她读过的对白里，按剧情先后最近一次用到的叫法（Calls 里的）；一次都没有返回空。</summary>
 	private string LatestCall(List<(string Script, string Key)> lines)
 	{
-		if (Calls.Length == 0 || lines.Count == 0)
+		AiKoreanVoice voice = TextConverter.DisplayLanguage == UiText.Korean ? AiKoreanVoice.Find(Id) : null;
+		if ((voice == null && Calls.Length == 0) || lines.Count == 0)
 		{
 			return "";
 		}
 		var order = ScriptOrder();
 		var sorted = lines.Select((l, i) => (l.Key, Rank: order.TryGetValue(l.Script, out int r) ? r : -1, i)).OrderBy(x => x.Rank).ThenBy(x => x.i).ToList();
 		var longest = Calls.OrderByDescending(c => c.Length).ToArray();
+		bool bonded = voice != null && Heroine is StoryRomance.Heroine heroine && Bonded(heroine);
 		for (int i = sorted.Count - 1; i >= 0; i--)
 		{
+			// Global read-history also contains other playthroughs. In Korean,
+			// infer a recent address only from scripts recorded in this save.
+			if (voice != null && sorted[i].Rank < 0) continue;
 			string text = StoryAtlas.LineText(sorted[i].Key);
-			string hit = longest.FirstOrDefault(text.Contains);
-			if (hit != null)
+			string hit = voice != null ? voice.FindCall(text, bonded) : longest.FirstOrDefault(text.Contains);
+			if (!string.IsNullOrEmpty(hit))
 			{
 				return hit;
 			}
@@ -325,6 +336,7 @@ public sealed class AiPersona
 		}
 		var present = new HashSet<string>(lines.Select(l => l.Script));
 		var names = new List<string> { Name };
+		if (NativeKorean.Enabled) names.Add(AiKoreanVoice.Find(Id)?.Name ?? AiText.Label(Name));
 		names.AddRange(Names);
 		if (Lover >= 0 && Lover < AiKnowledge.Aliases.Length)
 		{
@@ -358,27 +370,27 @@ public sealed class AiPersona
 	/// </summary>
 	public string Context()
 	{
-		var sb = new StringBuilder("【此刻】");
+		var sb = new StringBuilder(AiText.T("【此刻】", "[현재 상황]"));
 		StoryRomance.Heroine h = Heroine;
 		if (h != null)
 		{
-			sb.Append("你对赵活的好感是 ").Append(StoryRomance.Affection(h)).Append("（游戏里的数值，大约 0 到 100；不要把数字说出口，只让它影响你的态度）。");
+			sb.Append(AiText.T("你对赵活的好感是 ", "당신이 조활에게 느끼는 호감도: ")).Append(StoryRomance.Affection(h)).Append(AiText.T("（游戏里的数值，大约 0 到 100；不要把数字说出口，只让它影响你的态度）。", "(대략 0~100인 게임 수치입니다. 숫자를 직접 말하지 말고 태도에만 반영하세요.)"));
 			sb.Append(AiPersona.RelationText(h)).Append('\n');
 		}
 		else if (Friend != null)
 		{
 			int value = PlayerStatManagerData.Instance?.Relationships?.Get(Friend.Value)?.Value ?? 0;
-			sb.Append("你对赵活的好感是 ").Append(value).Append("（游戏里的数值，大约 0 到 100；不要把数字说出口，只让它影响你的态度）。");
+			sb.Append(AiText.T("你对赵活的好感是 ", "당신이 조활에게 느끼는 호감도: ")).Append(value).Append(AiText.T("（游戏里的数值，大约 0 到 100；不要把数字说出口，只让它影响你的态度）。", "(대략 0~100인 게임 수치입니다. 숫자를 직접 말하지 말고 태도에만 반영하세요.)"));
 			sb.Append(AiPersona.RelationText(null)).Append('\n');
 		}
 		GameTime time = PlayerStatManagerData.Instance?.GameTime;
 		if (!ReferenceEquals(time, null))
 		{
-			sb.Append("游戏里现在是").Append(StoryAtlas.DateText(time)).Append("。\n");
+			sb.Append(AiText.T("游戏里现在是", "현재 날짜: ")).Append(StoryAtlas.DateText(time)).Append("。\n");
 		}
 		if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Free")
 		{
-			sb.Append("赵活在养成地图上。").Append(StoryReviewPanel.MapLocation());
+			sb.Append(AiText.T("赵活在养成地图上。", "조활은 활동 지도에 있습니다. ")).Append(StoryReviewPanel.MapLocation());
 		}
 		string screen = StoryReviewPanel.OnScreen();
 		if (screen.Length > 0)
@@ -394,6 +406,7 @@ public sealed class AiPersona
 	/// </summary>
 	public string Prompt(string language, string spoiler, bool fast = false)
 	{
+		if (NativeKorean.Enabled) return AiPrompts.KoreanPersona(this, spoiler, fast);
 		string L(string zh, string en, string ko, string ja, string hant) => AiPrompts.L(zh, en, ko, ja, hant);
 		string me = AiPrompts.L(Name, TextConverter.ForDisplay(Name), TextConverter.ForDisplay(Name), Name,
 			TextConverter.ForDisplay(Name));
@@ -614,5 +627,32 @@ public sealed class AiPersona
 			.Append(L("。神情要跟着话走。", ". Match it to what you say.", ". 표정은 말에 맞추세요.", "。表情は話す内容に合わせてください。",
 			"。神情要跟著話走。")).Append('\n');
 		return sb.ToString();
+	}
+
+	internal string KoreanPrompt(string spoiler, bool fast)
+	{
+		// Use the same read-history and spoiler gates as the original prompt.
+		var lines = ReadLines();
+		var profile = AiKoreanVoice.Find(Id);
+		string name = profile?.Name ?? Name;
+		var sb = new StringBuilder("당신은 활협전의 인물 " + name + "입니다. 대화 상대는 주인공 조활입니다.\n");
+		sb.Append(profile?.Address ?? "공식 한국어 대사의 호칭을 따르세요.").Append('\n');
+		string call = LatestCall(lines);
+		if (call.Length > 0) sb.Append("현재 회차에서 최근 사용한 호칭: ").Append(call).Append(". 특별한 이유가 없으면 이 호칭을 유지하세요.\n");
+		var intros = Intros();
+		if (intros.Count > 0) sb.Append("\n[게임 인물지: 인물의 바탕으로 삼되 그대로 읊지 마세요]\n").Append(string.Join("\n", intros.ToArray())).Append('\n');
+		sb.Append("\n[성격과 생활 습관]\n").Append(KoreanAiPrompt.Traits(Id)).Append('\n');
+		var rng = new Random(Id.GetHashCode() ^ lines.Count);
+		var currentScripts = ScriptOrder();
+		var voice = lines.Where(l => currentScripts.ContainsKey(l.Script)).Select(l => StoryAtlas.LineText(l.Key))
+			.Where(t => t.Length >= 6 && t.Length <= 50).Distinct().OrderBy(_ => rng.Next()).Take(fast ? 10 : 30).ToList();
+		if (voice.Count > 0) sb.Append("\n[현재 회차에서 읽은 공식 대사: 말투·어휘·문장 길이만 참고하고 새 대사를 쓰세요. 다른 상대의 호칭을 조활에게 옮기지 마세요]\n- ")
+			.Append(string.Join("\n- ", voice.ToArray())).Append('\n');
+		var story = Experiences(lines);
+		if (fast && story.Count > 20) story = story.Skip(story.Count - 20).ToList();
+		if (story.Count > 0) sb.Append("\n[조활과 함께 겪은 일: 시간순이며 아래일수록 최근입니다. 기록의 '당신'은 조활입니다. 이후 일은 모릅니다]\n- ")
+			.Append(string.Join("\n- ", story.ToArray())).Append('\n');
+		string moods = string.Join(", ", Moods.Select(m => m + "(" + KoreanAiMood.Meaning(m) + ")").ToArray());
+		return sb.Append(KoreanAiPrompt.PersonaRules(name, LOMAssistant.Config.ConfigManager.AiHints.Value, spoiler, moods, fast)).ToString();
 	}
 }

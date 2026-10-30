@@ -35,6 +35,9 @@ public partial class StoryReviewPanel
 		/// <summary>正在演的剧本（PlayerStatManagerData.CurrentStoryScript），跳剧情图、标未读用。</summary>
 		public string Story = "";
 		public StoryScript StoryScript;
+		public bool Failed;
+		public string Language = TextConverter.DisplayLanguage;
+		public string MenuSignature = string.Join("\t", OptionInfoPatch.MenuKeys);
 		public readonly List<(string Key, string Option, string Result)> Options = new List<(string, string, string)>();
 		/// <summary>这一段剧情的去处：走过哪些选项、掷骰、条件，接到哪里（和剧情图里「接下来」一样）。</summary>
 		public readonly List<(string Way, string Effects)> Ways = new List<(string, string)>();
@@ -50,14 +53,15 @@ public partial class StoryReviewPanel
 		// 标题画面：和数值页一样，只在左上角写一句
 		if (UnityEngine.SceneManagement.SceneManager.GetActiveScene().name == "Title")
 		{
-			GUI.Label(new Rect(r.x, r.y, r.width, S(40)), "读档进入游戏后才有内容", _muted);
+			GUI.Label(new Rect(r.x, r.y, r.width, S(40)), NativeKorean.Text(KoreanMessage.LoadGame, "读档进入游戏后才有内容"), _muted);
 			return;
 		}
-		if (_now == null || _now.Script != (OptionInfoPatch.LastScriptKey ?? ""))
+		if (_now == null || _now.Script != (OptionInfoPatch.LastScriptKey ?? "") || _now.Language != TextConverter.DisplayLanguage
+			|| _now.MenuSignature != string.Join("\t", OptionInfoPatch.MenuKeys))
 		{
 			_now = BuildNow();
 		}
-		if (GUI.Button(new Rect(r.xMax - S(130), r.y, S(130), S(36)), "刷新", _button))
+		if (GUI.Button(new Rect(r.xMax - S(130), r.y, S(130), S(36)), NativeKorean.Text(KoreanMessage.Refresh, "刷新"), _button))
 		{
 			_now = BuildNow();
 		}
@@ -66,7 +70,9 @@ public partial class StoryReviewPanel
 		{
 			bool owned = !StoryAtlas.Ready || StoryAtlas.Owner.ContainsKey(_now.Story);
 			GUI.enabled = owned;
-			if (GUI.Button(new Rect(r.xMax - S(130) - S(10) - S(220), r.y, S(220), S(36)), owned ? "在剧情图里看" : "这一段不属于任务", owned ? _primary : _button))
+			if (GUI.Button(new Rect(r.xMax - S(130) - S(10) - S(220), r.y, S(220), S(36)), owned
+				? NativeKorean.Text(KoreanMessage.OpenFlow, "在剧情图里看")
+				: NativeKorean.Text(KoreanMessage.NotAMission, "这一段不属于任务"), owned ? _primary : _button))
 			{
 				_flowJumpScript = _now.Story;
 				_tab = 2;
@@ -83,10 +89,10 @@ public partial class StoryReviewPanel
 			any = true;
 			// 游戏里正在显示的那一组放最上面；其余按剧本里第几次选择分组（一段剧情里常有好几轮选择）
 			var showing = new HashSet<string>(OptionInfoPatch.MenuKeys);
-			var current = _now.Options.Where(o => showing.Contains(o.Key)).ToList();
+			var current = OptionInfoPatch.MenuKeys.Distinct().Join(_now.Options, key => key, option => option.Key, (key, option) => option).ToList();
 			if (current.Count > 0)
 			{
-				GUILayout.Label("现在可以选的", _heading);
+				GUILayout.Label(NativeKorean.Text(KoreanMessage.CurrentOptions, "现在可以选的"), _heading);
 				foreach (var option in current)
 				{
 					DrawNowOption(option.Key, option.Option, option.Result);
@@ -96,13 +102,16 @@ public partial class StoryReviewPanel
 			var rest = _now.Options.Where(o => !showing.Contains(o.Key)).ToList();
 			if (rest.Count > 0)
 			{
-				GUILayout.Label(current.Count > 0 ? "这一段的其他选项" : "这一段的选项", _heading);
+				GUILayout.Label(current.Count > 0 ? NativeKorean.Text(KoreanMessage.OtherOptions, "这一段的其他选项")
+					: NativeKorean.Text(KoreanMessage.SceneOptions, "这一段的选项"), _heading);
 				var groups = rest.GroupBy(o => MenuOf(o.Key)).OrderBy(g => g.Key < 0 ? int.MaxValue + g.Key : g.Key).ToList();
 				foreach (var group in groups)
 				{
 					if (groups.Count > 1)
 					{
-						GUILayout.Label(group.Key == -2 ? "掷骰" : group.Key < 0 ? "其他" : "第 " + (group.Key + 1) + " 次选择", _muted);
+						GUILayout.Label(group.Key == -2 ? NativeKorean.Text(KoreanMessage.Dice, "掷骰")
+							: group.Key < 0 ? NativeKorean.Text(KoreanMessage.Other, "其他")
+							: NativeKorean.Text(KoreanMessage.ChoiceNumber, "第 {0} 次选择", group.Key + 1), _muted);
 					}
 					foreach (var option in group)
 					{
@@ -115,7 +124,7 @@ public partial class StoryReviewPanel
 		if (_now.Ways.Count > 0)
 		{
 			any = true;
-			GUILayout.Label("这一段接下来会怎么走", _heading);
+			GUILayout.Label(NativeKorean.Text(KoreanMessage.NextRoutes, "这一段接下来会怎么走"), _heading);
 			foreach (var (way, effects) in _now.Ways)
 			{
 				GUILayout.BeginVertical(_card);
@@ -131,17 +140,19 @@ public partial class StoryReviewPanel
 		if (_now.Events.Count > 0)
 		{
 			any = true;
-			GUILayout.Label("这里的随机事件", _heading);
+			GUILayout.Label(NativeKorean.Text(KoreanMessage.RandomEvents, "这里的随机事件"), _heading);
 			foreach (NowEvent ev in _now.Events)
 			{
 				GUILayout.BeginVertical(_card);
 				GUILayout.BeginHorizontal();
-				GUILayout.Label(ev.Name + "　" + (ev.Rate > 0 ? $"<color=#2F6B3A>{ev.Percent}%</color>" : "<color=#A3302A>条件不满足</color>") + (ev.Unread ? "　<color=#A3302A>没看过</color>" : ""), _rich);
+				GUILayout.Label(ev.Name + "　" + (ev.Rate > 0 ? $"<color=#2F6B3A>{ev.Percent}%</color>"
+					: "<color=#A3302A>" + NativeKorean.Text(KoreanMessage.Unmet, "条件不满足") + "</color>") + (ev.Unread ? "　<color=#A3302A>" + StoryUi.Text(KoreanStoryMessage.UnreadMark, "没看过") + "</color>" : ""), _rich);
 				GUILayout.FlexibleSpace();
 				if (ev.Rate > 0)
 				{
 					bool chosen = EventPicker.Pending == ev.Data;
-					if (GUILayout.Button(chosen ? "已选定" : "下次触发这个", chosen ? _primary : _button, GUILayout.Width(S(150))))
+					if (GUILayout.Button(chosen ? NativeKorean.Text(KoreanMessage.Selected, "已选定")
+						: NativeKorean.Text(KoreanMessage.SelectNext, "下次触发这个"), chosen ? _primary : _button, GUILayout.Width(S(150))))
 					{
 						EventPicker.Pending = chosen ? null : ev.Data;
 					}
@@ -158,11 +169,15 @@ public partial class StoryReviewPanel
 		if (_now.Missions.Count > 0)
 		{
 			any = true;
-			GUILayout.Label("现在的任务", _heading);
+			GUILayout.Label(NativeKorean.Text(KoreanMessage.Missions, "现在的任务"), _heading);
 			foreach (NowMission m in _now.Missions)
 			{
 				GUILayout.BeginVertical(_card);
-				GUILayout.Label((m.Main ? "<color=#A3302A><b>主线</b></color>　" : "") + m.Title + "　" + (m.Ready ? "<color=#2F6B3A>条件已满足" + (m.Place.Length > 0 ? "，去「" + m.Place + "」就会触发" : "") + "</color>" : "<color=#73644F>还差条件</color>"), _rich);
+				string readiness = NativeKorean.Enabled
+					? m.Ready ? (m.Place.Length > 0 ? KoreanText.Get(KoreanMessage.ReadyAt, m.Place) : KoreanText.Get(KoreanMessage.Ready)) : KoreanText.Get(KoreanMessage.Missing)
+					: m.Ready ? "条件已满足" + (m.Place.Length > 0 ? "，去「" + m.Place + "」就会触发" : "") : "还差条件";
+				GUILayout.Label((m.Main ? "<color=#A3302A><b>" + NativeKorean.Text(KoreanMessage.Main, "主线") + "</b></color>　" : "")
+					+ m.Title + "　<color=" + (m.Ready ? "#2F6B3A" : "#73644F") + ">" + readiness + "</color>", _rich);
 				if (m.Desc.Length > 0)
 				{
 					GUILayout.Label(m.Desc, _rich);
@@ -170,9 +185,13 @@ public partial class StoryReviewPanel
 				GUILayout.EndVertical();
 			}
 		}
-		if (!any)
+		if (_now.Failed)
 		{
-			GUILayout.Label("读档进入游戏后才有内容", _muted);
+			GUILayout.Label(NativeKorean.Text(KoreanMessage.SnapshotError, "读取此刻失败，请刷新或查看日志"), _muted);
+		}
+		else if (!any)
+		{
+			GUILayout.Label(NativeKorean.Text(KoreanMessage.EmptyScene, "这一段没有可显示的选项、判定或任务"), _muted);
 		}
 		GUILayout.EndScrollView();
 		GUILayout.EndArea();
@@ -202,16 +221,35 @@ public partial class StoryReviewPanel
 		GUILayout.Label(option + (mark.Length > 0 ? "　<color=#A3302A>" + mark + "</color>" : ""), _rich);
 		if (result.Length > 0)
 		{
-			GUILayout.Label(Cached((key, "result", LOMAssistant.Config.ConfigManager.ColorOptionDeltas.Value), () => ColorDeltas(result)), _muted);
+			GUILayout.Label(Cached((key, result, PanelTheme.Dark, LOMAssistant.Config.ConfigManager.ColorOptionDeltas.Value), () => PanelDeltas(result)), _muted);
 		}
 		GUILayout.EndVertical();
 	}
 
-	private static readonly System.Text.RegularExpressions.Regex Delta = new System.Text.RegularExpressions.Regex(@"(?<![\w.])([+-])(\d+(?:\.\d+)?)");
+	// Translate each mission-title segment separately. IDs and internal keys stay unchanged.
+	private static string LocalizeNowMissionTitle(string title)
+	{
+		if (TextConverter.DisplayLanguage != UiText.Korean)
+		{
+			return title;
+		}
+		return string.Join(" - ", TextConverter.ToSimplified(title ?? "")
+			.Split(new[] { " - " }, StringSplitOptions.None)
+			.Select(part => TextConverter.ForDisplay(part.Trim())).ToArray());
+	}
 
-	/// <summary>数值变化上色：加的绿、减的红。</summary>
-	private static string ColorDeltas(string text) => !LOMAssistant.Config.ConfigManager.ColorOptionDeltas.Value ? text :
-		Delta.Replace(text, m => (m.Groups[1].Value == "+" ? "<color=#2F6B3A>" : "<color=#A3302A>") + m.Value + "</color>");
+	// Developer-only PositionType names are often embedded in a longer description.
+	// Convert just the location value, preserving the original condition and flag IDs.
+	private static string LocalizeNowMissionDescription(string description)
+	{
+		if (TextConverter.DisplayLanguage != UiText.Korean)
+		{
+			return description;
+		}
+		return System.Text.RegularExpressions.Regex.Replace(
+			description ?? "", @"(?m)^(位置：)([^\r\n]*)",
+			m => m.Groups[1].Value + TextConverter.ForDisplay(TextConverter.ToSimplified(m.Groups[2].Value.Trim())));
+	}
 
 	private static NowSnapshot BuildNow()
 	{
@@ -225,10 +263,18 @@ public partial class StoryReviewPanel
 		{
 			if (now.Script.Length > 0 && StoryManager.Instance != null)
 			{
-				foreach (KeyValuePair<string, List<LuaParse.Action>> option in LuaParser.Instance.ExtractOptionActionsFromLua(now.Script))
+				now.Story = PlayerStatManagerData.Instance?.CurrentStoryScript ?? "";
+				StoryScript script = StoryScripts.Get(now.Story);
+				now.StoryScript = script;
+				var options = LuaParser.Instance.ExtractOptionActionsFromLua(now.Script);
+				// Dice and special menus may have no --index marker. Include only the
+				// keys the game actually presented, keeping the game's order intact.
+				foreach (string key in options.Keys.Concat(OptionInfoPatch.MenuKeys).Distinct())
 				{
-					string text = RichText.Strip(StoryScripts.OptionText(option.Key)).Trim();
-					string result = RichText.Strip(TextConverter.ToSimplifiedUnlessJapanese(LuaParser.Description(option.Value))).Trim();
+					string text = RichText.Strip(StoryScripts.OptionText(key)).Trim();
+					string result = options.TryGetValue(key, out var actions)
+						? RichText.Strip(TextConverter.ToSimplifiedUnlessJapanese(LuaParser.Description(actions))).Trim()
+						: NativeKorean.Enabled ? KoreanOptionEffects(script, key) : "";
 					// 选项文字里已经被选项提示接上了「(结果)」，去掉，结果单独写在下面
 					if (result.Length > 0 && text.EndsWith(result + ")"))
 					{
@@ -238,11 +284,8 @@ public partial class StoryReviewPanel
 							text = text.Substring(0, cut).Trim();
 						}
 					}
-					now.Options.Add((option.Key, text.Length > 0 ? text : option.Key, result));
+					now.Options.Add((key, text.Length > 0 ? text : key, result));
 				}
-				now.Story = PlayerStatManagerData.Instance?.CurrentStoryScript ?? "";
-				StoryScript script = StoryScripts.Get(now.Story);
-				now.StoryScript = script;
 				if (script != null && script.Exits.Count > 1)
 				{
 					foreach (StoryExit exit in script.Exits)
@@ -277,9 +320,9 @@ public partial class StoryReviewPanel
 				now.Missions.Add(new NowMission
 				{
 					Main = true,
-					Title = TextConverter.ToSimplified(mainTitle.Replace("\n", " ")),
-					Desc = OnPaper(TextConverter.ToSimplified(mainDesc).Trim()),
-					Place = place == "無" ? "" : place,
+					Title = LocalizeNowMissionTitle(TextConverter.ToSimplified(mainTitle.Replace("\n", " "))),
+					Desc = OnPaper(LocalizeNowMissionDescription(TextConverter.ToSimplified(mainDesc).Trim())),
+					Place = (place == "無" || place == "无") ? "" : (TextConverter.DisplayLanguage == UiText.Korean ? TextConverter.ForDisplay(place) : place),
 					Ready = missions != null && missions.MainMissionStart && missions.MainCheckData == main && !string.IsNullOrEmpty(main.StartScript)
 				});
 			}
@@ -296,9 +339,9 @@ public partial class StoryReviewPanel
 				string place = TextConverter.ToSimplified(check.Position.ToString());
 				now.Missions.Add(new NowMission
 				{
-					Title = TextConverter.ToSimplified(pair.Value.Item1.Replace("\n", " ")),
-					Desc = OnPaper(TextConverter.ToSimplified(pair.Value.Item2).Trim()),
-					Place = place == "無" ? "" : place,
+					Title = LocalizeNowMissionTitle(TextConverter.ToSimplified(pair.Value.Item1.Replace("\n", " "))),
+					Desc = OnPaper(LocalizeNowMissionDescription(TextConverter.ToSimplified(pair.Value.Item2).Trim())),
+					Place = (place == "無" || place == "无") ? "" : (TextConverter.DisplayLanguage == UiText.Korean ? TextConverter.ForDisplay(place) : place),
 					Ready = active != null && active.Values.Contains(check) && !string.IsNullOrEmpty(check.StartScript)
 				});
 			}
@@ -309,8 +352,27 @@ public partial class StoryReviewPanel
 		}
 		catch (Exception ex)
 		{
+			now.Failed = true;
 			FileLogger.LogWarning("[剧情回顾] 整理「此刻」失败: " + ex.Message);
 		}
 		return now;
+	}
+
+	private static string KoreanOptionEffects(StoryScript script, string key)
+	{
+		if (script == null) return "";
+		var certain = new List<string>();
+		var conditional = new List<string[]>();
+		foreach (var effect in script.DisplayEffects)
+		{
+			int selected = effect.Path.FindIndex(p => p.Key == key);
+			if (selected < 0 || effect.Action.CanonicalDescription.Contains("暂存")) continue;
+			string text = RichText.Strip(effect.Action.Description);
+			if (text.Length == 0) continue;
+			var remaining = effect.Path.Skip(selected + 1).Select(StoryScripts.Describe).ToArray();
+			if (remaining.Length == 0) certain.Add(text);
+			else conditional.Add(new[] { KoreanText.Get(KoreanMessage.EffectWhen, string.Join(" → ", remaining), text) });
+		}
+		return KoreanText.Effects(certain, conditional);
 	}
 }

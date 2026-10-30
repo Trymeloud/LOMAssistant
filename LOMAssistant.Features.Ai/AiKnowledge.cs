@@ -19,7 +19,10 @@ public static class AiKnowledge
 	private const int PageChars = 6000;
 
 	/// <summary>给模型看的工具说明（名字、用途、参数），OpenAI 和 Claude 的格式由 LlmClient 各自包装。</summary>
-	public static readonly (string Name, string Description, JObject Parameters)[] Tools =
+	private static (string Name, string Description, JObject Parameters)[] _koreanTools;
+	public static (string Name, string Description, JObject Parameters)[] Tools => NativeKorean.Enabled
+		? (_koreanTools ??= KoreanAiTools.Localize(CanonicalTools)) : CanonicalTools;
+	internal static readonly (string Name, string Description, JObject Parameters)[] CanonicalTools =
 	{
 		("search", "按关键词搜游戏剧情：任务名、任务说明和摘要、对白原文、结局和成就、可结缘的女主角。不知道编号时先用它。返回匹配的任务编号、剧本编号、结局编号和片段。",
 			Schema(("query", "string", "关键词，如人名、任务名、地点、一句对白里的词。用简体中文"))),
@@ -99,7 +102,7 @@ public static class AiKnowledge
 		{
 			if (!StoryAtlas.Ready)
 			{
-				return "剧情数据还在读取（打开一次咖啡伴侣窗口的「路线图」会开始读），请稍后再问。";
+				return AiText.T("剧情数据还在读取（打开一次咖啡伴侣窗口的「路线图」会开始读），请稍后再问。", "스토리 자료를 읽는 중입니다. 모드 창의 진행 경로를 한 번 열어 읽기를 시작한 뒤 다시 질문해 주세요.");
 			}
 			string Arg(string key) => args?[key]?.ToString().Trim() ?? "";
 			switch (name)
@@ -111,12 +114,12 @@ public static class AiKnowledge
 				{
 					string q = Arg("query");
 					// 「图鉴奖励」「二周目有什么奖励」「收集多少条加命运」
-					bool awards = System.Text.RegularExpressions.Regex.IsMatch(TextConverter.ToSimplified(q), "奖励|周目|命运|新游戏");
+					bool awards = System.Text.RegularExpressions.Regex.IsMatch(TextConverter.ToSimplified(q), "奖励|周目|命运|新游戏|보상|회차|운명|새 게임");
 					if (!awards)
 					{
 						return EndingList(q);
 					}
-					string rest = System.Text.RegularExpressions.Regex.Replace(TextConverter.ToSimplified(q), "奖励|二周目|周目|命运|新游戏\\+?|图鉴|收集|有什么|的", "").Trim();
+					string rest = System.Text.RegularExpressions.Regex.Replace(TextConverter.ToSimplified(q), "奖励|二周目|周目|命运|新游戏\\+?|图鉴|收集|有什么|的|보상|[0-9]+회차|회차|운명|새 게임\\+?|도감|수집|무엇|어떤", "").Trim();
 					return AiItems.LibraryAwards() + (rest.Length > 0 ? "\n" + EndingList(rest) : "");
 				}
 				case "heroine": return Heroine(Arg("name"));
@@ -129,13 +132,13 @@ public static class AiKnowledge
 				case "settings": return StoryReviewPanel.AiSettingsText(Arg("query"));
 				case "usage": return AiAnalysis.Usage(Arg("name"));
 				case "routes": return AiAnalysis.Routes(Arg("key"), Arg("focus"));
-				default: return "没有这个工具：" + name;
+				default: return AiText.T("没有这个工具：", "지원하지 않는 도구: ") + name;
 			}
 		}
 		catch (Exception ex)
 		{
 			FileLogger.LogWarning("[AI] 工具 " + name + " 出错: " + ex);
-			return "查询出错：" + ex.Message;
+			return AiText.T("查询出错：", "조회 오류: ") + ex.Message;
 		}
 	}
 
@@ -170,18 +173,19 @@ public static class AiKnowledge
 		}
 	}
 
-	private static readonly Regex Current = new Regex(@" ?→ ?当前[^ ，；、。)）\n]*");
+	private static readonly Regex Current = new Regex(@" ?→ ?(?:当前[^ ，；、。)）\n]*|현재\s*[+-]?\d+)");
 
 	/// <summary>去掉富文本标记、条件里的当前值，转成简体。</summary>
-	internal static string Clean(string text) => AiAnalysis.ExplainTime(Current.Replace(TextConverter.ToSimplified(RichText.Strip(text ?? "")), "").Trim());
+	internal static string CanonicalClean(string text) => AiAnalysis.ExplainTime(Current.Replace(TextConverter.ToSimplified(RichText.Strip(text ?? "")), "").Trim());
+	internal static string Clean(string text) => AiText.Label(CanonicalClean(text));
 
-	private static string PathText(List<StoryStep> path) => path.Count == 0 ? "（开头，不经分岔）" : string.Join(" → ", path.Select(s => Clean(StoryScripts.Describe(s))).ToArray());
+	private static string PathText(List<StoryStep> path) => path.Count == 0 ? AiText.T("（开头，不经分岔）", "(시작 부분, 분기 없음)") : string.Join(" → ", path.Select(s => Clean(StoryScripts.Describe(s))).ToArray());
 
 	private static string Speaker(string id)
 	{
 		if (id.Length == 0)
 		{
-			return "旁白";
+			return AiText.T("旁白", "해설");
 		}
 		try
 		{
@@ -226,7 +230,7 @@ public static class AiKnowledge
 		string q = TextConverter.ToSimplified(name ?? "").Trim();
 		if (q.Length == 0)
 		{
-			return "请给人名。";
+			return AiText.T("请给人名。", "인물 이름을 입력해 주세요.");
 		}
 		var heroine = FindHeroine(q);
 		var ids = People().Where(id => Speaker(id) == q).ToList();
@@ -241,7 +245,7 @@ public static class AiKnowledge
 		ids = ids.Where(id => Loc("CharacterIntro0/" + id).Length > 0 || Loc("CharacterIntro1/" + id).Length > 0).ToList();
 		if (ids.Count == 0)
 		{
-			return "没有「" + name + "」的人物志。可以用 search 搜这个名字。";
+			return AiText.T("没有「", "「") + name + AiText.T("」的人物志。可以用 search 搜这个名字。", "」 인물지가 없습니다. search로 이름을 검색해 보세요.");
 		}
 		bool all = LOMAssistant.Config.ConfigManager.AiSpoiler.Value == 0;
 		var sb = new StringBuilder();
@@ -259,7 +263,7 @@ public static class AiKnowledge
 			}
 			if (!all)
 			{
-				sb.Append("（身世和真相的段落按剧透设置不给。）\n");
+				sb.Append(AiText.T("（身世和真相的段落按剧透设置不给。）\n", "(스포일러 설정에 따라 숨겨진 과거와 진상은 제공하지 않습니다.)\n"));
 			}
 		}
 		return sb.ToString().Trim();
@@ -273,13 +277,13 @@ public static class AiKnowledge
 			return "";
 		}
 		var sb = new StringBuilder();
-		sb.Append(indent).Append("关卡说明：").Append(lines[0]).Append('\n');
+		sb.Append(indent).Append(AiText.T("关卡说明：", "전투 설명: ")).Append(Clean(lines[0])).Append('\n');
 		if (lines.Count > 1)
 		{
-			sb.Append(indent).Append("战斗中的条件（「计数」是这场战斗自己记的数，如嘴攻唤醒的次数；没写判赢判输的「战斗结束」按当时的结果走剧情）：\n");
+			sb.Append(indent).Append(AiText.T("战斗中的条件（「计数」是这场战斗自己记的数，如嘴攻唤醒的次数；没写判赢判输的「战斗结束」按当时的结果走剧情）：\n", "전투 중 조건('횟수'는 해당 전투의 자체 기록으로 구공으로 깨운 횟수 등이 해당합니다. 승패 판정이 없는 '전투 종료'는 그때의 결과에 따라 이어집니다):\n"));
 			foreach (string line in lines.Skip(1))
 			{
-				sb.Append(indent).Append("- ").Append(line).Append('\n');
+				sb.Append(indent).Append("- ").Append(Clean(line)).Append('\n');
 			}
 		}
 		return sb.ToString();
@@ -293,12 +297,12 @@ public static class AiKnowledge
 		string q = TextConverter.ToSimplified(query ?? "").Trim();
 		if (q.Length == 0)
 		{
-			return "请给关键词。";
+			return AiText.T("请给关键词。", "검색어를 입력해 주세요.");
 		}
 		var all = LOMAssistant.PositionEventCache.Instance.AllEvents();
 		if (all.Count == 0)
 		{
-			return "场所事件表还没载入（游戏读档后进过一次剧情才拿得到）。可以先用 search 搜对白。";
+			return AiText.T("场所事件表还没载入（游戏读档后进过一次剧情才拿得到）。可以先用 search 搜对白。", "장소 이벤트 목록을 아직 읽지 못했습니다. 저장을 불러온 뒤 이야기에 한 번 진입해야 합니다. 먼저 search로 대사를 검색할 수 있습니다.");
 		}
 		ReadStorySystem read = ReadStorySystem.Instance;
 		var hits = new List<(string Pool, Mortal.Story.PositionEventData Data, string Script, int Score)>();
@@ -323,7 +327,7 @@ public static class AiKnowledge
 		}
 		if (hits.Count == 0)
 		{
-			return "没有找到「" + query + "」相关的场所事件。";
+			return AiText.T("没有找到「", "「") + query + AiText.T("」相关的场所事件。", "」 관련 장소 이벤트를 찾지 못했습니다.");
 		}
 		var sb = new StringBuilder();
 		foreach (var h in hits.OrderByDescending(x => x.Score).Take(MaxEvents))
@@ -331,7 +335,7 @@ public static class AiKnowledge
 			sb.Append("【").Append(LOMAssistant.PositionEventCache.PlaceName(h.Pool)).Append(" · ").Append(Clean(DataHelper.GetEventName(h.Data, false))).Append("】");
 			if (h.Script.Length > 0)
 			{
-				sb.Append("剧本 ").Append(h.Script).Append(LOMAssistant.MapEventHints.Unread(h.Script) ? "（玩家没看过）" : "");
+				sb.Append(AiText.T("剧本 ", "스크립트 ")).Append(h.Script).Append(LOMAssistant.MapEventHints.Unread(h.Script) ? AiText.T("（玩家没看过）", "(사용자가 아직 보지 않음)") : "");
 			}
 			sb.Append('\n');
 			string desc;
@@ -347,7 +351,7 @@ public static class AiKnowledge
 		}
 		if (hits.Count > MaxEvents)
 		{
-			sb.Append("……还有 ").Append(hits.Count - MaxEvents).Append(" 个，换个更具体的关键词。\n");
+			sb.Append(AiText.T("……还有 ", "…추가 ")).Append(hits.Count - MaxEvents).Append(AiText.T(" 个，换个更具体的关键词。\n", "개가 있습니다. 더 구체적인 검색어를 입력해 주세요.\n"));
 		}
 		return sb.ToString().Trim();
 	}
@@ -356,7 +360,7 @@ public static class AiKnowledge
 	private static string ReadNote(IEnumerable<string> lines)
 	{
 		int? read = StoryScripts.ReadPercent(lines);
-		return read == null ? "" : read == 0 ? "〔没读过〕" : read == 100 ? "〔读过〕" : "〔读过 " + read + "%〕";
+		return read == null ? "" : read == 0 ? AiText.T("〔没读过〕", "〔안 읽음〕") : read == 100 ? AiText.T("〔读过〕", "〔읽음〕") : AiText.T("〔读过 ", "〔읽은 비율 ") + read + "%〕";
 	}
 
 	// 这一局走过：剧本写下的剧情记录出现在这一局的剧情记录里
@@ -383,25 +387,25 @@ public static class AiKnowledge
 		string note = ReadNote(lines);
 		if (next != null && VisitedThisRun(new[] { next }))
 		{
-			note += "（这一局走过）";
+			note += AiText.T("（这一局走过）", "(이번 회차에 지나옴)");
 		}
 		return note;
 	}
 
-	private static string MissionLine(StoryMission m) => m.Key + "「" + Clean(m.Title) + "」" + (m.Main ? "（主线）" : "（支线）") + (m.When.Length > 0 ? " " + Clean(m.When) : "");
+	private static string MissionLine(StoryMission m) => m.Key + "「" + Clean(m.Title) + "」" + (m.Main ? AiText.T("（主线）", "(주요 임무)") : AiText.T("（支线）", "(곁가지 임무)")) + (m.When.Length > 0 ? " " + Clean(m.When) : "");
 
 	private static string Search(string query)
 	{
 		if (query.Length == 0)
 		{
-			return "请给关键词。";
+			return AiText.T("请给关键词。", "검색어를 입력해 주세요.");
 		}
 		string q = TextConverter.ToSimplified(query);
 		var sb = new StringBuilder();
 		var missions = StoryAtlas.Missions.Where(m => (m.Key + m.Title + m.Desc + m.Summary + m.SeriesTitle).Contains(q) || TextConverter.ToSimplified(m.Summary).Contains(q)).Take(15).ToList();
 		if (missions.Count > 0)
 		{
-			sb.Append("【任务】\n");
+			sb.Append(AiText.T("【任务】\n", "[임무]\n"));
 			foreach (StoryMission m in missions)
 			{
 				sb.Append("- ").Append(MissionLine(m));
@@ -415,24 +419,24 @@ public static class AiKnowledge
 		}
 		if (FindHeroine(q) is StoryRomance.Heroine heroine)
 		{
-			sb.Append("【可结缘女主角】").Append(StoryRomance.Name(heroine)).Append("（用 heroine 看她的结缘路线）\n");
+			sb.Append(AiText.T("【可结缘女主角】", "[인연을 맺을 수 있는 인물]")).Append(StoryRomance.Name(heroine)).Append(AiText.T("（用 heroine 看她的结缘路线）\n", "(heroine으로 인연 경로 확인)\n"));
 		}
 		var endings = StoryAtlas.Endings.Concat(StoryAtlas.Achievements).Concat(StoryAtlas.Cgs).Where(e => (e.Title + e.Desc).Contains(q)).Take(10).ToList();
 		if (endings.Count > 0)
 		{
-			sb.Append("【结局、死亡、成就、CG】（用 endings 看达成方法）\n");
+			sb.Append(AiText.T("【结局、死亡、成就、CG】（用 endings 看达成方法）\n", "[결말·사망·업적·CG](endings로 달성 방법 확인)\n"));
 			foreach (StoryEnding e in endings)
 			{
-				sb.Append("- ").Append(Clean(e.Title)).Append(e.Death ? "（死亡）" : "").Append('\n');
+				sb.Append("- ").Append(Clean(e.Title)).Append(e.Death ? AiText.T("（死亡）", "(사망)") : "").Append('\n');
 			}
 		}
-		var duels = ConditionBook.Combats.Where(c => c.Value.Count > 0 && c.Value[0].Contains(q)).Take(3).ToList();
+		var duels = ConditionBook.Combats.Where(c => c.Value.Count > 0 && Clean(c.Value[0]).Contains(q)).Take(3).ToList();
 		if (duels.Count > 0)
 		{
-			sb.Append("【决斗关卡】\n");
+			sb.Append(AiText.T("【决斗关卡】\n", "[결투 전투]\n"));
 			foreach (var d in duels)
 			{
-				sb.Append("- 关卡 ").Append(d.Key).Append('\n').Append(CombatText(d.Key, "  "));
+				sb.Append(AiText.T("- 关卡 ", "- 전투 ")).Append(d.Key).Append('\n').Append(CombatText(d.Key, "  "));
 			}
 		}
 		try
@@ -442,7 +446,7 @@ public static class AiKnowledge
 				.Where(e => e.Name.Contains(q) || e.Place.Contains(q)).Distinct().Take(8).ToList();
 			if (events.Count > 0)
 			{
-				sb.Append("【场所事件】（用 events 看权重、条件和结果）\n");
+				sb.Append(AiText.T("【场所事件】（用 events 看权重、条件和结果）\n", "[장소 이벤트](events로 추첨 가중치·조건·결과 확인)\n"));
 				foreach (var e in events)
 				{
 					sb.Append("- ").Append(e.Place).Append(" · ").Append(e.Name).Append('\n');
@@ -455,7 +459,7 @@ public static class AiKnowledge
 		var flags = AiAnalysis.FlagsNamed(q, 15);
 		if (flags.Count > 0)
 		{
-			sb.Append("【旗标】（用 usage 看在哪改、在哪判定）\n");
+			sb.Append(AiText.T("【旗标】（用 usage 看在哪改、在哪判定）\n", "[플래그](usage로 변경·판정 지점 확인)\n"));
 			foreach (string f in flags)
 			{
 				sb.Append("- ").Append(f).Append('\n');
@@ -466,13 +470,13 @@ public static class AiKnowledge
 		lines.AddRange(AiAnalysis.SearchOtherDialogue(q, 10));
 		if (lines.Count > 0)
 		{
-			sb.Append("【对白】（剧本编号：片段）\n");
+			sb.Append(AiText.T("【对白】（剧本编号：片段）\n", "[대사](스크립트 ID: 발췌)\n"));
 			foreach (var (script, snippet) in lines)
 			{
-				sb.Append("- ").Append(script).Append(StoryAtlas.Owner.TryGetValue(script, out StoryMission owner) ? "（任务 " + owner.Key + "「" + Clean(owner.Title) + "」）" : "").Append("：").Append(Clean(snippet)).Append('\n');
+				sb.Append("- ").Append(script).Append(StoryAtlas.Owner.TryGetValue(script, out StoryMission owner) ? AiText.T("（任务 ", "(임무 ") + owner.Key + "「" + Clean(owner.Title) + "」）" : "").Append("：").Append(Clean(snippet)).Append('\n');
 			}
 		}
-		return sb.Length > 0 ? sb.ToString() : "没有找到「" + query + "」。换个说法试试（人名、地名、任务名里的词）。";
+		return sb.Length > 0 ? sb.ToString() : AiText.T("没有找到「", "「") + query + AiText.T("」。换个说法试试（人名、地名、任务名里的词）。", "」 검색 결과가 없습니다. 인물명·장소명·임무명에 들어가는 다른 말로 검색해 보세요.");
 	}
 
 	/// <summary>这一局旗标的当前值（玩家在标题画面、没读档时为空）。</summary>
@@ -510,42 +514,42 @@ public static class AiKnowledge
 		StoryMission m = StoryAtlas.Find(key) ?? StoryAtlas.Missions.FirstOrDefault(x => Clean(x.Title).Contains(key));
 		if (m == null)
 		{
-			return "没有任务「" + key + "」。先用 search 找编号。";
+			return AiText.T("没有任务「", "임무 「") + key + AiText.T("」。先用 search 找编号。", "」를 찾지 못했습니다. search로 ID를 먼저 확인하세요.");
 		}
-		var sb = new StringBuilder("任务 ").Append(MissionLine(m)).Append('\n');
+		var sb = new StringBuilder(AiText.T("任务 ", "임무 ")).Append(MissionLine(m)).Append('\n');
 		bool walked = m.Visited || VisitedThisRun(m.Scripts.Select(StoryScripts.Get));
-		sb.Append("玩家进度：对白读过 ").Append(m.Read == null ? "（没有对白）" : m.Read + "%").Append("（全部周目合计）")
-			.Append(PlayerStatManagerData.Instance != null ? (walked ? "；这一局走过" : "；这一局还没走过") : "").Append('\n');
-		sb.Append("任务组：").Append(Clean(m.SeriesTitle)).Append(m.Inactive ? "；不会在地图上自己触发，只能由别的剧本接进来" : "").Append('\n');
+		sb.Append(AiText.T("玩家进度：对白读过 ", "사용자 진행도: 대사 읽은 비율 ")).Append(m.Read == null ? AiText.T("（没有对白）", "(대사 없음)") : m.Read + "%").Append(AiText.T("（全部周目合计）", "(모든 회차 합산)"))
+			.Append(PlayerStatManagerData.Instance != null ? (walked ? AiText.T("；这一局走过", "; 이번 회차에 지나옴") : AiText.T("；这一局还没走过", "; 이번 회차에 지나오지 않음")) : "").Append('\n');
+		sb.Append(AiText.T("任务组：", "임무 그룹: ")).Append(Clean(m.SeriesTitle)).Append(m.Inactive ? AiText.T("；不会在地图上自己触发，只能由别的剧本接进来", "; 지도에서 직접 발생하지 않고 다른 스크립트에서 연결되어야 함") : "").Append('\n');
 		if (m.Desc.Length > 0)
 		{
-			sb.Append("说明：").Append(Clean(m.Desc)).Append('\n');
+			sb.Append(AiText.T("说明：", "설명: ")).Append(Clean(m.Desc)).Append('\n');
 		}
-		sb.Append("时间：").Append(Clean(m.When)).Append("；地点：").Append(Clean(m.Place)).Append('\n');
+		sb.Append(AiText.T("时间：", "시기: ")).Append(Clean(m.When)).Append(AiText.T("；地点：", "; 장소: ")).Append(Clean(m.Place)).Append('\n');
 		string cond = Clean(StoryAtlas.ConditionText(m)).Replace("\n", " ");
 		if (cond.Length > 0)
 		{
-			sb.Append("触发条件：").Append(cond).Append('\n');
+			sb.Append(AiText.T("触发条件：", "발생 조건: ")).Append(cond).Append('\n');
 			string now = FlagsNow(Regex.Matches(cond, @"\(([A-Z]\d{5})\)").Cast<Match>().Select(x => x.Groups[1].Value));
 			if (now.Length > 0)
 			{
-				sb.Append("条件里的旗标这一局现在：").Append(now).Append("（拿它对照触发条件，判断玩家还能不能触发）\n");
+				sb.Append(AiText.T("条件里的旗标这一局现在：", "조건에 쓰인 플래그의 이번 회차 현재 값: ")).Append(now).Append(AiText.T("（拿它对照触发条件，判断玩家还能不能触发）\n", "(발생 조건과 대조하여 아직 발생 가능한지 판단하세요.)\n"));
 			}
 		}
 		foreach (StoryEntry e in m.Entries)
 		{
-			sb.Append("从").Append(e.From != null ? "任务 " + e.From.Key + "「" + Clean(e.From.Title) + "」的" : "").Append("剧本 ").Append(e.Script).Append(" 接进来：").Append(PathText(e.Path)).Append('\n');
+			sb.Append(AiText.T("从", "연결 출처: ")).Append(e.From != null ? AiText.T("任务 ", "임무 ") + e.From.Key + "「" + Clean(e.From.Title) + AiText.T("」的", "」 / ") : "").Append(AiText.T("剧本 ", "스크립트 ")).Append(e.Script).Append(AiText.T(" 接进来：", " / 진입 경로: ")).Append(PathText(e.Path)).Append('\n');
 		}
 		if (m.Next.Count > 0)
 		{
-			sb.Append("之后接到：").Append(string.Join("、", m.Next.Select(k => StoryAtlas.Find(k) is StoryMission n ? n.Key + "「" + Clean(n.Title) + "」" : k).ToArray())).Append('\n');
+			sb.Append(AiText.T("之后接到：", "이후 연결: ")).Append(string.Join("、", m.Next.Select(k => StoryAtlas.Find(k) is StoryMission n ? n.Key + "「" + Clean(n.Title) + "」" : k).ToArray())).Append('\n');
 		}
-		sb.Append("\n剧本（编号：剧情记录）：\n");
+		sb.Append(AiText.T("\n剧本（编号：剧情记录）：\n", "\n스크립트(ID: 스토리 기록):\n"));
 		foreach (string name in m.Scripts.Where(s => StoryAtlas.Owner.TryGetValue(s, out StoryMission o) && o == m))
 		{
 			StoryScript s = StoryScripts.Get(name);
 			string first = s == null ? "" : s.Records.Select(StoryScripts.Legend).FirstOrDefault(t => t.Length > 0) ?? "";
-			sb.Append("- ").Append(name).Append(s != null && s.Branches ? "（有分岔）" : "").Append(first.Length > 0 ? "：" + (first.Length > 80 ? first.Substring(0, 80) + "…" : first) : "").Append('\n');
+			sb.Append("- ").Append(name).Append(s != null && s.Branches ? AiText.T("（有分岔）", "(분기 있음)") : "").Append(first.Length > 0 ? "：" + (first.Length > 80 ? first.Substring(0, 80) + "…" : first) : "").Append('\n');
 		}
 		return sb.ToString();
 	}
@@ -555,12 +559,12 @@ public static class AiKnowledge
 		StoryScript s = StoryScripts.Get(name);
 		if (s == null)
 		{
-			return "没有剧本「" + name + "」。先用 search 或 quest 找编号。";
+			return AiText.T("没有剧本「", "스크립트 「") + name + AiText.T("」。先用 search 或 quest 找编号。", "」를 찾지 못했습니다. search 또는 quest로 ID를 확인하세요.");
 		}
-		var sb = new StringBuilder("剧本 ").Append(name);
+		var sb = new StringBuilder(AiText.T("剧本 ", "스크립트 ")).Append(name);
 		if (StoryAtlas.Owner.TryGetValue(name, out StoryMission owner))
 		{
-			sb.Append("，属于任务 ").Append(MissionLine(owner));
+			sb.Append(AiText.T("，属于任务 ", ", 소속 임무 ")).Append(MissionLine(owner));
 		}
 		sb.Append('\n');
 		if (page <= 1)
@@ -568,7 +572,7 @@ public static class AiKnowledge
 			var legends = s.Records.Select(StoryScripts.Legend).Where(t => t.Length > 0).Distinct().ToList();
 			if (legends.Count > 0)
 			{
-				sb.Append("\n【剧情记录】（游戏回想里的文字，按剧本顺序，分岔各自的都在）\n");
+				sb.Append(AiText.T("\n【剧情记录】（游戏回想里的文字，按剧本顺序，分岔各自的都在）\n", "\n[스토리 기록](회상에 나오는 기록입니다. 스크립트 순서이며 서로 다른 분기의 기록을 모두 포함합니다.)\n"));
 				foreach (string t in legends)
 				{
 					sb.Append("- ").Append(t).Append('\n');
@@ -576,7 +580,7 @@ public static class AiKnowledge
 			}
 			if (s.Menus.Count > 0)
 			{
-				sb.Append("\n【选项】（〔〕里是这个选项后面的对白玩家读过多少，全部周目合计）\n");
+				sb.Append(AiText.T("\n【选项】（〔〕里是这个选项后面的对白玩家读过多少，全部周目合计）\n", "\n[선택지](〔〕는 선택지 이후 대사의 읽은 비율이며 모든 회차 합산입니다.)\n"));
 				foreach (List<StoryStep> menu in s.Menus)
 				{
 					sb.Append("- ").Append(string.Join(" / ", menu.Select(x => Clean(StoryScripts.Describe(x)) + ReadNote(s.Talk.Where(t => t.Path.Any(p => p.Kind == x.Kind && p.Key == x.Key)).Select(t => t.Key))).ToArray())).Append('\n');
@@ -584,19 +588,19 @@ public static class AiKnowledge
 			}
 			if (s.Exits.Count > 0)
 			{
-				sb.Append("\n【去处】（分岔路径 ⇒ 接到哪；变化是这条路上的数值、好感、旗标、物品变化；〔〕里是这条路和接下去的剧本玩家读过多少（全部周目），以及这一局走过没有）\n");
+				sb.Append(AiText.T("\n【去处】（分岔路径 ⇒ 接到哪；变化是这条路上的数值、好感、旗标、物品变化；〔〕里是这条路和接下去的剧本玩家读过多少（全部周目），以及这一局走过没有）\n", "\n[연결](분기 경로 ⇒ 연결 대상; 변화는 해당 경로의 수치·호감도·플래그·물품 변화입니다. 〔〕는 이 경로와 다음 스크립트의 모든 회차 읽은 비율이며 이번 회차 방문 여부는 별도 표시합니다.)\n"));
 				foreach (StoryExit exit in s.Exits)
 				{
-					string target = exit.ToTitle ? "回到标题（结局）" : exit.ToMap ? "回地图" : exit.Target.Length > 0 ? "剧本 " + exit.Target + (StoryAtlas.Owner.TryGetValue(exit.Target, out StoryMission t) && t != owner ? "（任务 " + t.Key + "「" + Clean(t.Title) + "」）" : "") : "（剧本结束）";
-					sb.Append("- ").Append(PathText(exit.Path)).Append(exit.AfterScene ? "，战斗后" : "").Append(" ⇒ ").Append(target).Append(ExitReadNote(s, exit));
+					string target = exit.ToTitle ? AiText.T("回到标题（结局）", "제목 화면으로(결말)") : exit.ToMap ? AiText.T("回地图", "지도로") : exit.Target.Length > 0 ? AiText.T("剧本 ", "스크립트 ") + exit.Target + (StoryAtlas.Owner.TryGetValue(exit.Target, out StoryMission t) && t != owner ? AiText.T("（任务 ", "(임무 ") + t.Key + "「" + Clean(t.Title) + "」）" : "") : AiText.T("（剧本结束）", "(스크립트 종료)");
+					sb.Append("- ").Append(PathText(exit.Path)).Append(exit.AfterScene ? AiText.T("，战斗后", ", 전투 후") : "").Append(" ⇒ ").Append(target).Append(ExitReadNote(s, exit));
 					if (exit.MainMission.Length > 0)
 					{
-						sb.Append("，主线推进到 ").Append(exit.MainMission);
+						sb.Append(AiText.T("，主线推进到 ", ", 주요 임무 진행: ")).Append(exit.MainMission);
 					}
 					var effects = s.EffectsOn(exit).Select(Clean).ToList();
 					if (effects.Count > 0)
 					{
-						sb.Append("\n  变化：").Append(string.Join("；", effects.ToArray()));
+						sb.Append(AiText.T("\n  变化：", "\n  변화: ")).Append(string.Join("；", effects.ToArray()));
 					}
 					sb.Append('\n');
 				}
@@ -604,11 +608,11 @@ public static class AiKnowledge
 			foreach (var (path, death, id) in s.Endings)
 			{
 				StoryEnding e = StoryAtlas.Endings.FirstOrDefault(x => x.Id == id);
-				sb.Append(death ? "【死亡】" : "【结局】").Append(e != null ? Clean(e.Title) : id).Append("：").Append(PathText(path)).Append('\n');
+				sb.Append(death ? AiText.T("【死亡】", "[사망]") : AiText.T("【结局】", "[결말]")).Append(e != null ? Clean(e.Title) : id).Append("：").Append(PathText(path)).Append('\n');
 			}
 			foreach (var (path, level) in s.Fights)
 			{
-				sb.Append("【决斗】关卡 ").Append(level).Append("：").Append(PathText(path)).Append('\n');
+				sb.Append(AiText.T("【决斗】关卡 ", "[결투] 전투 ")).Append(level).Append("：").Append(PathText(path)).Append('\n');
 				sb.Append(CombatText(level, "  "));
 			}
 		}
@@ -636,10 +640,10 @@ public static class AiKnowledge
 			int pages = (all.Length + PageChars - 1) / PageChars;
 			page = Math.Max(1, Math.Min(page, pages));
 			string part = all.Substring((page - 1) * PageChars, Math.Min(PageChars, all.Length - (page - 1) * PageChars));
-			sb.Append("\n【对白】第 ").Append(page).Append('/').Append(pages).Append(" 页（〔〕里是这段对白所在的分岔）\n").Append(part);
+			sb.Append(AiText.T("\n【对白】第 ", "\n[대사] 페이지 ")).Append(page).Append('/').Append(pages).Append(AiText.T(" 页（〔〕里是这段对白所在的分岔）\n", " (〔〕는 해당 대사가 속한 분기입니다.)\n")).Append(part);
 			if (page < pages)
 			{
-				sb.Append("\n……还有下一页：script 加 page=").Append(page + 1);
+				sb.Append(AiText.T("\n……还有下一页：script 加 page=", "\n…다음 페이지: script의 page=")).Append(page + 1);
 			}
 		}
 		return sb.ToString();
@@ -673,6 +677,7 @@ public static class AiKnowledge
 	private static string EndingList(string query)
 	{
 		string q = TextConverter.ToSimplified(query);
+		if (NativeKorean.Enabled) q = KoreanAiQuery.EndingQuery(q);
 		var sb = new StringBuilder();
 		// 「生死簿第三条」「结局4」：按图鉴编号找
 		int number = ChineseNumber(q);
@@ -689,7 +694,7 @@ public static class AiKnowledge
 			sb.Append("【").Append(title).Append("】\n");
 			foreach (StoryEnding e in hits.Take(q.Length == 0 ? 200 : 12))
 			{
-				sb.Append("- ").Append(e.Number > 0 ? e.Number + ". " : "").Append(Clean(e.Title)).Append(e.Death ? "（死亡）" : "").Append(e.Achieved ? "（玩家达成过）" : "");
+				sb.Append("- ").Append(e.Number > 0 ? e.Number + ". " : "").Append(Clean(e.Title)).Append(e.Death ? AiText.T("（死亡）", "(사망)") : "").Append(e.Achieved ? AiText.T("（玩家达成过）", "(달성 기록 있음)") : "");
 				if (q.Length > 0)
 				{
 					if (e.Desc.Length > 0)
@@ -699,20 +704,20 @@ public static class AiKnowledge
 					if (e.Ways.Count == 0)
 					{
 						// 游戏只有两条路记生死簿、汗青书：剧本跳到死亡或结局画面（ChangeScene），决斗输了（关卡上写着死法）；两样都没有就是哪里都触发不到
-						sb.Append("\n  · 剧本和决斗里都没有走到它的地方。游戏代码里也只有这两条路会记下死法和结局，所以当前版本大概触发不到（没用上的条目）。照实告诉玩家，不要拿别的剧情去猜。");
+						sb.Append(AiText.T("\n  · 剧本和决斗里都没有走到它的地方。游戏代码里也只有这两条路会记下死法和结局，所以当前版本大概触发不到（没用上的条目）。照实告诉玩家，不要拿别的剧情去猜。", "\n  · 스크립트와 결투 어디에도 이 항목으로 이어지는 경로가 없습니다. 게임 코드에서 사망과 결말을 기록하는 경로도 이 둘뿐이므로 현재 버전에서는 발생하지 않는 미사용 항목으로 보입니다. 그대로 설명하고 다른 이야기로 추측하지 마세요."));
 					}
 					foreach (StoryEndingWay w in e.Ways.Take(6))
 					{
-						sb.Append("\n  · 剧本 ").Append(w.Script).Append(w.Mission != null ? "（任务 " + w.Mission.Key + "「" + Clean(w.Mission.Title) + "」）" : "").Append("：").Append(PathText(w.Path)).Append(w.LostDuel ? "，决斗输了" : "");
+						sb.Append(AiText.T("\n  · 剧本 ", "\n  · 스크립트 ")).Append(w.Script).Append(w.Mission != null ? AiText.T("（任务 ", "(임무 ") + w.Mission.Key + "「" + Clean(w.Mission.Title) + "」）" : "").Append("：").Append(PathText(w.Path)).Append(w.LostDuel ? AiText.T("，决斗输了", ", 결투 패배 시") : "");
 					}
 				}
 				sb.Append('\n');
 			}
 		}
-		List("结局与死亡", StoryAtlas.Endings);
-		List("成就", StoryAtlas.Achievements);
-		List("结局 CG", StoryAtlas.Cgs);
-		return sb.Length > 0 ? sb.ToString() : "没有找到「" + query + "」相关的结局。";
+		List(AiText.T("结局与死亡", "결말·사망"), StoryAtlas.Endings);
+		List(AiText.T("成就", "업적"), StoryAtlas.Achievements);
+		List(AiText.T("结局 CG", "결말 CG"), StoryAtlas.Cgs);
+		return sb.Length > 0 ? sb.ToString() : AiText.T("没有找到「", "「") + query + AiText.T("」相关的结局。", "」 관련 결말을 찾지 못했습니다.");
 	}
 
 	// 玩家常用的叫法（好感里的人名、昵称），按 StoryRomance.All 的顺序
@@ -753,25 +758,25 @@ public static class AiKnowledge
 		var h = FindHeroine(name);
 		if (h == null)
 		{
-			return "「" + name + "」不是可结缘的女主角。可结缘的有：" + string.Join("、", StoryRomance.All.Select(StoryRomance.Name).ToArray());
+			return "「" + name + AiText.T("」不是可结缘的女主角。可结缘的有：", "」 인물과는 인연을 맺을 수 없습니다. 가능한 인물: ") + string.Join("、", StoryRomance.All.Select(StoryRomance.Name).ToArray());
 		}
 		var stops = StoryRomance.StopsOf(h);
 		if (stops == null)
 		{
-			return "结缘路线还在整理，请稍后再问。";
+			return AiText.T("结缘路线还在整理，请稍后再问。", "인연 경로를 정리하는 중입니다. 잠시 후 다시 질문해 주세요.");
 		}
-		var sb = new StringBuilder(StoryRomance.Name(h)).Append(" 的结缘路线");
-		sb.Append("（玩家现在对她的好感 ").Append(StoryRomance.Affection(h)).Append(StoryRomance.IsLover(h) ? "，是现在的心上人" : "").Append(AiPersona.Bonded(h) ? "，已经结缘" : "，还没结缘").Append("）\n");
+		var sb = new StringBuilder(StoryRomance.Name(h)).Append(AiText.T(" 的结缘路线", " 인연 경로"));
+		sb.Append(AiText.T("（玩家现在对她的好感 ", "(현재 호감도 ")).Append(StoryRomance.Affection(h)).Append(StoryRomance.IsLover(h) ? AiText.T("，是现在的心上人", ", 현재 마음에 둔 사람") : "").Append(AiPersona.Bonded(h) ? AiText.T("，已经结缘", ", 인연을 맺음") : AiText.T("，还没结缘", ", 아직 인연을 맺지 않음")).Append("）\n");
 		foreach (var stop in stops)
 		{
 			sb.Append("- ").Append(MissionLine(stop.Mission));
 			if (stop.Affection != 0)
 			{
-				sb.Append("，剧本里有加减她好感的地方（各分岔合计 ").Append(stop.Affection > 0 ? "+" : "").Append(stop.Affection).Append("；分岔互斥，实际走一条路拿到的少得多，具体哪条路加多少用 routes 查，不要把合计说成「最多能加」）");
+				sb.Append(AiText.T("，剧本里有加减她好感的地方（各分岔合计 ", ", 스크립트에 호감도 변화가 있음(모든 분기 합산 ")).Append(stop.Affection > 0 ? "+" : "").Append(stop.Affection).Append(AiText.T("；分岔互斥，实际走一条路拿到的少得多，具体哪条路加多少用 routes 查，不要把合计说成「最多能加」）", "; 분기들이 서로 배타적이므로 실제 한 경로의 획득량은 이보다 훨씬 적습니다. routes로 경로별 합계를 확인하고 이 합산치를 최댓값이라고 설명하지 마세요.)"));
 			}
 			if (stop.Steps.Count > 0)
 			{
-				sb.Append("，结缘旗标：").Append(string.Join("、", stop.Steps.Select(f => StoryRomance.StepName(f) + (StoryRomance.StepDone(f) ? "（已做到）" : "（未做到）")).ToArray()));
+				sb.Append(AiText.T("，结缘旗标：", ", 인연 플래그: ")).Append(string.Join("、", stop.Steps.Select(f => StoryRomance.StepName(f) + (StoryRomance.StepDone(f) ? AiText.T("（已做到）", "(완료)") : AiText.T("（未做到）", "(미완료)"))).ToArray()));
 			}
 			sb.Append('\n');
 		}

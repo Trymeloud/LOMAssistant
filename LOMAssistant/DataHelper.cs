@@ -30,12 +30,19 @@ public static class DataHelper
 				}
 				string text = FormatConditionValName(fieldValue);
 				FormatConditionValName(fieldValue2);
-				string text2 = string.Format("{0} 需{2}{3} → 当前{1}", text, fieldValue.GetResult(), compareOperator, fieldValue2.GetResult());
+				// Keep the same reads and checks; choose the sentence before rendering.
+				var current = fieldValue.GetResult();
+				var required = fieldValue2.GetResult();
+				string text2 = NativeKorean.Enabled
+					? KoreanText.Condition(NativeKorean.Variable(fieldValue, text), compareOperator,
+						required.ToString(System.Globalization.CultureInfo.InvariantCulture), current.ToString(System.Globalization.CultureInfo.InvariantCulture))
+					: string.Format("{0} 需{2}{3} → 当前{1}", text, current, compareOperator, required);
 				text2 = (item.Check() ? RichText.Green(text2) : RichText.Red(text2));
 				list.Add(text2);
 			}
 			LogicOperatorType fieldValue3 = condition.GetFieldValue<LogicOperatorType>("_logicOp");
-			return string.Join(" " + GetLogicOperator(fieldValue3) + " ", list);
+			return string.Join(NativeKorean.Enabled ? KoreanText.Get(fieldValue3 == LogicOperatorType.OR ? KoreanMessage.Any : KoreanMessage.All)
+				: " " + GetLogicOperator(fieldValue3) + " ", list);
 		}
 		catch (Exception ex)
 		{
@@ -249,7 +256,7 @@ public static class DataHelper
 				parts.Add(text);
 			}
 		}
-		return string.Join(" 或 ", parts.ToArray());
+		return string.Join(NativeKorean.Enabled ? KoreanText.Get(KoreanMessage.Any) : " 或 ", parts.ToArray());
 	}
 
 	public static string ParseSwitchCheckpoint(string checkpoint)
@@ -336,9 +343,9 @@ public static class DataHelper
 			return false;
 		}
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.AppendLine("位置：" + text);
-		stringBuilder.AppendLine("时间: " + periodText);
-		stringBuilder.AppendLine("条件:");
+		stringBuilder.AppendLine(NativeKorean.Text(KoreanMessage.Location, "位置：{0}", NativeKorean.Enabled ? KoreanLabels.Variable(TextConverter.ToSimplified(text)) : text));
+		stringBuilder.AppendLine(NativeKorean.Text(KoreanMessage.Period, "时间: {0}", periodText));
+		stringBuilder.AppendLine(NativeKorean.Text(KoreanMessage.Conditions, "条件:"));
 		foreach (string item3 in list)
 		{
 			stringBuilder.AppendLine("    " + item3);
@@ -380,7 +387,7 @@ public static class DataHelper
 	{
 		if (!checkData.GetFieldValue<bool>("_dayCheck"))
 		{
-			periodText = "不限";
+			periodText = NativeKorean.Text(KoreanMessage.UnlimitedTime, "不限");
 			return true;
 		}
 		PlayerStatManagerData instance = PlayerStatManagerData.Instance;
@@ -394,7 +401,7 @@ public static class DataHelper
 			return gameTime == fieldValue3;
 		}
 		default:
-			periodText = "不限";
+			periodText = NativeKorean.Text(KoreanMessage.UnlimitedTime, "不限");
 			return true;
 		case TimeCheckType.區間:
 		{
@@ -498,6 +505,8 @@ public static class DataHelper
 			text = fieldValue2;
 		}
 		string shown = translate ? UiEventNames.Display(text) : null;
+		if (translate && NativeKorean.Enabled)
+			shown = EventNameKorean.Resolve(eventData, text);
 		return RichText.Golden(shown ?? TextConverter.ToSimplified(text));
 	}
 

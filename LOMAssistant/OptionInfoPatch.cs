@@ -38,8 +38,6 @@ internal static class OptionInfoPatch
 	public static bool Raw;
 
 	/// <summary>掷骰转盘下面那几行：选项表每项是「选项编号|范围」，开始掷骰时记下这一组。</summary>
-	[HarmonyPrefix]
-	[HarmonyPatch(typeof(DiceMenuDialog), "ExecuteRoll")]
 	public static void DiceMenuDialog_ExecuteRoll_Prefix(string[] __0)
 	{
 		if (__0 == null)
@@ -57,8 +55,6 @@ internal static class OptionInfoPatch
 		_menuFrame = Time.frameCount;
 	}
 
-	[HarmonyPrefix]
-	[HarmonyPatch(typeof(CustomMenuDialog), "AddOption")]
 	public static void CustomMenuDialog_AddOption_Prefix(string __0)
 	{
 		if (Time.frameCount != _menuFrame)
@@ -73,9 +69,6 @@ internal static class OptionInfoPatch
 	}
 
 	/// <summary>记下每段取过的文字是哪个编号（在结果说明接好以后，和加按钮时传的文字一致）。</summary>
-	[HarmonyPostfix]
-	[HarmonyPriority(Priority.Last)]
-	[HarmonyPatch(typeof(LeanLocalizationResolver), "GetStoryText")]
 	public static void LeanLocalizationResolver_GetStoryText_Remember(string key, string __result)
 	{
 		if (Raw || __result == null)
@@ -89,8 +82,6 @@ internal static class OptionInfoPatch
 		_textKeys[__result] = key;
 	}
 
-	[HarmonyPrefix]
-	[HarmonyPatch(typeof(LuaEnvironment), "LoadLuaFunction")]
 	public static void LuaEnvironment_LoadLuaFunction_Prefix(string luaString, string friendlyName)
 	{
 		var timer = System.Diagnostics.Stopwatch.StartNew();
@@ -116,6 +107,7 @@ internal static class OptionInfoPatch
 			LuaParser.Instance.ExtractPositionWorkFromLua(key, luaString);
 			if (!friendlyName.StartsWith("tmp.") && !friendlyName.StartsWith("Flowchart.Say.ExecuteLua"))
 			{
+				if (LastScriptKey != key) MenuKeys.Clear();
 				LastScriptKey = key;
 			}
 			Lap("选项");
@@ -178,7 +170,8 @@ internal static class OptionInfoPatch
 				string effects = locked.Unlocked != null && LuaParser.Instance.OptionResult.TryGetValue(locked.Unlocked, out var unlockedActions)
 					? RichText.Strip(TextConverter.ToSimplifiedUnlessJapanese(LuaParser.Description(unlockedActions)))
 					: "";
-				return condition.IsNullOrWhiteSpace() ? "" : condition + (effects.IsNullOrWhiteSpace() ? "" : "；解锁后：" + effects);
+				return condition.IsNullOrWhiteSpace() ? "" : effects.IsNullOrWhiteSpace() ? condition
+					: NativeKorean.Text(KoreanMessage.AfterUnlock, "{0}；解锁后：{1}", condition, effects);
 			}
 			string jumps = "";
 			if (LuaParser.Instance.OptionJumps.TryGetValue(key, out var jumpList))
@@ -188,7 +181,7 @@ internal static class OptionInfoPatch
 					string condition = RichText.Strip(DataHelper.SwitchBranchCondition(jump.Switch, jump.Branch));
 					if (!condition.IsNullOrWhiteSpace())
 					{
-						jumps += (jumps.Length > 0 ? "；" : "") + "若 " + condition + "：触发剧情";
+						jumps += (jumps.Length > 0 ? (NativeKorean.Enabled ? "; " : "；") : "") + NativeKorean.Text(KoreanMessage.ConditionalStory, "若 {0}：触发剧情", condition);
 					}
 				}
 			}

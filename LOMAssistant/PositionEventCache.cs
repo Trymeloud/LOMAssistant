@@ -19,6 +19,15 @@ public class PositionEventCache
 	private readonly Dictionary<PositionEventData, string> eventDescCache;
 
 	private readonly Dictionary<PositionEventData, string> scriptPrefixCache;
+	private string _displayLanguage;
+
+	private void CheckDisplayLanguage()
+	{
+		if (_displayLanguage == TextConverter.DisplayLanguage) return;
+		_displayLanguage = TextConverter.DisplayLanguage;
+		eventKeyCache.Clear();
+		eventDescCache.Clear();
+	}
 
 	public static PositionEventCache Instance => instance.Value;
 
@@ -47,6 +56,7 @@ public class PositionEventCache
 
 	public string GetPositionEventName(PositionEventData eventData)
 	{
+		CheckDisplayLanguage();
 		if (!eventKeyCache.TryGetValue(eventData, out var value))
 		{
 			value = GenerateEventKey(eventData);
@@ -57,6 +67,7 @@ public class PositionEventCache
 
 	public string GetPositionEventDesc(PositionEventData eventData)
 	{
+		CheckDisplayLanguage();
 		if (!eventDescCache.TryGetValue(eventData, out var value))
 		{
 			value = GenerateStaticDesc(eventData);
@@ -109,12 +120,15 @@ public class PositionEventCache
 		PositionResultConfig config = checkPointManager != null ? checkPointManager.GetFieldValue<PositionResultConfig>("_position") : null;
 		if (config != null)
 		{
-			return _config = config;
+			_config = config;
+			EventNameKorean.Export(_config);
+			return _config;
 		}
 		if (_config == null)
 		{
 			_config = UnityEngine.Resources.FindObjectsOfTypeAll<PositionResultConfig>().FirstOrDefault();
 		}
+		EventNameKorean.Export(_config);
 		return _config;
 	}
 
@@ -143,7 +157,8 @@ public class PositionEventCache
 
 	private string GenerateEventKey(PositionEventData eventData)
 	{
-		return GetPositionDisplayName(positionEventDataCache.FirstOrDefault((KeyValuePair<string, List<PositionEventData>> p) => p.Value.Contains(eventData)).Key) + "事件：" + DataHelper.GetEventName(eventData);
+		string place = GetPositionDisplayName(positionEventDataCache.FirstOrDefault((KeyValuePair<string, List<PositionEventData>> p) => p.Value.Contains(eventData)).Key);
+		return NativeKorean.Text(KoreanMessage.PlaceEvent, "{0}事件：{1}", place, DataHelper.GetEventName(eventData));
 	}
 
 	// 留学地图的场所事件池（Section_门派_场所…）：场所名取自留学地图菜单（section_0X_free_start_02 的选项和它们进的剧本）
@@ -166,6 +181,9 @@ public class PositionEventCache
 
 	private static string GetPositionDisplayName(string positionKey)
 	{
+		if (string.IsNullOrEmpty(positionKey)) return "";
+		if (NativeKorean.Enabled && positionKey.Length >= 13 && KoreanLabels.SectionPlaces.TryGetValue(positionKey.Substring(0, 13), out string koreanPlace))
+			return koreanPlace + (positionKey.Length > 13 ? " (" + positionKey + ")" : "");
 		if (positionKey != null && positionKey.Length >= 13 && SectionPlaces.TryGetValue(positionKey.Substring(0, 13), out string section))
 		{
 			return section + (positionKey.Length > 13 ? "（" + positionKey + "）" : "");
@@ -266,7 +284,7 @@ public class PositionEventCache
 	private string GenerateStaticDesc(PositionEventData eventData)
 	{
 		StringBuilder stringBuilder = new StringBuilder();
-		stringBuilder.AppendLine("可能的结果：");
+		stringBuilder.AppendLine(NativeKorean.Text(KoreanMessage.PossibleResults, "可能的结果："));
 		if (!scriptPrefixCache.TryGetValue(eventData, out var value))
 		{
 			throw new InvalidOperationException("Script prefix not found for event data");
@@ -277,8 +295,8 @@ public class PositionEventCache
 		List<LOMAssistant.LuaParse.Action> actions2 = source.Where((LOMAssistant.LuaParse.Action a) => a.IsConditional).ToList();
 		string text = LuaParser.Description(actions);
 		string text2 = LuaParser.Description(actions2);
-		stringBuilder.AppendLine("    一定触发：" + text);
-		stringBuilder.AppendLine("    某些条件下：" + text2);
+		stringBuilder.AppendLine("    " + NativeKorean.Text(KoreanMessage.CertainResults, "一定触发：{0}", text));
+		stringBuilder.AppendLine("    " + NativeKorean.Text(KoreanMessage.ConditionalResults, "某些条件下：{0}", text2));
 		return stringBuilder.ToString();
 	}
 
@@ -287,14 +305,14 @@ public class PositionEventCache
 		StringBuilder stringBuilder = new StringBuilder();
 		int fieldValue = eventData.GetFieldValue<int>("_defaultRate");
 		int rate = eventData.GetRate();
-		stringBuilder.AppendLine($"概率：{rate}（基础{fieldValue}）");
+		stringBuilder.AppendLine(NativeKorean.Text(KoreanMessage.Weight, "概率：{0}（基础{1}）", rate, fieldValue));
 		bool fieldValue2 = eventData.GetFieldValue<bool>("_toggleCondition");
 		ConditionResultItem fieldValue3 = eventData.GetFieldValue<ConditionResultItem>("_activeCondition");
 		if (fieldValue2 && fieldValue3 != null)
 		{
-			stringBuilder.AppendLine("激活条件：" + DataHelper.ExtractConditions(fieldValue3, out var _));
+			stringBuilder.AppendLine(NativeKorean.Text(KoreanMessage.Activation, "激活条件：{0}", DataHelper.ExtractConditions(fieldValue3, out var _)));
 		}
-		stringBuilder.AppendLine("判定条件：");
+		stringBuilder.AppendLine(NativeKorean.Text(KoreanMessage.RateConditions, "判定条件："));
 		PositionEventRateItem[] fieldValue4 = eventData.GetFieldValue<PositionEventRateItem[]>("_eventRateItem");
 		foreach (PositionEventRateItem positionEventRateItem in fieldValue4)
 		{

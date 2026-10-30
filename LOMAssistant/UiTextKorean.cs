@@ -1,0 +1,152 @@
+using System.Collections.Generic;
+using System.Linq;
+using System.Text.RegularExpressions;
+
+namespace LOMAssistant;
+
+internal static partial class UiTextKorean
+{
+    // Flow labels must resolve complete condition names before shortening them.
+    public static string ConditionSummary(string text, bool full)
+    {
+        string translated = UiText.Translate(text, UiText.Korean);
+        return !full && translated.Length > 18 ? translated.Substring(0, 18) + "…" : translated;
+    }
+
+    public static (Regex, MatchEvaluator) ConditionWords()
+    {
+        var names = Conditions.Concat(SupplementalConditions).ToDictionary(row => row[0], row => row[1]);
+        string alternatives = string.Join("|", names.Keys.OrderByDescending(n => n.Length).Select(Regex.Escape));
+        // Live conditions use "需>=40"; the bundled fallback also uses "≥ 40".
+        var pattern = new Regex("(?<=^|\\s)(?:" + alternatives + ")(?=\\s*(?:需|[≥≤≠><=!]))|(?<=(?:需)?(?:>=|<=|!=|=|>|<|≥|≤|≠)\\s*)(?:" + alternatives + ")(?=$|\\s|<)");
+        return (pattern, match => names[match.Value]);
+    }
+
+    public static (Regex, MatchEvaluator) NoteWords()
+    {
+        var notes = Notes.ToDictionary(row => row[0], row => row[1]);
+        return (new Regex("([〔〈])([^〕〉]+)([〕〉])"), match =>
+            notes.TryGetValue(match.Groups[2].Value, out string translated)
+                ? match.Groups[1].Value + translated + match.Groups[3].Value : match.Value);
+    }
+
+    public static readonly string[][] SupplementalConditions =
+    {
+        new[] { "拳掌", "권장" },
+        new[] { "技能_不坏金身", "기술 「불괴금신」" },
+        new[] { "技能_轻微骨裂", "기술 「미세 골절」" },
+        new[] { "旗标收留小梅或小竹", "우소매 또는 욱죽을 받아들임" },
+        new[] { "收留小梅 (收留小梅或小竹)", "우소매를 받아들임 (우소매 또는 욱죽)" },
+        new[] { "条件_晚安且收留小梅", "「잘 자」 및 우소매를 받아들임" },
+        new[] { "条件_心上人_小梅或小竹", "마음에 둔 사람이 우소매 또는 욱죽" },
+        new[] { "书籍_仙鹤迷踪拳", "선학미종권 보유 수량" },
+        new[] { "自己", "자신" },
+        new[] { "旗标攻略人数", "공략 인원" },
+        new[] { "旗标攻略人数_排除梅", "공략 인원(우소매 제외)" },
+        new[] { "旗标攻略人数_排除梅竹菊", "공략 인원(우소매·욱죽·위국 제외)" },
+        new[] { "旗标攻略人数_排除小师妹", "공략 인원(소사매 제외)" },
+        new[] { "旗标攻略人数_排除龙湘", "공략 인원(용상 제외)" },
+        new[] { "旗标攻略人数_三个高手_排除龙湘", "공략 인원(세 고수, 용상 제외)" },
+        new[] { "旗标攻略人数_梅竹菊", "공략 인원(우소매·욱죽·위국)" },
+        new[] { "旗标交战门派", "교전 중인 문파 수" },
+        new[] { "旗标交战门派_无飞石帮", "교전 중인 문파 수(비석방 제외)" },
+        new[] { "旗标六道总点数", "육도 점수 합계" },
+        new[] { "旗标赎回任何资产", "자산을 하나 이상 되찾음" },
+    };
+
+    // Only known names, longest first. Short names require a label boundary.
+    public static (Regex, MatchEvaluator) NameWords()
+    {
+        var names = Names.ToDictionary(row => row[0], row => row[1]);
+        string longNames = string.Join("|", names.Keys.Where(n => n.Length > 1).OrderByDescending(n => n.Length).Select(Regex.Escape));
+        string shortNames = string.Join("|", names.Keys.Where(n => n.Length == 1).Select(Regex.Escape));
+        var pattern = new Regex("(?:" + longNames + ")|(?<![一-鿿])(?:" + shortNames + ")(?![一-鿿])");
+        return (pattern, match => names[match.Value]);
+    }
+
+    // Full sentences take precedence over word substitutions.
+    public static readonly Dictionary<string, string> Sentences = new Dictionary<string, string>
+    {
+        ["· {0}"] = "· {0}",
+        ["此刻"] = "현재 상황",
+        ["校场"] = "연무장",
+        ["路线图"] = "진행 경로",
+        ["剧情图"] = "스토리 흐름도",
+        ["看剧情图"] = "스토리 흐름도 보기",
+        ["看剧情图：{0}"] = "스토리 흐름도 보기: {0}",
+        ["在剧情图里看"] = "스토리 흐름도에서 보기",
+        ["剧情回顾"] = "스토리 돌아보기",
+        ["主线"] = "주요 이야기",
+        ["支线"] = "곁가지 이야기",
+        ["当前主线"] = "현재 주요 이야기",
+        ["主线「{0}」"] = "주요 이야기 「{0}」",
+        ["支线「{0}」"] = "곁가지 이야기 「{0}」",
+        ["主线 → {0}"] = "주요 이야기 → {0}",
+        ["→ 主线"] = "→ 주요 이야기",
+        ["走完接到主线「{0}」"] = "완료 후 주요 이야기 「{0}」로 이어짐",
+        ["此刻：{0}"] = "현재 상황: {0}",
+        ["和{0}有关："] = "{0} 관련:",
+        ["这一站不改{0}的好感，也不设她的结缘旗标"] = "이 구간에서는 {0}의 호감도와 인연 진행 상태가 바뀌지 않습니다.",
+        ["结缘进度（这一局）"] = "이번 회차의 인연 진행도",
+        ["好感 {0}"] = "호감도 {0}",
+        ["好感"] = "호감도",
+        ["另有 {0} 个主线、支线现在还不能触发"] = "지금은 발생할 수 없는 주요·곁가지 임무가 {0}개 더 있습니다.",
+        ["地图提示只列能触发的"] = "지도 안내에 발생 가능한 임무만 표시",
+        ["要改数值、好感时会先给你一张卡片，你确认了才改。"] = "수치나 호감도를 바꿀 때는 먼저 변경 내용을 보여 줍니다. 확인을 눌러야 적용됩니다.",
+        ["查看「{0}」的人物志"] = "「{0}」의 인물지 보기",
+        ["查物品「{0}」"] = "물품 「{0}」 검색",
+        ["查看商店"] = "상점 확인",
+        ["查看门派经营"] = "문파 운영 현황 확인",
+        ["查场所事件「{0}」"] = "장소 이벤트 「{0}」 검색",
+        ["查看设置项"] = "설정 항목 확인",
+        ["查看设置项「{0}」"] = "설정 항목 「{0}」 확인",
+        ["反查「{0}」"] = "「{0}」의 사용·변경 지점 검색",
+        ["算任务 {0} 每条路线"] = "임무 {0}의 경로별 결과 계산",
+        ["门派好感"] = "문파 호감도",
+        ["不写"] = "건너뛰기",
+        ["重启生效"] = "재시작 후 적용",
+        ["返回标题"] = "타이틀로 돌아가기",
+        ["跟随游戏"] = "게임 언어에 맞춤",
+        ["跟随系统"] = "시스템 설정에 맞춤",
+        ["共 {0} 面，按编号或中文说明搜"] = "총 {0}개 · ID 또는 설명으로 검색",
+        ["每旬N点"] = "매 순 N회",
+        ["每旬N点的 N"] = "매 순 행동 횟수",
+        ["没看过"] = "아직 보지 않음",
+        ["不在时间内"] = "발생 시기가 아님",
+        ["下次触发这个"] = "다음 이벤트로 지정",
+        ["还差条件"] = "조건 미충족",
+        ["任意时间"] = "언제든지",
+        ["任意时间 / 每月"] = "언제든지 / 매달",
+        ["前后"] = "전후 관계",
+        ["小节"] = "구간",
+        ["主干"] = "주요 경로",
+        ["存"] = "저장",
+        ["最近在上"] = "최신순",
+        ["排序：最近在上"] = "정렬: 최신순",
+        ["读最近的（{0}）"] = "최근 저장 불러오기 ({0})",
+        ["随时存档：读最近的"] = "퀵세이브: 최근 저장 불러오기",
+        ["存于 {0}"] = "저장 시각: {0}",
+        ["当前进度"] = "현재 진행 상황",
+        ["还没有存档"] = "저장된 게임이 없습니다",
+        ["还没有自动存档"] = "자동 저장 기록이 없습니다",
+        ["存到这里会新建一个存档。"] = "이 슬롯에 새로 저장합니다.",
+        ["这次走哪条路"] = "이번에 진행할 경로",
+        ["不出"] = "발생 제외",
+        ["鼠标悬停"] = "마우스를 올릴 때 표시",
+        ["确定？改 {0} 项"] = "{0}개 설정을 변경할까요?",
+        ["改了预设管的任意一个开关，就是自定义"] = "프리셋에 포함된 설정을 하나라도 바꾸면 「사용자 지정」으로 전환됩니다.",
+        ["换回从自定义换到别的预设之前的开关"] = "다른 프리셋을 선택하기 전의 사용자 지정 설정을 복원합니다.",
+        ["一键设置"] = "조건 충족시키기",
+        ["每层练成时的加成："] = "수련 단계별 능력치 보너스:",
+        ["第{0}层"] = "{0}단계",
+        ["第{0}/{1}层"] = "{0}/{1}단계",
+        ["第{0}层无数据"] = "{0}단계 데이터 없음",
+        ["正在读取剧本"] = "스토리 데이터 불러오는 중",
+        ["正在读取剧本 {0}"] = "스토리 데이터 불러오는 중 {0}",
+        ["剧本还没整理好"] = "스토리 데이터를 아직 불러오지 못했습니다.",
+        ["剧本里没找到设这一步的地方"] = "이 단계의 달성 지점을 스토리 데이터에서 찾지 못했습니다.",
+        ["在剧情场景里才能放（读档进入剧情后再来）"] = "스토리 장면에서만 재생할 수 있습니다. 저장된 게임을 불러와 스토리 장면으로 이동하세요.",
+        ["放一遍通关时的片尾字幕动画，按 Esc 结束"] = "클리어 시 나오는 엔딩 크레딧을 재생합니다. Esc를 누르면 종료합니다.",
+        ["点击锁定{0}：锁定后数值固定不变"] = "클릭하여 {0} 수치를 고정합니다. 고정한 수치는 게임 진행 중 바뀌지 않습니다.",
+    };
+}

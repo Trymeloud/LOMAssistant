@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 namespace LOMAssistant.Tests;
 
 /// <summary>AI 陪玩、文字转换、配置、安装器的测试。要用配置的先 Configured() 一次：在临时文件里建一份全部默认值的配置。</summary>
-public static class AiTests
+public static partial class AiTests
 {
 	private static void Assert(bool ok, string message)
 	{

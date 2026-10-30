@@ -60,6 +60,24 @@ public sealed class StoryScript
 	public List<(List<StoryStep> Path, string Level)> Fights = new List<(List<StoryStep>, string)>();
 	/// <summary>数值变化（属性、好感、旗标、物品），记在发生时所在的分岔下。</summary>
 	public List<(List<StoryStep> Path, string Text)> Effects = new List<(List<StoryStep>, string)>();
+	// Analysis and reverse lookup continue to use canonical Effects above.
+	// Display effects retain the action data so changing UI language cannot change analysis.
+	[Newtonsoft.Json.JsonIgnore]
+	public List<(List<StoryStep> Path, LOMAssistant.LuaParse.Action Action)> DisplayEffects = new List<(List<StoryStep>, LOMAssistant.LuaParse.Action)>();
+	// Cache raw action inputs only. Action construction/localization must run on Unity's main thread.
+	private List<(List<StoryStep> Path, LOMAssistant.LuaParse.ActionType Type, string Content)> _cachedDisplayEffects;
+	[Newtonsoft.Json.JsonProperty(ObjectCreationHandling = Newtonsoft.Json.ObjectCreationHandling.Replace)]
+	public List<(List<StoryStep> Path, LOMAssistant.LuaParse.ActionType Type, string Content)> CachedDisplayEffects
+	{
+		get => _cachedDisplayEffects ?? DisplayEffects.Select(e => (e.Path, e.Action.Type, e.Action.Content)).ToList();
+		set => _cachedDisplayEffects = value;
+	}
+	internal void RestoreDisplayEffects()
+	{
+		if (_cachedDisplayEffects == null) return;
+		DisplayEffects = _cachedDisplayEffects.Select(e => (e.Path, new LOMAssistant.LuaParse.Action(e.Type, e.Content))).ToList();
+		_cachedDisplayEffects = null;
+	}
 	/// <summary>改旗标、给收物品的原始调用（SetFlag、AddMisc……）和编号、数值，旗标、物品反查用。</summary>
 	public List<(List<StoryStep> Path, string Method, string Id, string Value)> Modifies = new List<(List<StoryStep>, string, string, string)>();
 	/// <summary>剧本里用到的条件检查点（分支判断 Switch、选项条件 Condition），旗标、物品反查用。</summary>
@@ -75,8 +93,16 @@ public sealed class StoryScript
 	public List<string> EffectsOn(StoryExit exit)
 	{
 		// 「旗标暂存」是游戏内部记数用的临时旗标，对玩家没意义，不显示
-		return Effects.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Text.Contains("暂存")).Select(e => e.Text).Distinct().ToList();
+		if (NativeKorean.Enabled)
+			return DisplayEffects.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Action.CanonicalDescription.Contains("暂存"))
+				.Select(e => RichText.Strip(e.Action.Description)).Where(t => t.Length > 0).Distinct().ToList();
+		return CanonicalEffectsOn(exit);
 	}
+
+	// Numeric analysis must not parse language-dependent presentation text.
+	internal List<string> CanonicalEffectsOn(StoryExit exit) => Effects
+		.Where(e => StoryScripts.IsPrefix(e.Path, exit.Path) && !e.Text.Contains("暂存"))
+		.Select(e => e.Text).Distinct().ToList();
 
 	public bool Branches => Menu || Dice || Fight;
 }
@@ -142,6 +168,7 @@ public static class StoryScripts
 	{
 		if (script != null)
 		{
+			script.RestoreDisplayEffects();
 			Outlines[script.Name] = script;
 		}
 	}
@@ -299,10 +326,13 @@ public static class StoryScripts
 				{
 					script.Modifies.Add((CurrentPath(blocks, choices, switches), tracked.Groups[1].Value, tracked.Groups[2].Value, tracked.Groups[3].Value));
 				}
-				string effect = new LOMAssistant.LuaParse.Action(LOMAssistant.LuaParse.ActionType.ModifyAction, t.Value).Description;
+				var action = new LOMAssistant.LuaParse.Action(LOMAssistant.LuaParse.ActionType.ModifyAction, t.Value);
+				string effect = action.CanonicalDescription;
 				if (!string.IsNullOrEmpty(effect))
 				{
-					script.Effects.Add((CurrentPath(blocks, choices, switches), TextConverter.ToSimplified(RichText.Strip(effect))));
+					var path = CurrentPath(blocks, choices, switches);
+					script.Effects.Add((path, TextConverter.ToSimplified(RichText.Strip(effect))));
+					script.DisplayEffects.Add((path, action));
 				}
 			}
 			if ((m = Next.Match(line)).Success)
@@ -481,19 +511,24 @@ public static class StoryScripts
 	/// <summary>一步分岔写成一句话，条件带当前值。</summary>
 	public static string Describe(StoryStep step)
 	{
+		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
 		switch (step.Kind)
 		{
 			case StoryStep.Option:
 				string need = step.Requirement.Length > 0 ? DataHelper.ParseConditionCheckpoint(step.Requirement) : "";
+				if (korean)
+					return KoreanStoryText.Get(KoreanStoryMessage.SelectOption, OptionText(step.Key)) + (need.Length > 0 ? " (" + KoreanStoryText.Get(KoreanStoryMessage.Requires, TextConverter.ForDisplay(TextConverter.ToSimplified(need))) + ")" : "");
 				return "选「" + OptionText(step.Key) + "」" + (need.Length > 0 ? "（需 " + TextConverter.ToSimplified(need) + "）" : "");
 			case StoryStep.Dice:
+				if (korean)
+					return KoreanStoryText.Get(KoreanStoryMessage.DiceResult, OptionText(step.Key)) + (step.Range.Length > 0 ? " (" + step.Range + ")" : "");
 				return "掷骰「" + OptionText(step.Key) + "」" + (step.Range.Length > 0 ? "（" + step.Range + "）" : "");
 			default:
 				if (step.Arm == 0)
-				{
 					return Otherwise(step.Key, true);
-				}
 				string arm = DataHelper.SwitchBranchCondition(step.Key, step.Arm);
+				if (korean)
+					return arm.Length > 0 ? KoreanStoryText.Get(KoreanStoryMessage.IfCondition, TextConverter.ForDisplay(TextConverter.ToSimplified(arm))) : KoreanStoryText.Get(KoreanStoryMessage.UnknownCondition);
 				return arm.Length > 0 ? "若 " + TextConverter.ToSimplified(arm) : "条件不明";
 		}
 	}
@@ -509,7 +544,7 @@ public static class StoryScripts
 			{
 				break;
 			}
-			arms.Add(TextConverter.ToSimplified(Regex.Replace(text, @" → 当前[^ ]*", "").Replace(" 需", "").Trim()));
+			arms.Add(TextConverter.ToSimplified(KoreanText.CompactCondition(text)));
 		}
 		return arms;
 	}
@@ -518,14 +553,16 @@ public static class StoryScripts
 	public static string Otherwise(string checkpoint, bool full)
 	{
 		var arms = ArmConditions(checkpoint);
+		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
 		if (arms.Count == 0)
+			return korean ? KoreanStoryText.Get(KoreanStoryMessage.Otherwise) : "否则";
+		if (korean)
 		{
-			return "否则";
+			arms = arms.Select(a => UiTextKorean.ConditionSummary(a, full)).ToList();
+			return KoreanStoryText.Get(arms.Count == 1 ? KoreanStoryMessage.OtherwiseOne : KoreanStoryMessage.OtherwiseAll, string.Join("; ", arms));
 		}
 		if (!full)
-		{
 			arms = arms.Select(a => a.Length > 18 ? a.Substring(0, 18) + "…" : a).ToList();
-		}
 		return arms.Count == 1 ? "否则（不满足：" + arms[0] + "）" : "否则（以下都不满足：" + string.Join("；", arms.ToArray()) + "）";
 	}
 
@@ -534,20 +571,46 @@ public static class StoryScripts
 	{
 		StoryScript s = Get(script);
 		string legend = s == null ? "" : s.Records.Select(Legend).FirstOrDefault(t => t.Length > 0) ?? "";
-		return legend.Length == 0 ? script : legend.Length > 16 ? legend.Substring(0, 16) + "…" : legend;
+		if (legend.Length == 0) return script;
+		string title = TextConverter.ForDisplay(legend);
+		return title.Length > 16 ? title.Substring(0, 16) + "…" : title;
 	}
 
 	/// <summary>去处写成一句话：走过哪些分岔，接到哪段剧情、推进到哪个主线任务。</summary>
 	public static string Describe(StoryExit exit)
 	{
 		var parts = exit.Path.Select(Describe).ToList();
-		string where = exit.ToTitle ? "回到标题（结局）" : exit.ToMap ? "回到地图" : exit.Target.Length > 0 ? (exit.AfterScene ? "战斗之后接到「" : "接到「") + SegmentName(exit.Target) + "」" : "";
+		bool korean = TextConverter.DisplayLanguage == UiText.Korean;
+
+		// The target and mission IDs remain untouched; only UI phrases change.
+		// Do not compose a Chinese sentence first and expect the whole string
+		// to match the Korean translation dictionary.
+		string where;
+		if (korean)
+		{
+			where = exit.ToTitle ? KoreanStoryText.Get(KoreanStoryMessage.ReturnTitle)
+				: exit.ToMap ? KoreanStoryText.Get(KoreanStoryMessage.BackToMap)
+				: exit.Target.Length > 0 ? KoreanStoryText.Get(exit.AfterScene ? KoreanStoryMessage.ContinueAfterBattle : KoreanStoryMessage.ContinueScript, TextConverter.ForDisplay(SegmentName(exit.Target)))
+				: "";
+		}
+		else
+		{
+			where = exit.ToTitle ? "回到标题（结局）" : exit.ToMap ? "回到地图" : exit.Target.Length > 0 ? (exit.AfterScene ? "战斗之后接到「" : "接到「") + SegmentName(exit.Target) + "」" : "";
+		}
 		if (exit.MainMission.Length > 0)
 		{
 			StoryMission mission = StoryAtlas.Find(exit.MainMission);
-			where = (where.Length > 0 ? where + "，" : "") + "主线推进到「" + (mission != null ? mission.Title : exit.MainMission) + "」";
+			string title = mission != null ? mission.Title : exit.MainMission;
+			if (korean)
+			{
+				where = (where.Length > 0 ? where + ", " : "") + KoreanStoryText.Get(KoreanStoryMessage.AdvanceMain, TextConverter.ForDisplay(title));
+			}
+			else
+			{
+				where = (where.Length > 0 ? where + "，" : "") + "主线推进到「" + title + "」";
+			}
 		}
-		parts.Add(where.Length > 0 ? where : "（这一段里接着往下）");
+		parts.Add(where.Length > 0 ? where : (korean ? KoreanStoryText.Get(KoreanStoryMessage.ContinueScene) : "（这一段里接着往下）"));
 		return string.Join(" → ", parts.ToArray());
 	}
 }

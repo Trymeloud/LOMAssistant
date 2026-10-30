@@ -101,16 +101,17 @@ internal sealed class DuelActionForecast : MonoBehaviour
 		}
 
 		string actionName = ActionName(enemyAction.Action);
-		string text = "敌方预选\n\n" + actionName;
-		string horizontalText = "敌方预选 " + actionName;
+		string text = NativeKorean.Enabled ? KoreanText.DuelForecast(actionName, false, false) : "敌方预选\n\n" + actionName;
+		string horizontalText = NativeKorean.Enabled ? KoreanText.DuelForecast(actionName, true, false) : "敌方预选 " + actionName;
 		CombatActionController enemy = manager.EnemyAction;
 		CombatActionController player = manager.PlayerAction;
 		if (enemy != null && player != null && enemy.CanUseAnyAction()
 			&& enemy.Stat.IntentionRate > 0f
 			&& player.Stat.IntentionRate < enemy.Stat.IntentionRate)
 		{
-			text += "\n\n可能临场应变";
-			horizontalText += " · 可能临场应变";
+			string adaptive = NativeKorean.Text(KoreanMessage.EnemyAdaptive, "可能临场应变");
+			text += "\n\n" + adaptive;
+			horizontalText += " · " + adaptive;
 		}
 
 		EnsureRect(scale, text, horizontalText);

@@ -113,12 +113,12 @@ public static class LlmClient
 		string url = (baseUrl ?? "").Trim().TrimEnd('/');
 		if (url.Length == 0)
 		{
-			done(new LlmReply { Error = "没有填 API 地址" });
+			done(new LlmReply { Error = AiText.T("没有填 API 地址", "API 주소를 입력해 주세요.") });
 			yield break;
 		}
 		if ((model ?? "").Trim().Length == 0)
 		{
-			done(new LlmReply { Error = "没有填模型名" });
+			done(new LlmReply { Error = AiText.T("没有填模型名", "모델 이름을 입력해 주세요.") });
 			yield break;
 		}
 		JObject body = provider.Claude ? ClaudeBody(model, system, messages, useTools, maxTokens) : OpenAiBody(model, system, messages, useTools, maxTokens, url);
@@ -200,7 +200,7 @@ public static class LlmClient
 				if (stalled)
 				{
 					FileLogger.LogWarning("[AI] 服务商 " + StallSeconds + " 秒没有发来任何内容，停掉这次请求");
-					done(new LlmReply { Error = "服务商很久没有回应，稍后再试，或换个快一点的模型" });
+					done(new LlmReply { Error = AiText.T("服务商很久没有回应，稍后再试，或换个快一点的模型", "제공업체가 오랫동안 응답하지 않습니다. 잠시 후 다시 시도하거나 더 빠른 모델로 바꿔 주세요.") });
 					yield break;
 				}
 				if (request.result != UnityWebRequest.Result.Success)
@@ -231,7 +231,7 @@ public static class LlmClient
 				catch (Exception ex)
 				{
 					FileLogger.LogWarning("[AI] 回复解析失败: " + ex.Message + "\n" + (text.Length > 500 ? text.Substring(0, 500) : text));
-					done(new LlmReply { Error = "看不懂服务商的回复\n" + ex.Message });
+					done(new LlmReply { Error = AiText.T("看不懂服务商的回复\n", "제공업체의 응답을 해석할 수 없습니다.\n") + ex.Message });
 				}
 				yield break;
 			}
@@ -504,7 +504,7 @@ public static class LlmClient
 	{
 		if (request.result == UnityWebRequest.Result.ConnectionError)
 		{
-			return "连不上服务商，检查网络和 API 地址\n" + request.error;
+			return AiText.T("连不上服务商，检查网络和 API 地址\n", "제공업체에 연결할 수 없습니다. 네트워크와 API 주소를 확인해 주세요.\n") + request.error;
 		}
 		string detail = "";
 		try
@@ -519,14 +519,14 @@ public static class LlmClient
 		long code = request.responseCode;
 		string reason = code switch
 		{
-			400 => "请求不对（模型名写错，或这个模型不支持工具调用）",
-			401 => "API Key 不对",
-			403 => "没有权限（Key 不能用这个模型，或地区受限）",
-			402 => "余额不足",
-			404 => "地址或模型名不对",
-			429 => "请求太频繁或额度用完了，稍后再试",
-			_ when code >= 500 => "服务商那边出错了，稍后再试",
-			_ => "请求失败",
+			400 => AiText.T("请求不对（模型名写错，或这个模型不支持工具调用）", "잘못된 요청입니다(모델 이름 또는 도구 호출 지원 여부를 확인해 주세요)."),
+			401 => AiText.T("API Key 不对", "API 키가 올바르지 않습니다."),
+			403 => AiText.T("没有权限（Key 不能用这个模型，或地区受限）", "접근 권한이 없습니다(모델 사용 권한 또는 지역 제한을 확인해 주세요)."),
+			402 => AiText.T("余额不足", "잔액이 부족합니다."),
+			404 => AiText.T("地址或模型名不对", "주소 또는 모델 이름이 올바르지 않습니다."),
+			429 => AiText.T("请求太频繁或额度用完了，稍后再试", "요청이 너무 많거나 사용 한도를 소진했습니다. 잠시 후 다시 시도해 주세요."),
+			_ when code >= 500 => AiText.T("服务商那边出错了，稍后再试", "제공업체 오류입니다. 잠시 후 다시 시도해 주세요."),
+			_ => AiText.T("请求失败", "요청에 실패했습니다."),
 		};
 		// 原因单独一行（界面语言不是中文时查表翻译），服务商的原话放下一行
 		return reason + "\n" + code + (detail.Length > 0 ? " " + detail.Trim() : "");
@@ -609,7 +609,7 @@ public static class LlmClient
 		JToken message = json["choices"] is JArray choices && choices.Count > 0 ? choices[0]["message"] : null;
 		if (message == null)
 		{
-			reply.Error = "服务商没有返回内容";
+			reply.Error = AiText.T("服务商没有返回内容", "제공업체가 내용을 반환하지 않았습니다.");
 			return reply;
 		}
 		reply.Text = message["content"]?.Type == JTokenType.String ? message["content"].ToString() : "";

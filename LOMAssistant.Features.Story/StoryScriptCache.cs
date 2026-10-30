@@ -24,7 +24,7 @@ public static class StoryScriptCache
 		{
 			string dll = typeof(StoryScriptCache).Assembly.Location;
 			long built = File.Exists(dll) ? File.GetLastWriteTimeUtc(dll).Ticks : 0;
-			return "v1|" + Application.version + "|" + built;
+			return "ko2|" + Application.version + "|" + built;
 		}
 	}
 

@@ -620,7 +620,7 @@ public partial class StoryReviewPanel
 			{
 				Id = "item:" + (int)it.ItemType + ":" + it.Id,
 				Name = Localized(it.GetNameKey(), it.Id),
-				Note = (warning != null ? "【注意】" + warning + "\n" : "") + (consumable ? "消耗品的数量不写进存档，这里只显示。\n" : "") + desc + (it is Book book ? BookBonus(book) : ""),
+				Note = (warning != null ? (NativeKorean.Enabled ? KoreanText.Warning(warning) : "【注意】" + warning) + "\n" : "") + (consumable ? "消耗品的数量不写进存档，这里只显示。\n" : "") + desc + (it is Book book ? BookBonus(book) : ""),
 				Get = () => it.CurrentCount,
 				Set = consumable ? null : v =>
 				{
@@ -683,14 +683,15 @@ public partial class StoryReviewPanel
 					continue;
 				}
 				int v = stat.ModifyValue;
-				parts.Add(stat.Center ? name + " 往中间 " + Mathf.Abs(v) : name + " " + (v >= 0 ? "+" : "") + v);
+				parts.Add(stat.Center ? NativeKorean.Text(KoreanMessage.CenterBonus, "{0} 往中间 {1}", name, Mathf.Abs(v)) : name + " " + (v >= 0 ? "+" : "") + v);
 			}
 			if (parts.Count > 0)
 			{
-				lines.Add((i < book.CurrentMartialLevel ? "✓ " : "") + string.Format("第{0}层", i + 1) + "：" + string.Join("、", parts.ToArray()));
+				lines.Add(NativeKorean.Enabled ? KoreanText.BookBonusLine(i + 1, i < book.CurrentMartialLevel, parts)
+					: (i < book.CurrentMartialLevel ? "✓ " : "") + string.Format("第{0}层", i + 1) + "：" + string.Join("、", parts.ToArray()));
 			}
 		}
-		return lines.Count == 0 ? "" : "\n每层练成时的加成：\n" + string.Join("\n", lines.ToArray());
+		return lines.Count == 0 ? "" : "\n" + NativeKorean.Text(KoreanMessage.BookBonusTitle, "每层练成时的加成：") + "\n" + string.Join("\n", lines.ToArray());
 	}
 
 	private static List<StatRow> MartialRows()
@@ -916,6 +917,8 @@ public partial class StoryReviewPanel
 	/// <summary>放不下就截短加「…」。</summary>
 	private static string Fit(string text, GUIStyle style, float width)
 	{
+		text = TextConverter.ForDisplay(text);
+
 		if (string.IsNullOrEmpty(text) || style.CalcSize(new GUIContent(text)).x <= width)
 		{
 			return text ?? "";

@@ -1,0 +1,200 @@
+using System;
+using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.Linq;
+using System.Reflection;
+using System.Text.Json;
+using System.Text.RegularExpressions;
+using LOMAssistant;
+using LOMAssistant.Features.Ai;
+
+internal static class Program
+{
+    private static int count;
+    private static readonly Regex Han = new Regex("[一-鿿]");
+    private static void Check(bool ok, string name)
+    {
+        count++;
+        if (!ok) throw new Exception(name);
+    }
+    private static void Expect(string input, string expected, string language = UiText.Korean)
+    {
+        string actual = UiText.Translate(input, language);
+        Check(actual == expected, input + " => " + actual + " (expected " + expected + ")");
+    }
+    public static void Main(string[] args)
+    {
+        NativeChecks.Run(Check, args.Length > 2 ? args[2] : null);
+        StoryChecks.Run(Check, args.Length > 2 ? args[2] : null);
+        if (args.Length > 1) AiChecks.Run(args[1], Check);
+        if (args.Length > 1) LayoutChecks.Run(args[1], Check);
+        if (args.Length > 4) BuiltModChecks.Run(args[4], Check);
+        Expect("嘴力 需>=40 且 性情 需<=60", "구력 필요 >=40 그리고 성정 필요 <=60");
+        Expect("好感度_三师兄 需>好感度_二师兄", "삼사형 호감도 필요 >이사형 호감도");
+        Expect("攻略小师妹 (攻略人數) 需>=2", "공략 인원 필요 >=2");
+        Expect("共 <color=green>5</color> 项", "총 <color=green>5</color>개");
+        Expect("<color=red>嘴力 需<=40</color>", "<color=red>구력 필요 <=40</color>");
+        Expect("读不了：存档系统尚未初始化", "불러올 수 없음: 저장 시스템이 아직 준비되지 않았습니다");
+        Expect("读取「测试」？\n当前没有存档的进度会丢失。", "「测试」을(를) 불러올까요?\n저장하지 않은 진행은 사라집니다.");
+        Expect("【旗标】大师兄不在唐门  0 → 1", "【플래그】대사형이 당문에 없음  0 → 1");
+        Expect("第三年一月上旬", "3년차 1월 상순");
+        Expect("<b>설정</b> · F9 · -10 <= 40", "<b>설정</b> · F9 · -10 <= 40");
+        Expect("未知文本", "未知文本");
+        Expect("技能_轻微骨裂 需>=1", "기술 「미세 골절」 필요 >=1");
+        Expect("旗标收留小梅或小竹 = 1", "우소매 또는 욱죽을 받아들임 = 1");
+        Expect("收留小梅 (收留小梅或小竹) 需=1", "우소매를 받아들임 (우소매 또는 욱죽) 필요 =1");
+        Expect("条件_晚安且收留小梅 需=1", "「잘 자」 및 우소매를 받아들임 필요 =1");
+        Expect("条件_心上人_小梅或小竹 需=1", "마음에 둔 사람이 우소매 또는 욱죽 필요 =1");
+        Expect("〈虎战车判断〉", "〈호전차 판정〉");
+        Expect("另有 3 个主线、支线现在还不能触发", "지금은 발생할 수 없는 주요·곁가지 임무가 3개 더 있습니다.");
+        Expect("AI陪玩", "AI 동행");
+        Expect("查看「龙湘」的人物志", "「용상」의 인물지 보기");
+        Expect("查物品「모태주」", "물품 「모태주」 검색");
+        Expect("查看商店", "상점 확인");
+        Expect("查看门派经营", "문파 운영 현황 확인");
+        Expect("查场所事件「연무장」", "장소 이벤트 「연무장」 검색");
+        Expect("查看设置项「EnableStoryReview」", "설정 항목 「EnableStoryReview」 확인");
+        Expect("反查「M30001」", "「M30001」의 사용·변경 지점 검색");
+        Expect("算任务 Main_001 每条路线", "임무 Main_001의 경로별 결과 계산");
+        Expect("　· 查物品「모태주」", "　· 물품 「모태주」 검색");
+        Expect("门派贡献门槛（10～50）", "문파 공헌 기준치(10~50)");
+        Expect("设置", "設定", UiText.Japanese);
+        Expect("设置", "Settings", UiText.English);
+        Expect("설정", "설정");
+        Expect("", "");
+        Expect(null, null);
+        string sourcePrompt = "叫赵活「赵哥哥」，自称「裳儿」，句末常带「的说」。";
+        string koreanPrompt = AiReplyLanguage.Apply(sourcePrompt, UiText.Korean, "girl2");
+        Check(koreanPrompt.StartsWith("[응답 언어 규칙: 한국어]") && koreanPrompt.Contains(sourcePrompt)
+            && koreanPrompt.Contains("오라버니") && koreanPrompt.Contains("[mood: laugh1]"), "Korean persona output rules");
+        string assistantPrompt = AiReplyLanguage.Apply(sourcePrompt, UiText.Korean, "");
+        Check(!assistantPrompt.Contains("엽운상 말투:") && !assistantPrompt.Contains("[mood:"), "Assistant should not receive heroine speech or mood rules");
+        Check(AiReplyLanguage.Apply(sourcePrompt, UiText.Japanese, "girl2") == sourcePrompt, "Non-Korean prompt changed");
+        var officialCalls = new[]
+        {
+            (Id: "sister1", Line: "사형.", Call: "사형"),
+            (Id: "girl1", Line: "조 군……", Call: "조 군"),
+            (Id: "girl2", Line: "조 오라버니!", Call: "조 오라버니"),
+            (Id: "girl4", Line: "아, 조 동생, 또 만났구나!", Call: "조 동생"),
+            (Id: "girl5", Line: "아활.", Call: "아활"),
+            (Id: "girl6", Line: "제자야.", Call: "제자야"),
+            (Id: "girl7", Line: "조활!", Call: "조활"),
+            (Id: "girl8", Line: "조 사형……!", Call: "조 사형"),
+            (Id: "girl9", Line: "조활.", Call: "조활"),
+            (Id: "brother1", Line: "사제!", Call: "사제"),
+        };
+        foreach (var row in officialCalls)
+        {
+            AiKoreanVoice voice = AiKoreanVoice.Find(row.Id);
+            Check(voice != null && !Han.IsMatch(voice.Address + voice.Rules), "Missing or untranslated official Korean voice: " + row.Id);
+            Check(voice.FindCall(row.Line, false) == row.Call, "Official Korean address not recognized: " + row.Id);
+            Check(AiReplyLanguage.Apply(sourcePrompt, UiText.Korean, row.Id).Contains(voice.Rules), "Voice guidance not included: " + row.Id);
+        }
+        Check(AiKoreanVoice.Find("girl2").Address.Contains("'상아'"), "Ye Yunshang must use the official Korean self-address");
+        Check(AiKoreanVoice.Find("girl5").Address.Contains("'본매'") && AiKoreanVoice.Find("girl1").Address.Contains("'신첩'"), "Distinct self-addresses lost");
+        Check(AiKoreanVoice.Find("sister1").FindCall("대사형이 오셨어.", false) == "", "Do not mistake another senior brother for the player's address");
+        Check(AiKoreanVoice.Find("girl7").FindCall("조랑!", false) == "", "Romantic address before bonding");
+        Check(AiKoreanVoice.Find("girl7").FindCall("조랑!", true) == "조랑", "Romantic address after bonding");
+        Check(AiKoreanVoice.Find("girl7").FindCall("조 랑, 조 랑……", true) == "조 랑", "Official spaced address variant");
+        Check(AiKoreanVoice.Find("girl8").FindCall("낭군감을 찾는 이야기입니다.", true) == "", "Do not infer an address from part of another word");
+        Check(AiKoreanVoice.Find("") == null && AiKoreanVoice.Find(null) == null, "Assistant must not inherit a character voice");
+        foreach (string tag in new[] { "[표정: laugh]", "[表情: laugh]", "[mood: laugh]", "[MOOD：laugh]" })
+        {
+            string dialogue = AiReplyLanguage.TakeMood("오라버니, 아깝잖아.\n" + tag, new[] { "normal", "laugh1", "laugh2" }, out string mood);
+            Check(dialogue == "오라버니, 아깝잖아." && mood == "laugh1", "Localized mood marker: " + tag);
+        }
+        Check(AiReplyLanguage.TakeMood("[표정: invalid] 안녕!", new[] { "normal", "laugh1" }, out string invalidMood) == "안녕!"
+            && invalidMood == "normal", "Invalid mood fallback");
+        Check(AiReplyLanguage.TakeMood("[아이템]은 여기 있어.", new[] { "normal" }, out string noMood) == "[아이템]은 여기 있어."
+            && noMood == "normal", "Normal bracketed dialogue changed");
+        foreach (string[] row in UiTextKorean.Flags)
+        {
+            Check(UiText.Translate(row[0], UiText.Korean) == row[1], "Flag: " + row[0]);
+            string text = UiText.Translate(row[0] + " (M12345) 需>=1", UiText.Korean);
+            Check(!Han.IsMatch(text) && text.Contains("(M12345)") && text.Contains(">=1"), "Flag condition: " + text);
+        }
+        foreach (string[] row in UiTextKorean.Conditions)
+        {
+            Expect(row[0], row[1]);
+            string text = UiText.Translate(row[0] + " 需<=40", UiText.Korean);
+            Check(!Han.IsMatch(text) && text.Contains("<=40"), "Condition: " + text);
+        }
+        foreach (string[] row in UiQuestNames.Table)
+            Check(!Han.IsMatch(UiText.Translate(row[0], UiText.Korean)), "Quest: " + row[0]);
+        foreach (string[] row in (string[][])typeof(UiText).GetField("Table", BindingFlags.NonPublic | BindingFlags.Static).GetValue(null))
+        {
+            if (row[1] == null) continue;
+            string[] sourceArgs = Regex.Matches(row[0], @"\{\d\}").Select(m => m.Value).Distinct().OrderBy(x => x).ToArray();
+            string[] targetArgs = Regex.Matches(row[1], @"\{\d\}").Select(m => m.Value).Distinct().OrderBy(x => x).ToArray();
+            Check(sourceArgs.SequenceEqual(targetArgs), "Placeholders: " + row[0]);
+        }
+        if (args.Length > 0)
+        {
+            using var input = File.OpenRead(args[0]);
+            using var gzip = new GZipStream(input, CompressionMode.Decompress);
+            using var json = JsonDocument.Parse(gzip);
+            // Screenshot regression: the "otherwise" edge used to cut a Chinese
+            // condition name before looking it up, leaving "그리고 迎战崆峒…".
+            string flowCondition = json.RootElement.GetProperty("Switches").GetProperty("Ch_5_5_1_001")[0].GetString().Replace(" 需", "");
+            string flowFull = UiTextKorean.ConditionSummary(flowCondition, true);
+            string flowShort = UiTextKorean.ConditionSummary(flowCondition, false);
+            Check(!Han.IsMatch(flowFull) && !Han.IsMatch(flowShort), "Flow otherwise condition: " + flowShort);
+            Check(flowFull.Contains(">=60") && flowFull.Contains("M50009") && flowFull.Contains("M50017"), "Full flow condition lost values or flag IDs: " + flowFull);
+            Check(flowShort.Length == 19 && flowShort.EndsWith("…") && flowShort.StartsWith("소사매 호감도"), "Flow condition preview: " + flowShort);
+            Check(UiTextKorean.ConditionSummary("性情>=60", false) == "성정>=60", "Short flow condition unnecessarily abbreviated");
+            var missing = new SortedSet<string>();
+            foreach (var section in new[] { "Conditions", "Switches" })
+                foreach (var property in json.RootElement.GetProperty(section).EnumerateObject())
+                    foreach (string text in property.Value.ValueKind == JsonValueKind.Array
+                        ? property.Value.EnumerateArray().Select(x => x.GetString()) : new[] { property.Value.GetString() })
+                    {
+                        string translated = UiText.Translate(text, UiText.Korean);
+                        // Chinese IDs in parentheses are technical identifiers, kept intentionally.
+                        string visible = Regex.Replace(translated, @"\([^()]*\)", "");
+                        if (Han.IsMatch(visible)) missing.Add(text + "\t" + translated);
+                        if (section == "Switches")
+                        {
+                            string preview = UiTextKorean.ConditionSummary(text.Replace(" 需", ""), false);
+                            if (Han.IsMatch(preview)) missing.Add("Flow preview: " + text + "\t" + preview);
+                        }
+                    }
+            File.WriteAllLines(Path.Combine(AppContext.BaseDirectory, "untranslated-conditions.tsv"), missing);
+            Console.WriteLine("Built-in condition strings with remaining Chinese: " + missing.Count);
+            Check(missing.Count == 0, "Untranslated built-in conditions; see untranslated-conditions.tsv");
+        }
+        if (args.Length > 1)
+        {
+            string personasSource = File.ReadAllText(Path.Combine(args[1], "LOMAssistant.Features.Ai", "AiPersonas.cs"));
+            foreach (Match match in Regex.Matches(personasSource, @"\bId\s*=\s*""([^""]+)"""))
+                Check(AiKoreanVoice.Find(match.Groups[1].Value) != null, "Runtime persona has no Korean voice: " + match.Groups[1].Value);
+            var eventNames = new EventNameTable();
+            var eventPairs = new HashSet<(string, string)>();
+            foreach (string line in File.ReadAllLines(Path.Combine(args[1], "localization", "event-names-ko.tsv")))
+            {
+                if (string.IsNullOrWhiteSpace(line) || line.StartsWith("#")) continue;
+                string[] fields = line.Split('\t');
+                Check(fields.Length == 3 && eventPairs.Add((fields[0], fields[1].Trim())) && !Han.IsMatch(fields[2]), "Event translation row: " + line);
+                eventNames.Add(fields[0], fields[1], fields[2]);
+            }
+            Check(eventNames.TryGet("Travel_F_01", "P_失敗_001", out string ordinaryTravel) && ordinaryTravel == "실패 이벤트 001", "Ordinary travel mislabeled as hell-path encounter");
+            Check(eventNames.TryGet("Travel_F_01", "遭遇地獄道鬼卒攔路", out string hellTravel) && hellTravel == "지옥도 귀졸의 길막", "Actual hell-path encounter lost its label");
+            Check(eventNames.TryGet("Travel_F_03", "P_失敗_003", out string otherTravel) && otherTravel == "실패 이벤트 003", "Ordinary travel mislabeled as hungry-ghost encounter");
+            Check(eventNames.TryGet("Travel_E_01", "官兵護航", out string escort) && escort == "관군의 호송", "Escort mislabeled as unrelated special event");
+            Check(!eventNames.TryGet("Travel_F_01", "unknown context", out _), "Unrecognized context must not borrow a label from another pool");
+        }
+        Console.WriteLine("PASS: " + count + " translation checks");
+        if (args.Length > 1) Audit.Run(args[1]);
+        if (args.Length > 3 && File.Exists(args[2])) FlagAudit.Run(args[2], args[3]);
+    }
+}
+
+namespace LOMAssistant
+{
+    // Game-independent checks exercise the real translation code and real tables.
+    internal static class XUnityTranslations
+    {
+        public static Dictionary<string, string> Load() => new Dictionary<string, string>();
+    }
+    internal static class JapanesePatchCompat { public const string NoticeText = "Japanese patch notice"; }
+}

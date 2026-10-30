@@ -186,6 +186,7 @@ public partial class StoryReviewPanel
 	private static string RoundsDate(int rounds)
 	{
 		int r = Mathf.Max(1, rounds) - 1;
+		if (NativeKorean.Enabled) return KoreanStoryText.Date(r);
 		return $"第{r / 36 + 1}年{r % 36 / 3 + 1}月{StoryAtlas.StageText(r % 3 + 1)}";
 	}
 }

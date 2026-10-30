@@ -89,12 +89,12 @@ public static class SkipActionPatch
 		MissionManagerData missions = MissionManagerData.Instance;
 		if (missions.MainMissionStart && missions.MainMissionPosition != PositionType.無)
 		{
-			free.StartCoroutine(free.SayDialog(PortraitType.平常, "眼下还有要事在身，不能虚度光阴。"));
+			free.StartCoroutine(free.SayDialog(PortraitType.平常, TextConverter.ForDisplay(NativeKorean.Text(KoreanMessage.SkipBusy, "眼下还有要事在身，不能虚度光阴。"))));
 			return;
 		}
 		if (PlayerStatManagerData.Instance.CurrentActionCount <= 0)
 		{
-			free.StartCoroutine(free.SayDialog(PortraitType.平常, "這會兒有些晚了，改日再說吧。"));
+			free.StartCoroutine(free.SayDialog(PortraitType.平常, TextConverter.ForDisplay(NativeKorean.Text(KoreanMessage.SkipLate, "這會兒有些晚了，改日再說吧。"))));
 			return;
 		}
 		SceneController scenes = SceneController.Instance;
