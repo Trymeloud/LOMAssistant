@@ -23,4 +23,6 @@ Game assets and game installation files are not distributed or modified by these
 
 Korean rendering/template expansion, name matching, pre-truncation translation, popup payloads, AI query normalization and mood parsing are gated by the resolved display language. Non-Korean UI tables and rendering order retain upstream behavior. Canonical place names stay unlocalized in the atlas cache to avoid language-switch contamination.
 
+The mod's interface language and the game's content language are separate. Story-record summaries, dialogue and option text continue to use the original game's current locale resolver. Selecting Chinese only in the mod while the game stays Korean therefore still shows Korean story excerpts, as upstream does. This integration does not force those game excerpts into Korean or override the game's language setting.
+
 Historical fork release files, fork README, package publisher and fork-specific version numbers are intentionally excluded from the upstream change.
