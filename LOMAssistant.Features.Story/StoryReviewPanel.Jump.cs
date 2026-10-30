@@ -102,7 +102,7 @@ public partial class StoryReviewPanel
 			GUI.enabled = enabledBefore;
 			if (!bondable)
 			{
-				Hover(GUILayoutUtility.GetLastRect(), string.Format("最早 {0} 才能和她结缘", when));
+				Hover(GUILayoutUtility.GetLastRect(), when.Length > 0 ? string.Format("最早 {0} 才能和她结缘", when) : "游戏里还没有和她结缘的剧情");
 			}
 		}
 		GUILayout.FlexibleSpace();

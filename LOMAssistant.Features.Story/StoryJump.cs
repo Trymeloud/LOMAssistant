@@ -132,12 +132,54 @@ public static class StoryJump
 		}
 		string last = h.Steps[h.Steps.Length - 1];
 		var dates = stops.Where(st => st.Steps.Contains(last) && st.Mission.From != null).Select(st => st.Mission.From.Value).ToList();
-		if (dates.Count == 0 || dates.Min() <= plan.ToRounds.Value)
+		if (dates.Count == 0)
+		{
+			dates = FlagDates(last);
+		}
+		// 哪个剧本都不设、不判断她的结缘旗标（瑞杏的「攻略瑞杏」）：游戏里还没做她的结缘剧情，不能结缘；when 留空
+		if (dates.Count == 0)
+		{
+			return false;
+		}
+		if (dates.Min() <= plan.ToRounds.Value)
 		{
 			return true;
 		}
 		when = StoryAtlas.DateText(RoundsTime(dates.Min()));
 		return false;
+	}
+
+	/// <summary>
+	/// 结缘旗标不在她的结缘任务里设时（设在不属于任务的剧本里，或游戏只在剧本里判断它），按设它、判断它的剧本找时间：
+	/// 剧本属于哪个任务就用那个任务的日期，不属于任务就按剧本名的章节（ch5_…）用那一章最早的主线日期。
+	/// </summary>
+	private static List<int> FlagDates(string flag)
+	{
+		var mains = StoryAtlas.Missions.Where(m => m.Main && m.From != null && m.StartScript.Length > 0).ToList();
+		var dates = new List<int>();
+		foreach (StoryScript script in StoryScripts.All)
+		{
+			if (!script.Modifies.Any(m => m.Id == flag) && !script.Checks.Any(c => c.Checkpoint.StartsWith(flag, StringComparison.Ordinal)))
+			{
+				continue;
+			}
+			if (StoryAtlas.Owner.TryGetValue(script.Name, out StoryMission owner) && owner.From != null)
+			{
+				dates.Add(owner.From.Value);
+				continue;
+			}
+			var chapter = System.Text.RegularExpressions.Regex.Match(script.Name, @"^ch(\d+)_");
+			if (chapter.Success)
+			{
+				string prefix = "ch" + chapter.Groups[1].Value + "_";
+				var first = mains.Where(m => m.StartScript.StartsWith(prefix, StringComparison.OrdinalIgnoreCase)).Select(m => m.From.Value).DefaultIfEmpty(-1).Min();
+				if (first >= 0)
+				{
+					dates.Add(first);
+				}
+			}
+		}
+		return dates;
 	}
 
 	/// <summary>在岔口 key 选第 index 条，重算。</summary>

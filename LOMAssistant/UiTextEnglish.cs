@@ -717,6 +717,7 @@ public static class UiTextEnglish
 		["（要 {0}）"] = "(needs {0})",
 		["中间的支线"] = "side story on the way",
 		["支线 → {0}"] = "Side → {0}",
+		["游戏里还没有和她结缘的剧情"] = "The game has no story for bonding with her yet",
 		["最早 {0} 才能和她结缘"] = "You can bond with her from {0} at the earliest",
 		["走完以后接到哪一站"] = "Which stop comes next",
 		["保持现在（已结缘：{0}）"] = "Keep as is (bonded: {0})",
