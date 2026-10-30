@@ -33,6 +33,7 @@ Copy-Item -LiteralPath $cecil -Destination $output -Force
 $arguments += "-resource:$root/localization/flag-names-ko.tsv,LOMAssistant.flag-names-ko.tsv"
 $arguments += "$PSScriptRoot/Program.cs"
 $arguments += "$PSScriptRoot/Audit.cs"
+$arguments += "$PSScriptRoot/CompositionAudit.cs"
 $arguments += "$PSScriptRoot/FlagAudit.cs"
 $arguments += "$root/LOMAssistant.Features.Ai/AiReplyLanguage.cs"
 $arguments += "$root/LOMAssistant.Features.Ai/AiKoreanVoice.cs"

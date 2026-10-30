@@ -38,5 +38,6 @@ internal static class Audit
         }
         File.WriteAllLines(Path.Combine(AppContext.BaseDirectory, "untranslated-ui.tsv"), missing);
         Console.WriteLine("UI source candidates inspected: " + inspected + "; remaining Chinese candidates (including internal keys/logs): " + missing.Count);
+        CompositionAudit.Run(root);
     }
 }
