@@ -108,7 +108,7 @@ public static class BranchNotifyPatch
 	}
 }
 
-/// <summary>分支条件小窗（IMGUI）。只在剧情场景显示。</summary>
+/// <summary>分支条件小窗（IMGUI）。判断都发生在剧情里；剧情接着进战斗、回地图时小窗留着，到自动收起的时间才收起，标题画面不显示。</summary>
 public class BranchPanel : MonoBehaviour
 {
 	private const int WindowId = 0x42524E43; // "BRNC"
@@ -134,7 +134,14 @@ public class BranchPanel : MonoBehaviour
 		if (_instance == null)
 		{
 			_instance = LOMAssistantPlugin.Instance.gameObject.AddComponent<BranchPanel>();
-			SceneManager.sceneLoaded += (scene, mode) => BranchNotifyPatch.Entries.Clear();
+			// 回到标题画面才清掉；进战斗、回地图时留着，战斗前最后一句的判断进了战斗还看得到（按自动收起的秒数消失）
+			SceneManager.sceneLoaded += (scene, mode) =>
+			{
+				if (scene.name == "Title")
+				{
+					BranchNotifyPatch.Entries.Clear();
+				}
+			};
 		}
 		_instance._visible = true;
 	}
@@ -152,7 +159,7 @@ public class BranchPanel : MonoBehaviour
 			return; // 一段时间没有新判断，自动收起
 		}
 		if (!_visible || !ConfigManager.ShowBranchChecks.Value || BranchNotifyPatch.Entries.Count == 0
-			|| StoryMainUI.Instance == null || !StoryMainUI.Instance.isActiveAndEnabled)
+			|| SceneManager.GetActiveScene().name == "Title")
 		{
 			return;
 		}
