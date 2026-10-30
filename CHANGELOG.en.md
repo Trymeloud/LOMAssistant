@@ -2,6 +2,12 @@
 
 Changes in each version, newest first. Versions before 2.7.0 are only in Chinese; see CHANGELOG.md.
 
+## 3.2.4 (2026-10-30)
+
+- **Mod not loading when started from Steam**: after the game was started once without Steam, later starts from Steam could skip the mod. Fixed; for an existing install, run the installer once.
+- **Story branch panel**: no longer disappears right away when a battle starts or you return to the map; it hides after the panel auto-hide time.
+- **Installer diagnostics**: when the mod does not load, the export also checks whether the game loaded the loader, how the game was started, and system and security-software blocking settings.
+
 ## 3.2.3 (2026-10-30)
 
 - **AI Companion wait time**: the request is only stopped after the provider sends nothing for 5 minutes, so models that think for a long time are no longer cut off before answering.
